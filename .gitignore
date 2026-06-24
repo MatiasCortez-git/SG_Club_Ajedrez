@@ -1,0 +1,13 @@
+# Archivos compilados de Java
+*.class
+*.jar
+
+# Configuracion y binarios de Eclipse
+.metadata/
+bin/
+.settings/
+.project
+.classpath
+
+# Variables de entorno y secretos (Critico)
+.env
