@@ -1,6 +1,12 @@
 # Archivos compilados de Java
 *.class
 *.jar
+*.war
+
+# Herramientas de construccion (Maven/Gradle para Spring Boot)
+target/
+build/
+.gradle/
 
 # Configuracion y binarios de Eclipse
 .metadata/
