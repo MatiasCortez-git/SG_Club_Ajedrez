@@ -28,7 +28,7 @@ public class TarifaGlobal {
     @Column(name = "monto_actual", nullable = false, precision = 10, scale = 2)
     private BigDecimal montoActual;
 
-    // Hibernate actualizará esta fecha automáticamente cada vez que modifiques el monto
+    // Hibernate actualiza esta fecha automáticamente cada vez que modifique el monto
     @UpdateTimestamp
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;

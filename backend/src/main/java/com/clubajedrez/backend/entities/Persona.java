@@ -57,4 +57,9 @@ public class Persona {
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
+    
+
+    public Integer getIdPersona() {
+        return idPersona; // 
+    }
 }
