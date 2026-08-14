@@ -1,5 +1,8 @@
 package com.clubajedrez.backend.services;
 
+import com.clubajedrez.backend.dtos.TallerCreateDTO;
+import com.clubajedrez.backend.dtos.TallerResponseDTO;
+
 public interface TallerService {
     
     /**
@@ -10,5 +13,10 @@ public interface TallerService {
      * @param idTaller ID del taller
      */
     void inscribirAlumno(Integer idAlumno, Integer idTaller);
+    
+ // Nuevos métodos para el Ticket #5
+    TallerResponseDTO crearTaller(TallerCreateDTO dto);
+
+    TallerResponseDTO obtenerTallerPorId(Integer idTaller);
 
 }
