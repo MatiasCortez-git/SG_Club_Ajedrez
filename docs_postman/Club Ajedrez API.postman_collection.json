@@ -1,0 +1,54 @@
+{
+  "info": {
+    "_postman_id": "269a6107-42cc-42a0-af93-8fb8631185c1",
+    "name": "Club Ajedrez API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52177049",
+    "_collection_link": "https://go.postman.co/collection/52177049-269a6107-42cc-42a0-af93-8fb8631185c1?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Talleres",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombre\": \"Ajedrez Avanzado\",\r\n  \"cupoMaximo\": 15,\r\n  \"duracion\": \"3 meses\",\r\n  \"costo\": 15000.00,\r\n  \"tipoNivel\": \"Recreativo\",\r\n  \"idProfesor\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/talleres",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "talleres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
