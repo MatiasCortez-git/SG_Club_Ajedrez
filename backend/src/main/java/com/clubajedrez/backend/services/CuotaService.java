@@ -1,5 +1,7 @@
 package com.clubajedrez.backend.services;
 
+import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
+
 public interface CuotaService {
 
     /**
@@ -7,6 +9,6 @@ public interface CuotaService {
      * * @param idAlumno ID del alumno
      * @return El monto final de la cuota
      */
-    Double calcularCuotaMensual(Integer idAlumno);
+	CuotaCalculoResponseDTO calcularCuotaMensual(Integer idAlumno);
 
 }

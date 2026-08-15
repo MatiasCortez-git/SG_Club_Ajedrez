@@ -1,21 +1,23 @@
 package com.clubajedrez.backend.services;
 
 import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
-import com.clubajedrez.backend.exceptions.TallerSinCupoException;
 import com.clubajedrez.backend.dtos.TallerCreateDTO;
 import com.clubajedrez.backend.dtos.TallerResponseDTO;
 import com.clubajedrez.backend.entities.Alumno;
-import com.clubajedrez.backend.entities.Taller;
 import com.clubajedrez.backend.entities.AlumnoTaller;
 import com.clubajedrez.backend.entities.Profesor;
+import com.clubajedrez.backend.entities.Taller;
+import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
+import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
+import com.clubajedrez.backend.exceptions.TallerSinCupoException;
 import com.clubajedrez.backend.repositories.AlumnoRepository;
-import com.clubajedrez.backend.repositories.TallerRepository;
 import com.clubajedrez.backend.repositories.AlumnoTallerRepository;
 import com.clubajedrez.backend.repositories.ProfesorRepository;
+import com.clubajedrez.backend.repositories.TallerRepository;
 
 @Service
 public class TallerServiceImpl implements TallerService {
@@ -54,7 +56,7 @@ public class TallerServiceImpl implements TallerService {
     public TallerResponseDTO obtenerTallerPorId(Integer idTaller) {
         // 1. Buscamos en la BD o lanzamos excepción si no existe
         Taller taller = tallerRepository.findById(idTaller)
-                .orElseThrow(() -> new RuntimeException("No se encontró el taller con ID: " + idTaller));
+                .orElseThrow(() -> new TallerNoEncontradoException("Taller no encontrado con ID: " + idTaller));
         
         // 2. Retornamos el DTO
         return mapToDTO(taller);
@@ -73,7 +75,7 @@ public class TallerServiceImpl implements TallerService {
                 .orElseThrow(() -> new RuntimeException("No se encontró el taller con ID: " + idTaller));
 
         // C. Consultar la cantidad de alumnos inscriptos en la tabla intermedia
-        // Ejemplo definiendo la ventana de tiempo del año lectivo actual:
+        // definiendo la ventana de tiempo del año lectivo actual:
         LocalDateTime inicioAno = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0);
         LocalDateTime finAno = LocalDateTime.of(LocalDateTime.now().getYear(), 12, 31, 23, 59);
 
@@ -89,7 +91,10 @@ public class TallerServiceImpl implements TallerService {
         nuevaInscripcion.setAlumno(alumno);
         nuevaInscripcion.setTaller(taller);
         nuevaInscripcion.setFechaInscripcion(LocalDateTime.now());
-
+        
+     // Tomamos el costo/precio actual del taller y lo congelamos en la inscripción
+        nuevaInscripcion.setPrecioAcordado(taller.getPrecioActual());
+        
         alumnoTallerRepository.save(nuevaInscripcion);
     }
     
