@@ -1,6 +1,7 @@
 package com.clubajedrez.backend.controllers.advice;
 
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
+import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerSinCupoException;
 // (Aquí también deberías importar tu TallerNoEncontradoException)
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     // Maneja cualquier excepción de tipo "No Encontrado" (404)
-    @ExceptionHandler({AlumnoNoEncontradoException.class /*, TallerNoEncontradoException.class */})
+    @ExceptionHandler({AlumnoNoEncontradoException.class , TallerNoEncontradoException.class })
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "Recurso no encontrado");

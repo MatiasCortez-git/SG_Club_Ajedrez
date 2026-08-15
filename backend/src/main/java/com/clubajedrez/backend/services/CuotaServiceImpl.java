@@ -1,6 +1,9 @@
 package com.clubajedrez.backend.services;
 
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Service;
+import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
 import com.clubajedrez.backend.entities.Alumno;
 import com.clubajedrez.backend.entities.TarifaGlobal;
@@ -29,7 +32,7 @@ public class CuotaServiceImpl implements CuotaService {
     }
 
     @Override
-    public Double calcularCuotaMensual(Integer idAlumno) {
+    public CuotaCalculoResponseDTO calcularCuotaMensual(Integer idAlumno) {
         
         // 1. Buscamos al alumno
         Alumno alumno = alumnoRepository.findById(idAlumno)
@@ -43,21 +46,34 @@ public class CuotaServiceImpl implements CuotaService {
                 .orElseThrow(() -> new RuntimeException("Error: Falta configurar el 'Adicional Federado' en la tabla Tarifa_Global"));
 
         // 3. Iniciamos el acumulador con el monto de la cuota base
-        Double montoTotal = tarifaSocio.getMontoActual().doubleValue();// BigDecimal en la entidad;
+        BigDecimal montoTotal = tarifaSocio.getMontoActual();// BigDecimal en la entidad;
 
         // 4. Regla: ¿Es federado? 
         if (esFederado(alumno)) { 
-            montoTotal += tarifaFederado.getMontoActual().doubleValue();
+        	montoTotal = montoTotal.add(tarifaFederado.getMontoActual());
         }
 
         // 5. Regla: Sumar los precios de los talleres
         Double totalTalleres = alumnoTallerRepository.sumarTalleresVigentes(alumno.getIdPersona());
+        BigDecimal montoTalleres = BigDecimal.ZERO; // Inicializamos en 0 por defecto
+        
         if (totalTalleres != null) {
-            montoTotal += totalTalleres;
+        	 montoTalleres = BigDecimal.valueOf(totalTalleres);
+             // Sumamos y reasignamos
+             montoTotal = montoTotal.add(montoTalleres);
         }
+        
+     // 6. Armar la respuesta (El empaquetado final para la API)
+        CuotaCalculoResponseDTO response = new CuotaCalculoResponseDTO();
+        response.setIdAlumno(alumno.getIdPersona());
+        response.setNombreCompleto(alumno.getNombre() + " " + alumno.getApellido());
+        response.setMontoBase(tarifaSocio.getMontoActual());
+     // Si no es federado, el desglose debe decir 0, no el costo de la tarifa
+        response.setMontoFederado(esFederado(alumno) ? tarifaFederado.getMontoActual() : BigDecimal.ZERO);
+        response.setMontoTalleres(montoTalleres);
+        response.setTotalPagar(montoTotal);
 
-        // 6. Retornamos el monto final
-        return montoTotal;
+        return response;
     }
 
     /**
