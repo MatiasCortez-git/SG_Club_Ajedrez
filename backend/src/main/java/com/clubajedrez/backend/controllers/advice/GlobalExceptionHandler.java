@@ -1,9 +1,9 @@
 package com.clubajedrez.backend.controllers.advice;
 
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
+import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
 import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerSinCupoException;
-// (Aquí también deberías importar tu TallerNoEncontradoException)
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,4 +32,14 @@ public class GlobalExceptionHandler {
         response.put("mensaje", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST); // o HttpStatus.CONFLICT
     }
+    
+    // Maneja cualquier excepción de tipo "conflicto" (409)
+    @ExceptionHandler(CuotaYaPagadaException.class)
+    public ResponseEntity<Map<String, String>> handleCuotaYaPagada(CuotaYaPagadaException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Conflicto de Pago");
+        response.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+    
 }
