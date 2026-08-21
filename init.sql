@@ -107,19 +107,20 @@ DECLARE
     inscriptos_actuales INT;
     cupo_permitido INT;
 BEGIN
-    -- Obtenemos el cupo máximo del taller al que se quiere inscribir
+    -- 1. Obtenemos el cupo máximo del taller
     SELECT cupo_maximo INTO cupo_permitido
     FROM Taller
     WHERE id_taller = NEW.id_taller;
 
-    -- Contamos cuántos alumnos ya están inscriptos en ese taller
+    -- 2. Contamos SOLO los inscriptos del año lectivo actual
     SELECT COUNT(*) INTO inscriptos_actuales
     FROM Alumno_Taller
-    WHERE id_taller = NEW.id_taller;
+    WHERE id_taller = NEW.id_taller
+      AND EXTRACT(YEAR FROM fecha_inscripcion) = EXTRACT(YEAR FROM CURRENT_TIMESTAMP);
 
-    -- Validamos
+    -- 3. Validamos el cupo
     IF inscriptos_actuales >= cupo_permitido THEN
-        RAISE EXCEPTION 'Operación rechazada: El taller % ya ha alcanzado su cupo máximo de % alumnos.', NEW.id_taller, cupo_permitido;
+        RAISE EXCEPTION 'Operación rechazada: El taller % ya ha alcanzado su cupo máximo de % alumnos para el año en curso.', NEW.id_taller, cupo_permitido;
     END IF;
 
     RETURN NEW;
