@@ -1,0 +1,12 @@
+Dudas:
+Como hacer con talleres que solo duran 6 mese por ejemplo. Por ahora damos por
+hecho que los talleres son anuales, no importa desde que fecha se inscribio el
+alumno a partir de esta fecha se generaran cuotas hasta fin de año.
+
+controlar los inscriptos a un taller: podria esta pasando que al no eliminar
+las inscripciones cuante el total de alumnos que se incribieron a la materia
+a lo largo de sus historia y no en el año actual. 
+
+todavia no esta implemetado pero deberia controlar que la couta no haya sido
+previamente antes de generar un cuota, ya que podria duplicar coutas para un
+mismo mes. 
