@@ -10,5 +10,7 @@ public interface CuotaService {
      * @return El monto final de la cuota
      */
 	CuotaCalculoResponseDTO calcularCuotaMensual(Integer idAlumno);
+	
+	void generarYGuardarCuotaMensual(Integer idAlumno, String periodo);
 
 }

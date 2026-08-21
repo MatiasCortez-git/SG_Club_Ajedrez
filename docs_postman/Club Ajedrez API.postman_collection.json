@@ -202,6 +202,68 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Profesores",
+      "item": [
+        {
+          "name": "ListarProfesores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/profesores",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "profesores"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cuotas",
+      "item": [
+        {
+          "name": "CrearCuota",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"idAlumno\": 4,\r\n  \"periodo\": \"2026-09\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/cuotas/generar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "cuotas",
+                "generar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

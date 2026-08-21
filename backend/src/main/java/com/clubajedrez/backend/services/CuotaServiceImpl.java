@@ -1,15 +1,21 @@
 package com.clubajedrez.backend.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.springframework.stereotype.Service;
 import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
 import com.clubajedrez.backend.entities.Alumno;
+import com.clubajedrez.backend.entities.Cuota;
 import com.clubajedrez.backend.entities.TarifaGlobal;
 import com.clubajedrez.backend.repositories.AlumnoRepository;
 import com.clubajedrez.backend.repositories.AlumnoTallerRepository;
+import com.clubajedrez.backend.repositories.CuotaRepository;
 import com.clubajedrez.backend.repositories.TarifaGlobalRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.clubajedrez.backend.repositories.FederadoRepository;
 
 @Service
@@ -19,16 +25,19 @@ public class CuotaServiceImpl implements CuotaService {
     private final TarifaGlobalRepository tarifaGlobalRepository;
     private final FederadoRepository federadoRepository;
     private final AlumnoTallerRepository alumnoTallerRepository;
+    private final CuotaRepository cuotaRepository;
 
     // Inyección por constructor
     public CuotaServiceImpl(AlumnoRepository alumnoRepository, 
                             TarifaGlobalRepository tarifaGlobalRepository,
                             FederadoRepository federadoRepository,
-                            AlumnoTallerRepository alumnoTallerRepository) {
+                            AlumnoTallerRepository alumnoTallerRepository,
+                            CuotaRepository cuotaRepository) {
         this.alumnoRepository = alumnoRepository;
         this.tarifaGlobalRepository = tarifaGlobalRepository;
         this.federadoRepository = federadoRepository;
         this.alumnoTallerRepository = alumnoTallerRepository;
+        this.cuotaRepository = cuotaRepository;
     }
 
     @Override
@@ -74,6 +83,35 @@ public class CuotaServiceImpl implements CuotaService {
         response.setTotalPagar(montoTotal);
 
         return response;
+    }
+    
+    @Override
+    @Transactional
+    public void generarYGuardarCuotaMensual(Integer idAlumno, String periodo) {
+        
+        // 1. Reutilizamos la lógica llamando al método que ya armamos
+        CuotaCalculoResponseDTO calculo = this.calcularCuotaMensual(idAlumno);
+
+        // 2. Buscamos el alumno (necesitamos la entidad física para guardarla en la cuota)
+        Alumno alumno = alumnoRepository.findById(idAlumno)
+                .orElseThrow(() -> new AlumnoNoEncontradoException("No existe el alumno"));
+
+        // 3. Creamos el Snapshot Financiero (Entidad Cuota)
+        Cuota nuevaCuota = new Cuota();
+        nuevaCuota.setAlumno(alumno);
+        nuevaCuota.setPeriodo(periodo);
+        
+        // Tomamos los montos directamente del DTO calculado
+        nuevaCuota.setMontoBase(calculo.getMontoBase());
+        nuevaCuota.setMontoFederado(calculo.getMontoFederado());
+        nuevaCuota.setMontoTalleres(calculo.getMontoTalleres());
+        
+        // Regla de negocio: Vence a los 10 días desde que se genera
+        nuevaCuota.setFechaVencimiento(LocalDate.now().plusDays(10)); 
+        nuevaCuota.setEstado("Pendiente"); 
+        
+        // 4. Guardamos el comprobante en PostgreSQL
+        cuotaRepository.save(nuevaCuota);
     }
 
     /**
