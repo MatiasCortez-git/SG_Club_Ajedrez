@@ -1,6 +1,8 @@
 package com.clubajedrez.backend.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,6 +98,15 @@ public class TallerServiceImpl implements TallerService {
         nuevaInscripcion.setPrecioAcordado(taller.getPrecioActual());
         
         alumnoTallerRepository.save(nuevaInscripcion);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<TallerResponseDTO> obtenerTodos() {
+        // Buscamos todos los talleres y los convertimos a DTO reutilizando tu mapToDTO
+        return tallerRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
     
  // =========================================================================
