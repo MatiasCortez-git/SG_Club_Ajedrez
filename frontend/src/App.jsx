@@ -1,9 +1,11 @@
 import VistaAlumnos from './components/VistaAlumnos';
+import VistaTalleres from './components/VistaTalleres';
+
 
 function App() {
   return (
     <div>
-      <VistaAlumnos />
+      <VistaTalleres/>
     </div>
   );
 }

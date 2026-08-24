@@ -3,6 +3,9 @@ package com.clubajedrez.backend.controllers;
 import com.clubajedrez.backend.dtos.TallerCreateDTO;
 import com.clubajedrez.backend.dtos.TallerResponseDTO;
 import com.clubajedrez.backend.services.TallerService;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,4 +39,12 @@ public class TallerController {
         // Retornamos 200 OK con los datos
         return ResponseEntity.ok(taller);
     }
+    
+    // Endpoint 3: Obtener lista Talleres
+    @GetMapping
+    public ResponseEntity<List<TallerResponseDTO>> obtenerTodos() {
+        List<TallerResponseDTO> talleres = tallerService.obtenerTodos();
+        return ResponseEntity.ok(talleres); // Devuelve 200 OK con la lista
+    }
+
 }

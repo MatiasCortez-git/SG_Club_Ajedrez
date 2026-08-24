@@ -1,5 +1,7 @@
 package com.clubajedrez.backend.services;
 
+import java.util.List;
+
 import com.clubajedrez.backend.dtos.TallerCreateDTO;
 import com.clubajedrez.backend.dtos.TallerResponseDTO;
 
@@ -16,7 +18,10 @@ public interface TallerService {
     
  // Nuevos métodos para el Ticket #5
     TallerResponseDTO crearTaller(TallerCreateDTO dto);
-
     TallerResponseDTO obtenerTallerPorId(Integer idTaller);
+    
+    List<TallerResponseDTO> obtenerTodos();
+    
+    
 
 }
