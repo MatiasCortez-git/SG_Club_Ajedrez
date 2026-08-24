@@ -2,8 +2,11 @@ package com.clubajedrez.backend.services;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
 import com.clubajedrez.backend.entities.Alumno;
@@ -14,7 +17,7 @@ import com.clubajedrez.backend.repositories.AlumnoTallerRepository;
 import com.clubajedrez.backend.repositories.CuotaRepository;
 import com.clubajedrez.backend.repositories.TarifaGlobalRepository;
 
-import jakarta.transaction.Transactional;
+//import jakarta.transaction.Transactional;
 
 import com.clubajedrez.backend.repositories.FederadoRepository;
 
@@ -112,6 +115,12 @@ public class CuotaServiceImpl implements CuotaService {
         
         // 4. Guardamos el comprobante en PostgreSQL
         cuotaRepository.save(nuevaCuota);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<Cuota> obtenerCuotasPorAlumno(Integer idAlumno) {
+        return cuotaRepository.findByAlumno_IdPersona(idAlumno);
     }
 
     /**
