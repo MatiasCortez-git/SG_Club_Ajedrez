@@ -1,5 +1,8 @@
 package com.clubajedrez.backend.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +65,15 @@ public class AlumnoServiceImpl implements AlumnoService {
     public void inscribirEnTaller(Integer idAlumno, Integer idTaller) {
         // Delegamos la tarea al TallerService que ya tiene programada la validación del cupo y el Trigger
         tallerService.inscribirAlumno(idAlumno, idTaller);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<AlumnoResponseDTO> obtenerTodos() {
+        // Buscamos todos los alumnos en la BD y los convertimos a DTO
+        return alumnoRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     // =========================================================================

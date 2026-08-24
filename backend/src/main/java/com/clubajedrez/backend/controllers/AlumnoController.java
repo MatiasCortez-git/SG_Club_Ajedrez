@@ -3,6 +3,9 @@ package com.clubajedrez.backend.controllers;
 import com.clubajedrez.backend.dtos.AlumnoCreateDTO;
 import com.clubajedrez.backend.dtos.AlumnoResponseDTO;
 import com.clubajedrez.backend.services.AlumnoService;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,5 +44,12 @@ public class AlumnoController {
         
         // Devolvemos 201 Created sin body, o podrías devolver un mensaje de éxito.
         return new ResponseEntity<>(HttpStatus.CREATED); 
+    }
+    
+    // 4. Devolver todos los alumnos
+    @GetMapping
+    public ResponseEntity<List<AlumnoResponseDTO>> obtenerTodos() {
+        List<AlumnoResponseDTO> alumnos = alumnoService.obtenerTodos();
+        return ResponseEntity.ok(alumnos); // Devuelve 200 OK
     }
 }
