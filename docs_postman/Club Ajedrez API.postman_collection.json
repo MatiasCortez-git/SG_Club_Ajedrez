@@ -165,6 +165,27 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "ObtenerTodos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/alumnos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "alumnos"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -239,7 +260,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"idAlumno\": 4,\r\n  \"periodo\": \"2026-09\"\r\n}",
+              "raw": "{\r\n  \"idAlumno\": 3,\r\n  \"periodo\": \"2026-08\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -258,6 +279,29 @@
                 "v1",
                 "cuotas",
                 "generar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "HistorialCoutas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/cuotas/alumno/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "cuotas",
+                "alumno",
+                "3"
               ]
             }
           },
