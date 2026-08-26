@@ -1,10 +1,17 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import PortalAlumno from './components/PortalAlumno';
 import VistaAlumnos from './components/VistaAlumnos';
 import VistaTalleres from './components/VistaTalleres';
 import VistaCaja from './components/VistaCaja';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 
+// El Guardián
+const PrivateRoute = ({ children }) => {
+  const isLogged = localStorage.getItem('isLogged') === 'true';
+  return isLogged ? children : <Navigate to="/login" />;
+};
 
 function App() {
   return (
@@ -12,9 +19,13 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<PortalAlumno />} />
-        <Route path="/alumnos" element={<VistaAlumnos />} />
-        <Route path="/talleres" element={<VistaTalleres />} />
-        <Route path="/caja" element={<VistaCaja />} />
+        <Route path="/login" element={<Login />} />
+        
+        {/* Rutas Protegidas */}
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/alumnos" element={<PrivateRoute><VistaAlumnos /></PrivateRoute>} />
+        <Route path="/talleres" element={<PrivateRoute><VistaTalleres /></PrivateRoute>} />
+        <Route path="/caja" element={<PrivateRoute><VistaCaja /></PrivateRoute>} />
       </Routes>
     </Router>
   );
