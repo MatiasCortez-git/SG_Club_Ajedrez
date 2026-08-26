@@ -2,6 +2,8 @@ package com.clubajedrez.backend.controllers.advice;
 
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
+import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
+import com.clubajedrez.backend.exceptions.ProfesorNoFederadoException;
 import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerSinCupoException;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,9 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     // Maneja cualquier excepción de tipo "No Encontrado" (404)
-    @ExceptionHandler({AlumnoNoEncontradoException.class , TallerNoEncontradoException.class })
+    @ExceptionHandler({AlumnoNoEncontradoException.class , 
+    				   TallerNoEncontradoException.class, 
+    				   ProfesorNoEncontradoException.class})
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "Recurso no encontrado");
@@ -25,8 +29,9 @@ public class GlobalExceptionHandler {
     }
 
     // Maneja excepciones de reglas de negocio / validaciones (400)
-    @ExceptionHandler(TallerSinCupoException.class)
-    public ResponseEntity<Map<String, String>> handleBadRequest(TallerSinCupoException ex) {
+    @ExceptionHandler({TallerSinCupoException.class, 
+    				   ProfesorNoFederadoException.class})
+    public ResponseEntity<Map<String, String>> handleBadRequest(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "Regla de negocio violada");
         response.put("mensaje", ex.getMessage());

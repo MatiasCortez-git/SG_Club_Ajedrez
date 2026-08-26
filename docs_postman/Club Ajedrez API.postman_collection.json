@@ -186,6 +186,29 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Alumno_X_DNI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/alumnos/dni/22222222",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "alumnos",
+                "dni",
+                "22222222"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -243,6 +266,89 @@
                 "api",
                 "v1",
                 "profesores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CrearProfesor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca\",\r\n  \"dni\": \"55555555\",\r\n  \"email\": \"capablanca@ajedrez.com\",\r\n  \"telefono\": \"1122334455\",\r\n  \"codFederacion\": \"\",\r\n  \"elo\": 2700\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/profesores",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "profesores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ModificarProfesor",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca\",\r\n  \"dni\": \"55555555\",\r\n  \"email\": \"jose.nuevo@ajedrez.com\",\r\n  \"telefono\": \"999999999\",\r\n  \"codFederacion\": \"ARG-9988\",\r\n  \"elo\": 2700\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/profesores/6",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "profesores",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EliminarProfesor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/profesores/6",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "profesores",
+                "6"
               ]
             }
           },
