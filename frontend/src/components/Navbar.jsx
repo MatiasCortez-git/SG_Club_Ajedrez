@@ -1,4 +1,12 @@
 const Navbar = () => {
+
+  const isLogged = localStorage.getItem('isLogged') === 'true';
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLogged');
+    window.location.href = '/'; // Devuelve a la landing y refresca
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
       <div className="container">
@@ -20,10 +28,16 @@ const Navbar = () => {
         </button>
         
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            {/* Usamos text-danger (rojo) y text-white (blanco) para cumplir la paleta */}
-            <li className="nav-item">
+          <ul className="navbar-nav ms-auto align-items-center">
+            <li className="nav-item me-3">
               <span className="nav-link text-white fw-semibold">Sede Paraná</span>
+            </li>
+            <li className="nav-item">
+              {isLogged ? (
+                <button onClick={handleLogout} className="btn btn-sm btn-danger fw-bold">Cerrar Sesión</button>
+              ) : (
+                <a href="/login" className="btn btn-sm btn-light text-primary fw-bold">Acceso Profesores</a>
+              )}
             </li>
           </ul>
         </div>
