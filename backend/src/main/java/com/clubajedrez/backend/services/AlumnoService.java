@@ -14,4 +14,6 @@ public interface AlumnoService {
     void inscribirEnTaller(Integer idAlumno, Integer idTaller);
     
     List<AlumnoResponseDTO> obtenerTodos();
+    
+    AlumnoResponseDTO obtenerPorDni(String dni);
 }

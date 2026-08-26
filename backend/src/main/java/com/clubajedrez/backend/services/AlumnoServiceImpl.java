@@ -75,6 +75,17 @@ public class AlumnoServiceImpl implements AlumnoService {
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public AlumnoResponseDTO obtenerPorDni(String dni) {
+        // Buscamos al alumno usando el método nuevo en el repositorio
+        Alumno alumno = alumnoRepository.findByDni(dni)
+                .orElseThrow(() -> new AlumnoNoEncontradoException("No se encontró ningún alumno con el DNI: " + dni));
+        
+        // Convertimos la Entidad a DTO para enviarlo al frontend
+        return mapToDTO(alumno);
+    }
 
     // =========================================================================
     // MÉTODOS PRIVADOS DE MAPEO

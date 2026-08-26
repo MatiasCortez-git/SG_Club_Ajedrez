@@ -52,4 +52,10 @@ public class AlumnoController {
         List<AlumnoResponseDTO> alumnos = alumnoService.obtenerTodos();
         return ResponseEntity.ok(alumnos); // Devuelve 200 OK
     }
+    
+    // 5. Buscar alumno por DNI
+    @GetMapping("/dni/{dni}")
+    public ResponseEntity<AlumnoResponseDTO> obtenerPorDni(@PathVariable String dni) {
+        return ResponseEntity.ok(alumnoService.obtenerPorDni(dni));
+    }
 }
