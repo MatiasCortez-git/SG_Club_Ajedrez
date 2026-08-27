@@ -6,6 +6,7 @@ import VistaTalleres from './components/VistaTalleres';
 import VistaCaja from './components/VistaCaja';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import VistaProfesores from './components/VistaProfesores';
 
 // El Guardián
 const PrivateRoute = ({ children }) => {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/alumnos" element={<PrivateRoute><VistaAlumnos /></PrivateRoute>} />
         <Route path="/talleres" element={<PrivateRoute><VistaTalleres /></PrivateRoute>} />
         <Route path="/caja" element={<PrivateRoute><VistaCaja /></PrivateRoute>} />
+        <Route path="/profesores" element={<PrivateRoute><VistaProfesores /></PrivateRoute>} />
       </Routes>
     </Router>
   );
