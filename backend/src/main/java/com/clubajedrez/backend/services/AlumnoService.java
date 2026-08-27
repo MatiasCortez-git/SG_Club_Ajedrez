@@ -16,4 +16,9 @@ public interface AlumnoService {
     List<AlumnoResponseDTO> obtenerTodos();
     
     AlumnoResponseDTO obtenerPorDni(String dni);
+    
+ // NUEVOS MÉTODOS TICKET 17
+    AlumnoResponseDTO actualizarAlumno(Integer id, AlumnoCreateDTO dto);
+    
+    void eliminarAlumno(Integer id);
 }

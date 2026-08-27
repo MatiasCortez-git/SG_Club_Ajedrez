@@ -58,4 +58,17 @@ public class AlumnoController {
     public ResponseEntity<AlumnoResponseDTO> obtenerPorDni(@PathVariable String dni) {
         return ResponseEntity.ok(alumnoService.obtenerPorDni(dni));
     }
+    
+    // 6. Actualizar alumno	
+    @PutMapping("/{id}")
+    public ResponseEntity<AlumnoResponseDTO> actualizarAlumno(@PathVariable Integer id, @RequestBody AlumnoCreateDTO dto) {
+        return ResponseEntity.ok(alumnoService.actualizarAlumno(id, dto));
+    }
+
+    // 7. Eliminar    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarAlumno(@PathVariable Integer id) {
+        alumnoService.eliminarAlumno(id);
+        return ResponseEntity.noContent().build();
+    }
 }
