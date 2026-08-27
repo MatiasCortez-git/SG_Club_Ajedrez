@@ -29,6 +29,14 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+        <div className="col-md-4 mb-3">
+          <div className="card shadow-sm h-100">
+            <div className="card-body d-flex flex-column justify-content-center">
+              <h5 className="card-title">Gestión de Profesores</h5>
+              <Link to="/profesores" className="btn btn-outline-primary mt-3">Ingresar</Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -68,6 +68,9 @@ public class ProfesorServiceImpl implements ProfesorService {
         profesor.setTelefono(dto.getTelefono());
         profesor.setEmail(dto.getEmail());
         
+     // PARCHE: Actualizamos la tabla Federado usando la query nativa
+        federadoRepository.actualizarRolFederado(id, dto.getCodFederacion(), dto.getElo());
+        
         // Al actualizar, JPA guarda los cambios automáticamente por la anotación @Transactional
         return mapToDTO(profesor);
     }
@@ -83,12 +86,23 @@ public class ProfesorServiceImpl implements ProfesorService {
         profesorRepository.save(profesor);
     }
 
-    // Método helper privado para el mapeo
+    /// Método helper privado para el mapeo
     private ProfesorResponseDTO mapToDTO(Profesor profesor) {
         ProfesorResponseDTO dto = new ProfesorResponseDTO();
-        dto.setIdPersona(profesor.getIdPersona()); // Dato disponible gracias a la herencia[cite: 1]
+        
+        dto.setIdPersona(profesor.getIdPersona());
         dto.setNombre(profesor.getNombre());
         dto.setApellido(profesor.getApellido());
+        dto.setEmail(profesor.getEmail());
+        dto.setTelefono(profesor.getTelefono());
+        dto.setDni(profesor.getDni());
+        
+     // Consultas directas a PostgreSQL esquivando la caché
+        String codFed = federadoRepository.obtenerCodFederacion(profesor.getIdPersona());
+        Integer elo = federadoRepository.obtenerElo(profesor.getIdPersona());
+        
+        dto.setCodFederacion(codFed);
+        dto.setElo(elo);
         return dto;
     }
 }
