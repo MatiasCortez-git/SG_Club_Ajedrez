@@ -14,4 +14,8 @@ public class AlumnoCreateDTO {
     
     // Datos específicos de Alumno
     private LocalDate fechaNacimiento;
+    
+    // Datos opcionales de Federación
+    private String codFederacion;
+    private Integer elo;
 }

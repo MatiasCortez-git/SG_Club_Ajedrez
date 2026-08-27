@@ -13,6 +13,7 @@ public class AlumnoResponseDTO {
     private String telefono;
     private LocalDate fechaNacimiento;
     
-    // Opcional, pero muy útil para el Frontend:
-    private boolean isFederado; 
+    // Datos opcionales de Federación
+    private String codFederacion;
+    private Integer elo;
 }

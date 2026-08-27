@@ -25,4 +25,8 @@ public interface FederadoRepository extends JpaRepository<Federado, Integer> {
     @Modifying
     @Query(value = "UPDATE federado SET cod_federacion = :codFederacion, elo = :elo WHERE id_persona = :idPersona", nativeQuery = true)
     void actualizarRolFederado(@Param("idPersona") Integer idPersona, @Param("codFederacion") String codFederacion, @Param("elo") Integer elo);
+    
+    @Modifying
+    @Query(value = "DELETE FROM federado WHERE id_persona = :idPersona", nativeQuery = true)
+    void eliminarRolFederado(@Param("idPersona") Integer idPersona);
 }
