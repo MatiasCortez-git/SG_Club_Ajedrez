@@ -2,6 +2,7 @@ package com.clubajedrez.backend.controllers.advice;
 
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
+import com.clubajedrez.backend.exceptions.PagoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoFederadoException;
 import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
@@ -20,7 +21,9 @@ public class GlobalExceptionHandler {
     // Maneja cualquier excepción de tipo "No Encontrado" (404)
     @ExceptionHandler({AlumnoNoEncontradoException.class , 
     				   TallerNoEncontradoException.class, 
-    				   ProfesorNoEncontradoException.class})
+    				   ProfesorNoEncontradoException.class,
+    				   PagoNoEncontradoException.class })
+    
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "Recurso no encontrado");

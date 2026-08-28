@@ -12,4 +12,6 @@ public interface CuotaRepository extends JpaRepository<Cuota, Integer> {
 	
 	// NUEVO MÉTODO PARA EL PARCHE DEL TICKET 12
     List<Cuota> findByAlumno_IdPersona(Integer idAlumno);
+
+    List<Cuota> findByPago_IdPago(Integer idPago);
 }

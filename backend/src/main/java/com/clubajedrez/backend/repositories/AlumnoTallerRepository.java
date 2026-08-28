@@ -3,6 +3,8 @@ package com.clubajedrez.backend.repositories;
 import com.clubajedrez.backend.entities.AlumnoTaller;
 import com.clubajedrez.backend.entities.AlumnoTallerId;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,5 +32,8 @@ public interface AlumnoTallerRepository extends JpaRepository<AlumnoTaller, Alum
                    "AND EXTRACT(YEAR FROM fecha_inscripcion) = EXTRACT(YEAR FROM CURRENT_DATE)", 
            nativeQuery = true)
     Double sumarTalleresVigentes(@Param("idAlumno") Integer idAlumno);
+    
+ // NUEVO MÉTODO TICKET COMPROBANTES
+    List<AlumnoTaller> findByAlumno_IdPersona(Integer idPersona);
 
 }
