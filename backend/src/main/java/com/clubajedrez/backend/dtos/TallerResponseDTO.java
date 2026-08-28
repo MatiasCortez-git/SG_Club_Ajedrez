@@ -12,4 +12,7 @@ public class TallerResponseDTO {
     private BigDecimal costo;
     private String tipoNivel;
     private Integer idProfesor;
+    
+ // NUEVO ATRIBUTO (Ticket #18 - Ocupación de cupos)
+    private Integer inscriptos;
 }
