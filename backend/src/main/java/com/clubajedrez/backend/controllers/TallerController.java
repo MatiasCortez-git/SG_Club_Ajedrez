@@ -51,7 +51,7 @@ public class TallerController {
     @PutMapping("/{id}")
     public ResponseEntity<TallerResponseDTO> actualizarTaller(@PathVariable Integer id, @RequestBody TallerCreateDTO dto) {
         return ResponseEntity.ok(tallerService.actualizarTaller(id, dto));
-    }
+    } 
 
     // Endpoint 5: Eliminar Taller
     @DeleteMapping("/{id}")

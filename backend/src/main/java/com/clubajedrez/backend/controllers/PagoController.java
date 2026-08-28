@@ -1,5 +1,6 @@
 package com.clubajedrez.backend.controllers;
 
+import com.clubajedrez.backend.dtos.ComprobanteDTO;
 import com.clubajedrez.backend.dtos.PagoCreateDTO;
 import com.clubajedrez.backend.dtos.PagoResponseDTO;
 import com.clubajedrez.backend.services.PagoService;
@@ -26,4 +27,12 @@ public class PagoController {
         // Devolvemos el comprobante con un código 201 (Creado)
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+    
+ // ENDPOINT PARA IMPRESIÓN DE RECIBOS
+    @GetMapping("/{id}/comprobante")
+    public ResponseEntity<ComprobanteDTO> obtenerComprobante(@PathVariable Integer id) {
+        ComprobanteDTO comprobante = pagoService.obtenerComprobantePorId(id);
+        return ResponseEntity.ok(comprobante);
+    }
+    
 }

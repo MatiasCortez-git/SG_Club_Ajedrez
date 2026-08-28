@@ -5,16 +5,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.clubajedrez.backend.dtos.ComprobanteDTO;
 import com.clubajedrez.backend.dtos.PagoCreateDTO;
 import com.clubajedrez.backend.dtos.PagoResponseDTO;
 import com.clubajedrez.backend.entities.Alumno;
 import com.clubajedrez.backend.entities.Cuota;
 import com.clubajedrez.backend.entities.Pago;
 import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
+import com.clubajedrez.backend.exceptions.PagoNoEncontradoException;
 import com.clubajedrez.backend.repositories.AlumnoRepository;
 import com.clubajedrez.backend.repositories.CuotaRepository;
 import com.clubajedrez.backend.repositories.PagoRepository;
+import com.clubajedrez.backend.repositories.AlumnoTallerRepository;
 
 @Service
 public class PagoServiceImpl implements PagoService {
@@ -22,12 +26,18 @@ public class PagoServiceImpl implements PagoService {
     private final PagoRepository pagoRepository;
     private final CuotaRepository cuotaRepository;
     private final AlumnoRepository alumnoRepository;
+    private final AlumnoTallerRepository alumnoTallerRepository;
 
     // Inyección obligatoria por constructor
-    public PagoServiceImpl(PagoRepository pagoRepository, CuotaRepository cuotaRepository, AlumnoRepository alumnoRepository) {
-        this.pagoRepository = pagoRepository;
+    public PagoServiceImpl(PagoRepository pagoRepository, 
+    		CuotaRepository cuotaRepository,
+    		AlumnoRepository alumnoRepository, 
+    		AlumnoTallerRepository alumnoTallerRepository) {
+        
+    	this.pagoRepository = pagoRepository;
         this.cuotaRepository = cuotaRepository;
         this.alumnoRepository = alumnoRepository;
+        this.alumnoTallerRepository = alumnoTallerRepository;
     }
 
     @Override
@@ -75,5 +85,53 @@ public class PagoServiceImpl implements PagoService {
         response.setMedioPago(pagoGuardado.getMedioPago());
 
         return response;
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public ComprobanteDTO obtenerComprobantePorId(Integer idPago) {
+        // 1. Buscar el pago
+        Pago pago = pagoRepository.findById(idPago)
+                .orElseThrow(() -> new PagoNoEncontradoException("No se encontró el pago con ID: " + idPago));
+        
+        // 2. Extraer el alumno 
+        Alumno alumno = pago.getAlumno();
+        String nombreCompleto = alumno.getNombre() + " " + alumno.getApellido();
+
+        // 3. Buscar cuotas asociadas al pago y formatear los periodos
+        // Nota: Asegurate de tener este método findByPago_IdPago en tu CuotaRepository
+        List<Cuota> cuotas = cuotaRepository.findByPago_IdPago(idPago);
+        List<String> periodos = cuotas.stream()
+                .map(Cuota::getPeriodo) 
+                .collect(Collectors.toList());
+        
+        // Calcular subtotales con Streams y BigDecimal
+        BigDecimal totalSocio = cuotas.stream()
+                .map(Cuota::getMontoBase)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+        BigDecimal totalFederado = cuotas.stream()
+                .map(Cuota::getMontoFederado)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // 4. Buscar los talleres vigentes del alumno
+        List<String> talleres = alumnoTallerRepository.findByAlumno_IdPersona(alumno.getIdPersona())
+                .stream()
+                .map(insc -> insc.getTaller().getNombre() + " ($" + insc.getPrecioAcordado() + ")")
+                .collect(Collectors.toList());
+        
+        // 5. Ensamblar el DTO
+        ComprobanteDTO comprobante = new ComprobanteDTO();
+        comprobante.setIdPago(pago.getIdPago());
+        comprobante.setFechaPago(pago.getFechaPago());
+        comprobante.setMontoTotal(pago.getMontoTotal());
+        comprobante.setMedioPago(pago.getMedioPago());
+        comprobante.setNombreAlumno(nombreCompleto);
+        comprobante.setPeriodosAbonados(periodos);
+        comprobante.setTalleres(talleres);
+        comprobante.setMontoSocio(totalSocio);
+        comprobante.setMontoFederado(totalFederado);
+
+        return comprobante;
     }
 }

@@ -46,7 +46,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/v1/talleres/2",
+              "raw": "http://localhost:8081/api/v1/talleres/:id",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -56,7 +56,99 @@
                 "api",
                 "v1",
                 "talleres",
-                "2"
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizartaller",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idTaller\": 2,\r\n    \"nombre\": \"Iniciación al Ajedrez\",\r\n    \"cupoMaximo\": 5,\r\n    \"duracion\": \"4 meses\",\r\n    \"costo\": 10000.00,\r\n    \"tipoNivel\": \"Principiante\",\r\n    \"idProfesor\": 6\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/talleres/:id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "talleres",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EliminarTaller",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/talleres/:id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "talleres",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ObtenerTodos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/talleres",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "talleres"
               ]
             }
           },
@@ -312,6 +404,17 @@
                 "v1",
                 "pagos"
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Comprobante",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
             }
           },
           "response": []
