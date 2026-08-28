@@ -14,6 +14,7 @@ import com.clubajedrez.backend.entities.AlumnoTaller;
 import com.clubajedrez.backend.entities.Profesor;
 import com.clubajedrez.backend.entities.Taller;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
+import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerSinCupoException;
 import com.clubajedrez.backend.repositories.AlumnoRepository;
@@ -57,7 +58,7 @@ public class TallerServiceImpl implements TallerService {
     @Transactional(readOnly = true)
     public TallerResponseDTO obtenerTallerPorId(Integer idTaller) {
         // 1. Buscamos en la BD o lanzamos excepción si no existe
-        Taller taller = tallerRepository.findById(idTaller)
+        Taller taller = tallerRepository.findByIdTallerAndIsActiveTrue(idTaller)
                 .orElseThrow(() -> new TallerNoEncontradoException("Taller no encontrado con ID: " + idTaller));
         
         // 2. Retornamos el DTO
@@ -104,9 +105,43 @@ public class TallerServiceImpl implements TallerService {
     @Transactional(readOnly = true)
     public List<TallerResponseDTO> obtenerTodos() {
         // Buscamos todos los talleres y los convertimos a DTO reutilizando tu mapToDTO
-        return tallerRepository.findAll().stream()
+        return tallerRepository.findByIsActiveTrue().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional
+    public TallerResponseDTO actualizarTaller(Integer idTaller, TallerCreateDTO dto) {
+        Taller taller = tallerRepository.findById(idTaller)
+                .orElseThrow(() -> new TallerNoEncontradoException("Taller no encontrado con ID: " + idTaller));
+        
+        // Buscamos el OBJETO Profesor usando el ID que viene en el DTO
+        Profesor profesor = profesorRepository.findById(dto.getIdProfesor())
+                .orElseThrow(() -> new ProfesorNoEncontradoException("No se encontró un profesor con el ID: " + dto.getIdProfesor()));
+        
+        taller.setNombre(dto.getNombre());
+        taller.setCupoMaximo(dto.getCupoMaximo());
+        taller.setDuracion(dto.getDuracion());
+        taller.setPrecioActual(dto.getCosto());
+        taller.setNivel(dto.getTipoNivel());
+     
+        // Asignamos el objeto completo, resolviendo el error de tipos
+        taller.setProfesor(profesor);
+
+        Taller tallerActualizado = tallerRepository.save(taller);
+        return mapToDTO(tallerActualizado);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarTaller(Integer idTaller) {
+        Taller taller = tallerRepository.findById(idTaller)
+                .orElseThrow(() -> new TallerNoEncontradoException("Taller no encontrado con ID: " + idTaller));
+        
+        // Baja lógica
+        taller.setIsActive(false);
+        tallerRepository.save(taller);
     }
     
  // =========================================================================
@@ -124,7 +159,7 @@ public class TallerServiceImpl implements TallerService {
      // Buscamos el Profesor en la base de datos por su idPersona
         if (dto.getIdProfesor() != null) {
             Profesor profesor = profesorRepository.findById(dto.getIdProfesor())
-                    .orElseThrow(() -> new RuntimeException("Profesor no encontrado con ID: " + dto.getIdProfesor()));
+                    .orElseThrow(() -> new ProfesorNoEncontradoException("No se encontró un profesor con el ID: " + dto.getIdProfesor()));
             taller.setProfesor(profesor);
         }
         return taller;
@@ -143,6 +178,16 @@ public class TallerServiceImpl implements TallerService {
         if (taller.getProfesor() != null) {
             dto.setIdProfesor(taller.getProfesor().getIdPersona());
         }
+        
+     //  Calculamos los inscriptos delegando a la BD
+        // Podés usar el método de conteo que habías creado antes, por ejemplo:
+        long cantidadInscriptos = alumnoTallerRepository.contarInscriptosEnPeriodo(
+            taller.getIdTaller(), 
+            LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0), 
+            LocalDateTime.of(LocalDateTime.now().getYear(), 12, 31, 23, 59)
+        );
+        dto.setInscriptos((int) cantidadInscriptos);
+        
         return dto;
     }
 }

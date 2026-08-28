@@ -46,5 +46,18 @@ public class TallerController {
         List<TallerResponseDTO> talleres = tallerService.obtenerTodos();
         return ResponseEntity.ok(talleres); // Devuelve 200 OK con la lista
     }
+    
+    // Endpoint 4: Actualizar un Taller por ID
+    @PutMapping("/{id}")
+    public ResponseEntity<TallerResponseDTO> actualizarTaller(@PathVariable Integer id, @RequestBody TallerCreateDTO dto) {
+        return ResponseEntity.ok(tallerService.actualizarTaller(id, dto));
+    }
+
+    // Endpoint 5: Eliminar Taller
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarTaller(@PathVariable Integer id) {
+        tallerService.eliminarTaller(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }

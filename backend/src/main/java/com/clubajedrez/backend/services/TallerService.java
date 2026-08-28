@@ -22,6 +22,9 @@ public interface TallerService {
     
     List<TallerResponseDTO> obtenerTodos();
     
+ // NUEVOS MÉTODOS TICKET 18
+    TallerResponseDTO actualizarTaller(Integer id, TallerCreateDTO dto);
     
+    void eliminarTaller(Integer id);
 
 }

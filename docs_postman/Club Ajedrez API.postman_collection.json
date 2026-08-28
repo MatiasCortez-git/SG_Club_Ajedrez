@@ -74,7 +74,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"nombre\": \"Emanuel\",\r\n  \"apellido\": \"Lasker\",\r\n  \"dni\": \"44555666\",\r\n  \"email\": \"emanuel@ajedrez.com\",\r\n  \"telefono\": \"1122334455\",\r\n  \"fechaNacimiento\": \"1868-12-24\"\r\n}",
+              "raw": "{\r\n    \"nombre\": \"Hikaru\",\r\n    \"apellido\": \"Nakamura\",\r\n    \"dni\": \"99888777\",\r\n    \"email\": \"hikaru@ajedrez.com\",\r\n    \"telefono\": \"1155556666\",\r\n    \"fechaNacimiento\": \"1987-12-09\",\r\n    \"codFederacion\": \"FIDE-444\",\r\n    \"elo\": 2789\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -127,7 +127,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/v1/alumnos/4",
+              "raw": "http://localhost:8081/api/v1/alumnos/13",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -137,7 +137,7 @@
                 "api",
                 "v1",
                 "alumnos",
-                "4"
+                "13"
               ]
             }
           },
@@ -193,7 +193,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/v1/alumnos/dni/22222222",
+              "raw": "http://localhost:8081/api/v1/alumnos/dni/:dni",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -204,7 +204,78 @@
                 "v1",
                 "alumnos",
                 "dni",
-                "22222222"
+                ":dni"
+              ],
+              "variable": [
+                {
+                  "key": "dni",
+                  "value": "44555111"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ActualizarAlumno",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Judit\",\r\n    \"apellido\": \"Polgar\",\r\n    \"dni\": \"44555111\",\r\n    \"email\": \"judit@ajedrez.com\",\r\n    \"telefono\": \"1122332211\",\r\n    \"fechaNacimiento\": \"1976-07-23\",\r\n    \"codFederacion\": \"\",\r\n    \"elo\": 2735\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/alumnos/:id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "alumnos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "12"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EliminarAlumno",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/alumnos/:id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "alumnos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "12"
+                }
               ]
             }
           },
@@ -308,7 +379,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca\",\r\n  \"dni\": \"55555555\",\r\n  \"email\": \"jose.nuevo@ajedrez.com\",\r\n  \"telefono\": \"999999999\",\r\n  \"codFederacion\": \"ARG-9988\",\r\n  \"elo\": 2700\r\n}",
+              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca\",\r\n  \"dni\": \"55555555\",\r\n  \"email\": \"jose.nuevo@ajedrez.com\",\r\n  \"telefono\": \"999999999\",\r\n  \"codFederacion\": \"ARG-9987\",\r\n  \"elo\": 2700\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
