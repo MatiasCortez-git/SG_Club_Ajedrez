@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "cuota")
@@ -28,15 +28,10 @@ public class Cuota {
     @Column(nullable = false, length = 7)
     private String periodo;
 
-    @Column(name = "monto_base", nullable = false, precision = 10, scale = 2)
-    private BigDecimal montoBase;
-
-    @Column(name = "monto_federado", nullable = false, precision = 10, scale = 2)
-    private BigDecimal montoFederado;
-
-    @Column(name = "monto_talleres", nullable = false, precision = 10, scale = 2)
-    private BigDecimal montoTalleres;
-
+ // Reemplazamos los montos individuales por esta lista
+    @OneToMany(mappedBy = "cuota", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleCuota> detalles;
+    
     @Column(name = "fecha_vencimiento", nullable = false)
     private LocalDate fechaVencimiento;
 

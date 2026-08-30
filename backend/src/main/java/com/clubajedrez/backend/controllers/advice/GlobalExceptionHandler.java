@@ -1,6 +1,7 @@
 package com.clubajedrez.backend.controllers.advice;
 
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
+import com.clubajedrez.backend.exceptions.CuotaDuplicadaException;
 import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
 import com.clubajedrez.backend.exceptions.PagoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
@@ -42,12 +43,11 @@ public class GlobalExceptionHandler {
     }
     
     // Maneja cualquier excepción de tipo "conflicto" (409)
-    @ExceptionHandler(CuotaYaPagadaException.class)
-    public ResponseEntity<Map<String, String>> handleCuotaYaPagada(CuotaYaPagadaException ex) {
+    @ExceptionHandler({CuotaYaPagadaException.class, CuotaDuplicadaException.class})
+    public ResponseEntity<Map<String, String>> handleConflictosDeNegocio(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("error", "Conflicto de Pago");
+        response.put("error", "Conflicto de Regla de Negocio");
         response.put("mensaje", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
-    
 }
