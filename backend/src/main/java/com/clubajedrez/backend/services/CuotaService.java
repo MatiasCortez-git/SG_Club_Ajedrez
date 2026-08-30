@@ -3,7 +3,7 @@ package com.clubajedrez.backend.services;
 import java.util.List;
 
 import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
-import com.clubajedrez.backend.entities.Cuota;
+import com.clubajedrez.backend.dtos.CuotaResponseDTO;
 
 public interface CuotaService {
 
@@ -14,8 +14,8 @@ public interface CuotaService {
      */
 	CuotaCalculoResponseDTO calcularCuotaMensual(Integer idAlumno);
 	
-	void generarYGuardarCuotaMensual(Integer idAlumno, String periodo);
+	CuotaResponseDTO generarYGuardarCuotaMensual(Integer idAlumno, String periodo);
 	
-	List<Cuota> obtenerCuotasPorAlumno(Integer idAlumno);
+	List<CuotaResponseDTO> obtenerCuotasPorAlumno(Integer idAlumno);
 
 }

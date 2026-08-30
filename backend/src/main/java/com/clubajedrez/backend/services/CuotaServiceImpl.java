@@ -2,22 +2,27 @@ package com.clubajedrez.backend.services;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
+import com.clubajedrez.backend.dtos.CuotaResponseDTO;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
+import com.clubajedrez.backend.exceptions.CuotaDuplicadaException;
 import com.clubajedrez.backend.entities.Alumno;
+import com.clubajedrez.backend.entities.AlumnoTaller;
 import com.clubajedrez.backend.entities.Cuota;
+import com.clubajedrez.backend.entities.DetalleCuota;
 import com.clubajedrez.backend.entities.TarifaGlobal;
 import com.clubajedrez.backend.repositories.AlumnoRepository;
 import com.clubajedrez.backend.repositories.AlumnoTallerRepository;
 import com.clubajedrez.backend.repositories.CuotaRepository;
 import com.clubajedrez.backend.repositories.TarifaGlobalRepository;
 
-//import jakarta.transaction.Transactional;
 
 import com.clubajedrez.backend.repositories.FederadoRepository;
 
@@ -42,7 +47,7 @@ public class CuotaServiceImpl implements CuotaService {
         this.alumnoTallerRepository = alumnoTallerRepository;
         this.cuotaRepository = cuotaRepository;
     }
-
+    
     @Override
     public CuotaCalculoResponseDTO calcularCuotaMensual(Integer idAlumno) {
         
@@ -88,40 +93,107 @@ public class CuotaServiceImpl implements CuotaService {
         return response;
     }
     
+    
     @Override
     @Transactional
-    public void generarYGuardarCuotaMensual(Integer idAlumno, String periodo) {
+    public CuotaResponseDTO generarYGuardarCuotaMensual(Integer idAlumno, String periodo) {
         
-        // 1. Reutilizamos la lógica llamando al método que ya armamos
-        CuotaCalculoResponseDTO calculo = this.calcularCuotaMensual(idAlumno);
-
+    	// 1. Prevención de Duplicados (Fail-Fast)
+        if (cuotaRepository.existsByAlumno_IdPersonaAndPeriodo(idAlumno, periodo)) {
+            throw new CuotaDuplicadaException("El periodo " + periodo + " ya está facturado para este alumno.");        }
+        
         // 2. Buscamos el alumno (necesitamos la entidad física para guardarla en la cuota)
         Alumno alumno = alumnoRepository.findById(idAlumno)
                 .orElseThrow(() -> new AlumnoNoEncontradoException("No existe el alumno"));
+        
+        	// Leer tarifas globales actuales     
+        TarifaGlobal tarifaSocio = tarifaGlobalRepository.findByConcepto("Cuota Socio")
+                .orElseThrow(() -> new RuntimeException("Error: Falta configurar la 'Cuota Socio' en la tabla Tarifa_Global"));
+                
+        TarifaGlobal tarifaFederado = tarifaGlobalRepository.findByConcepto("Adicional Federado")
+                .orElseThrow(() -> new RuntimeException("Error: Falta configurar el 'Adicional Federado' en la tabla Tarifa_Global"));
 
-        // 3. Creamos el Snapshot Financiero (Entidad Cuota)
+        // 3. Crear la cabecera de la Cuota
         Cuota nuevaCuota = new Cuota();
         nuevaCuota.setAlumno(alumno);
         nuevaCuota.setPeriodo(periodo);
         
-        // Tomamos los montos directamente del DTO calculado
-        nuevaCuota.setMontoBase(calculo.getMontoBase());
-        nuevaCuota.setMontoFederado(calculo.getMontoFederado());
-        nuevaCuota.setMontoTalleres(calculo.getMontoTalleres());
-        
-        // Regla de negocio: Vence a los 10 días desde que se genera
+        	// Regla de negocio: Vence a los 10 días desde que se genera
         nuevaCuota.setFechaVencimiento(LocalDate.now().plusDays(10)); 
         nuevaCuota.setEstado("Pendiente"); 
         
-        // 4. Guardamos el comprobante en PostgreSQL
-        cuotaRepository.save(nuevaCuota);
+        // 4. Creamos el Snapshot Financiero (Entidad Cuota)
+        List<DetalleCuota> detalles = new ArrayList<>();
+
+        	// Ensamblar Detalle: Cuota Base
+        DetalleCuota detalleBase = new DetalleCuota();
+        detalleBase.setNombreConcepto("Cuota Base Socio");
+        detalleBase.setMontoCongelado(tarifaSocio.getMontoActual());
+        detalleBase.setCuota(nuevaCuota);
+        detalles.add(detalleBase);
+
+        	// Ensamblar Detalle: Adicional Federado (Si aplica)
+        if (federadoRepository.existsById(alumno.getIdPersona())) {
+            DetalleCuota detalleFed = new DetalleCuota();
+            detalleFed.setNombreConcepto("Adicional Federado");
+            detalleFed.setMontoCongelado(tarifaFederado.getMontoActual());
+            detalleFed.setCuota(nuevaCuota);
+            detalles.add(detalleFed);
+        }
+
+        	// Ensamblar Detalles: Talleres vigentes (Snapshot de nombres y precios)
+        List<AlumnoTaller> talleresVigentes = alumnoTallerRepository.findByAlumno_IdPersona(idAlumno);
+        for (AlumnoTaller inscripcion : talleresVigentes) {
+            DetalleCuota detalleTaller = new DetalleCuota();
+            detalleTaller.setNombreConcepto("Taller: " + inscripcion.getTaller().getNombre());
+            detalleTaller.setMontoCongelado(inscripcion.getPrecioAcordado());
+            detalleTaller.setCuota(nuevaCuota);
+            detalles.add(detalleTaller);
+        }
+
+        	// Vincular la lista de detalles a la cuota y guardar
+        	// Gracias a CascadeType.ALL, al guardar la cuota se guardan todos los detalles
+        nuevaCuota.setDetalles(detalles);
+        
+        
+        // 5. Guardamos el comprobante en PostgreSQL
+        Cuota cuotaGuardada = cuotaRepository.save(nuevaCuota);
+        
+        // Retornamos el DTO limpio
+        return mapToDTO(cuotaGuardada);
     }
     
     @Override
     @Transactional(readOnly = true)
-    public List<Cuota> obtenerCuotasPorAlumno(Integer idAlumno) {
-        return cuotaRepository.findByAlumno_IdPersona(idAlumno);
+    public List<CuotaResponseDTO> obtenerCuotasPorAlumno(Integer idAlumno) {
+    	List<Cuota> cuotas = cuotaRepository.findByAlumno_IdPersona(idAlumno);
+        
+        return cuotas.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
+   
+    private CuotaResponseDTO mapToDTO(Cuota cuota) {
+        CuotaResponseDTO dto = new CuotaResponseDTO();
+        dto.setIdCuota(cuota.getIdCuota());
+        dto.setIdAlumno(cuota.getAlumno().getIdPersona());
+        dto.setPeriodo(cuota.getPeriodo());
+        dto.setFechaVencimiento(cuota.getFechaVencimiento());
+        dto.setEstado(cuota.getEstado());
+        
+        // Sumamos los detalles para enviarle el total al frontend
+        java.math.BigDecimal total = cuota.getDetalles().stream()
+                .map(DetalleCuota::getMontoCongelado)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                
+        dto.setMontoTotal(total);
+        if (cuota.getPago() != null) {
+            dto.setIdPago(cuota.getPago().getIdPago());
+        }
+        
+        return dto;
+    }
+    
 
     /**
      * Método auxiliar para saber si es federado.

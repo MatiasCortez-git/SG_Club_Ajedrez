@@ -2,7 +2,7 @@ package com.clubajedrez.backend.controllers;
 
 import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
 import com.clubajedrez.backend.dtos.CuotaGenerateDTO;
-import com.clubajedrez.backend.entities.Cuota;
+import com.clubajedrez.backend.dtos.CuotaResponseDTO;
 import com.clubajedrez.backend.services.CuotaService;
 
 import java.util.List;
@@ -30,18 +30,15 @@ public class CuotaController {
     
     // 2. Crear Cuota Mensual
     @PostMapping("/generar")
-    public ResponseEntity<Void> generarCuota(@RequestBody CuotaGenerateDTO dto) {
-        
-        cuotaService.generarYGuardarCuotaMensual(dto.getIdAlumno(), dto.getPeriodo());
-        
-        // Retornamos 201 Created sin cuerpo, confirmando el guardado exitoso
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<CuotaResponseDTO> generarCuota(@RequestBody CuotaGenerateDTO dto) {
+    	CuotaResponseDTO respuesta = cuotaService.generarYGuardarCuotaMensual(dto.getIdAlumno(), dto.getPeriodo());
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
     
     // 3. Obtener coutas del alumno
     @GetMapping("/alumno/{idAlumno}")
-    public ResponseEntity<List<Cuota>> obtenerCuotasPorAlumno(@PathVariable Integer idAlumno) {
-        List<Cuota> cuotas = cuotaService.obtenerCuotasPorAlumno(idAlumno);
+    public ResponseEntity<List<CuotaResponseDTO>> obtenerCuotasPorAlumno(@PathVariable Integer idAlumno) {
+        List<CuotaResponseDTO> cuotas = cuotaService.obtenerCuotasPorAlumno(idAlumno);
         return ResponseEntity.ok(cuotas);
     }
 }

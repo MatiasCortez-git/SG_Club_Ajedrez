@@ -50,10 +50,17 @@ const handlePrint = useReactToPrint({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idAlumno: parseInt(idAlumno), periodo })
       });
+      
       if (res.status === 201) {
-        alert('¡Cuota generada con éxito!');
+        alert('¡Cuota generada con éxito!'); // (Acá podrías usar Swal.fire de SweetAlert)
         setPeriodo('');
         fetchCuotas(idAlumno);
+      } else if (res.status === 409) {
+        // PUNTO 2: ATRAPAMOS EL CONFLICTO Y MOSTRAMOS EL MENSAJE DEL BACKEND
+        const errorData = await res.json();
+        alert(`Atención: ${errorData.mensaje || errorData.error}`);
+      } else {
+        alert('Ocurrió un error inesperado al generar la cuota.');
       }
     } catch (error) { console.error('Error:', error); }
   };
@@ -167,14 +174,14 @@ const handlePrint = useReactToPrint({
                             {c.estado}
                           </span>
                         </td>
-                        <td>${c.montoBase + c.montoFederado + c.montoTalleres}</td>
+                        <td className="fw-bold">${c.montoTotal}</td>
                         <td>
                           {/* LOGICA DEL BOTON: Si está pagada, mostramos Imprimir. Si no, mostramos Pagar */}
                           {c.estado === 'Pagada' ? (
                             <button 
                               className="btn btn-sm btn-outline-info fw-bold"
                               // Nota: Asegurate de que el backend devuelva el objeto "pago" o el "id_pago" en el JSON de la Cuota
-                              onClick={() => handleAbrirComprobante(c.pago?.idPago)}
+                              onClick={() => handleAbrirComprobante(c.idPago)}
                             >
                               🖨️ Imprimir
                             </button>

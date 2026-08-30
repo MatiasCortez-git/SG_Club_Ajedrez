@@ -90,9 +90,6 @@ CREATE TABLE Cuota (
     id_cuota SERIAL PRIMARY KEY,
     id_alumno INT NOT NULL,
     periodo VARCHAR(7) NOT NULL,             -- Ej: '2026-07'
-    monto_base NUMERIC(10, 2) NOT NULL,      -- Snapshot: Precio de socio al momento de generar la cuota
-    monto_federado NUMERIC(10, 2) NOT NULL,  -- Snapshot: Recargo por ser federado (0 si no lo es)
-    monto_talleres NUMERIC(10, 2) NOT NULL,  -- Snapshot: Suma de los talleres en ese momento
     fecha_vencimiento DATE NOT NULL,
     estado VARCHAR(20) CHECK (estado IN ('Pendiente', 'Pagada', 'Vencida', 'Anulada')) DEFAULT 'Pendiente',
     id_pago INT,                             -- NULL mientras se deba, con el ID del recibo cuando se pague
@@ -100,27 +97,33 @@ CREATE TABLE Cuota (
     FOREIGN KEY (id_pago) REFERENCES Pago(id_pago)
 );
 
+-- 11. Nueva tabla de detalles contables
+CREATE TABLE Detalle_Cuota (
+    id_detalle SERIAL PRIMARY KEY,
+    id_cuota INT NOT NULL,
+    nombre_concepto VARCHAR(100) NOT NULL,
+    monto_congelado NUMERIC(10, 2) NOT NULL,
+    FOREIGN KEY (id_cuota) REFERENCES Cuota(id_cuota) ON DELETE CASCADE
+);
+
 -- Función que cuenta inscriptos y evalúa el cupo
 CREATE OR REPLACE FUNCTION verificar_cupo_taller()
 RETURNS TRIGGER AS $$
 DECLARE
-    inscriptos_actuales INT;
-    cupo_permitido INT;
+    cupos_ocupados INT;
+    cupo_maximo_taller INT;
 BEGIN
-    -- 1. Obtenemos el cupo máximo del taller
-    SELECT cupo_maximo INTO cupo_permitido
-    FROM Taller
+    -- Conteo simple y directo de la tabla de unión
+    SELECT COUNT(*) INTO cupos_ocupados
+    FROM alumno_taller
     WHERE id_taller = NEW.id_taller;
 
-    -- 2. Contamos SOLO los inscriptos del año lectivo actual
-    SELECT COUNT(*) INTO inscriptos_actuales
-    FROM Alumno_Taller
-    WHERE id_taller = NEW.id_taller
-      AND EXTRACT(YEAR FROM fecha_inscripcion) = EXTRACT(YEAR FROM CURRENT_TIMESTAMP);
+    SELECT cupo_maximo INTO cupo_maximo_taller
+    FROM taller
+    WHERE id_taller = NEW.id_taller;
 
-    -- 3. Validamos el cupo
-    IF inscriptos_actuales >= cupo_permitido THEN
-        RAISE EXCEPTION 'Operación rechazada: El taller % ya ha alcanzado su cupo máximo de % alumnos para el año en curso.', NEW.id_taller, cupo_permitido;
+    IF cupos_ocupados >= cupo_maximo_taller THEN
+        RAISE EXCEPTION 'El taller ha alcanzado su cupo máximo';
     END IF;
 
     RETURN NEW;

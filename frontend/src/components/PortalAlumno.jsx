@@ -75,7 +75,7 @@ const PortalAlumno = () => {
                           {c.estado}
                         </span>
                       </td>
-                      <td>${c.montoBase + c.montoFederado + c.montoTalleres}</td>
+                      <td className="fw-bold">${c.montoTotal}</td>
                     </tr>
                   ))
                 )}

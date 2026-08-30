@@ -78,11 +78,8 @@ public class TallerServiceImpl implements TallerService {
                 .orElseThrow(() -> new RuntimeException("No se encontró el taller con ID: " + idTaller));
 
         // C. Consultar la cantidad de alumnos inscriptos en la tabla intermedia
-        // definiendo la ventana de tiempo del año lectivo actual:
-        LocalDateTime inicioAno = LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0);
-        LocalDateTime finAno = LocalDateTime.of(LocalDateTime.now().getYear(), 12, 31, 23, 59);
-
-        long inscriptosActuales = alumnoTallerRepository.contarInscriptosEnPeriodo(idTaller, inicioAno, finAno);
+       
+        long inscriptosActuales = alumnoTallerRepository.countByTaller_IdTaller(idTaller);
 
         // D. REGLA DE NEGOCIO: Validar contra el cupo máximo del taller
         if (inscriptosActuales >= taller.getCupoMaximo()) { 
@@ -181,11 +178,7 @@ public class TallerServiceImpl implements TallerService {
         
      //  Calculamos los inscriptos delegando a la BD
         // Podés usar el método de conteo que habías creado antes, por ejemplo:
-        long cantidadInscriptos = alumnoTallerRepository.contarInscriptosEnPeriodo(
-            taller.getIdTaller(), 
-            LocalDateTime.of(LocalDateTime.now().getYear(), 1, 1, 0, 0), 
-            LocalDateTime.of(LocalDateTime.now().getYear(), 12, 31, 23, 59)
-        );
+        long cantidadInscriptos = alumnoTallerRepository.countByTaller_IdTaller(taller.getIdTaller());
         dto.setInscriptos((int) cantidadInscriptos);
         
         return dto;

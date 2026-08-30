@@ -14,4 +14,7 @@ public interface CuotaRepository extends JpaRepository<Cuota, Integer> {
     List<Cuota> findByAlumno_IdPersona(Integer idAlumno);
 
     List<Cuota> findByPago_IdPago(Integer idPago);
+    
+    // NUEVA REGLA: Prevención de duplicados
+    boolean existsByAlumno_IdPersonaAndPeriodo(Integer idPersona, String periodo);
 }
