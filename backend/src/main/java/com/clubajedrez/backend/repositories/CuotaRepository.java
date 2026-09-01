@@ -17,4 +17,8 @@ public interface CuotaRepository extends JpaRepository<Cuota, Integer> {
     
     // NUEVA REGLA: Prevención de duplicados
     boolean existsByAlumno_IdPersonaAndPeriodo(Integer idPersona, String periodo);
+    
+ // Busca todas las cuotas filtrando por estado
+    List<Cuota> findByEstado(String estado);
+    
 }
