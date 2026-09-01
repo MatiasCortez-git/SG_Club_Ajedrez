@@ -1,13 +1,11 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
-  // 1. Declaramos el estado para controlar el menú
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
-  
   const isLogged = localStorage.getItem('isLogged') === 'true';
 
   const handleLogout = () => {
-    // 2. Cierre Automático al salir
     setIsNavCollapsed(true);
     localStorage.removeItem('isLogged');
     window.location.href = '/'; 
@@ -16,7 +14,9 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
       <div className="container">
-        <a className="navbar-brand d-flex align-items-center" href="/">
+        
+        {/* 1. LOGO DINÁMICO: Navega a /dashboard o / según la sesión */}
+        <Link className="navbar-brand d-flex align-items-center" to={isLogged ? '/dashboard' : '/'}>
           <img 
             src="/logo-alianza.png" 
             alt="Logo Alianza Francesa" 
@@ -25,9 +25,8 @@ const Navbar = () => {
             className="d-inline-block align-text-top me-2 bg-white rounded-circle p-1"
           />
           <span className="fw-bold">SG Club de Ajedrez</span>
-        </a>
+        </Link>
         
-        {/* 3. Botón disparador con evento onClick (Sin los data-bs de Bootstrap) */}
         <button 
           className="navbar-toggler" 
           type="button" 
@@ -36,12 +35,26 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         
-        {/* 4. Renderizado Condicional del contenedor del menú */}
         <div className={`${isNavCollapsed ? 'collapse' : 'collapse show'} navbar-collapse`} id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-center">
+            
+            {/* 2. ENLACE EXPLÍCITO: Solo visible si el usuario inició sesión */}
+            {isLogged && (
+              <li className="nav-item me-3">
+                <Link 
+                  to="/dashboard" 
+                  className="nav-link text-white fw-bold"
+                  onClick={() => setIsNavCollapsed(true)}
+                >
+                  Panel de Control
+                </Link>
+              </li>
+            )}
+
             <li className="nav-item me-3">
-              <span className="nav-link text-white fw-semibold">Sede Paraná</span>
+              <span className="nav-link text-white-50 fw-semibold">Sede Paraná</span>
             </li>
+            
             <li className="nav-item">
               {isLogged ? (
                 <button 
@@ -51,13 +64,13 @@ const Navbar = () => {
                   Cerrar Sesión
                 </button>
               ) : (
-                <a 
-                  href="/login" 
+                <Link 
+                  to="/login" 
                   className="btn btn-sm btn-light text-primary fw-bold" 
-                  onClick={() => setIsNavCollapsed(true)} // 5. Cierre Automático al entrar
+                  onClick={() => setIsNavCollapsed(true)}
                 >
                   Acceso Profesores
-                </a>
+                </Link>
               )}
             </li>
           </ul>
