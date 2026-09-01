@@ -1,6 +1,9 @@
 package com.clubajedrez.backend.repositories;
 
 import com.clubajedrez.backend.entities.Federado;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,4 +32,8 @@ public interface FederadoRepository extends JpaRepository<Federado, Integer> {
     @Modifying
     @Query(value = "DELETE FROM federado WHERE id_persona = :idPersona", nativeQuery = true)
     void eliminarRolFederado(@Param("idPersona") Integer idPersona);
+    
+ // Filtra por borrado lógico (heredado de Persona) y ordena por ELO
+    List<Federado> findByIsActiveTrueOrderByEloDesc();
+    
 }
