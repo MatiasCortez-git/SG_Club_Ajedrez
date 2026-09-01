@@ -1,5 +1,6 @@
 package com.clubajedrez.backend.controllers;
 
+import com.clubajedrez.backend.dtos.DeudaAlumnoDTO;
 import com.clubajedrez.backend.dtos.RankingEloDTO;
 import com.clubajedrez.backend.services.ReporteService;
 
@@ -25,4 +26,11 @@ public class ReporteController {
         List<RankingEloDTO> ranking = reporteService.obtenerRankingElo();
         return ResponseEntity.ok(ranking);
     }
+    
+    @GetMapping("/morosos")
+    public ResponseEntity<List<DeudaAlumnoDTO>> obtenerMorosos() {
+        List<DeudaAlumnoDTO> morosos = reporteService.obtenerAlumnosMorosos();
+        return ResponseEntity.ok(morosos);
+    }
+    
 }
