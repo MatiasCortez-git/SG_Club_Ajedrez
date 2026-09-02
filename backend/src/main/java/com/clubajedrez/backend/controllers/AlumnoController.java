@@ -3,6 +3,7 @@ package com.clubajedrez.backend.controllers;
 import com.clubajedrez.backend.dtos.AlumnoCreateDTO;
 import com.clubajedrez.backend.dtos.AlumnoResponseDTO;
 import com.clubajedrez.backend.services.AlumnoService;
+import com.clubajedrez.backend.services.TallerService;
 
 import java.util.List;
 
@@ -15,9 +16,11 @@ import org.springframework.web.bind.annotation.*;
 public class AlumnoController {
 
     private final AlumnoService alumnoService;
+    private final TallerService tallerService;
 
-    public AlumnoController(AlumnoService alumnoService) {
+    public AlumnoController(AlumnoService alumnoService,TallerService tallerService) {
         this.alumnoService = alumnoService;
+        this.tallerService = tallerService;
     }
 
     // 1. Crear Alumno
@@ -40,7 +43,7 @@ public class AlumnoController {
             @PathVariable Integer idAlumno, 
             @PathVariable Integer idTaller) {
         
-        alumnoService.inscribirEnTaller(idAlumno, idTaller);
+        tallerService.inscribirAlumno(idAlumno, idTaller);
         
         // Devolvemos 201 Created sin body, o podrías devolver un mensaje de éxito.
         return new ResponseEntity<>(HttpStatus.CREATED); 
@@ -71,4 +74,12 @@ public class AlumnoController {
         alumnoService.eliminarAlumno(id);
         return ResponseEntity.noContent().build();
     }
+    
+    // 8. Eliminar alumno de un taller
+    @DeleteMapping("/{idAlumno}/talleres/{idTaller}")
+    public ResponseEntity<Void> desinscribirAlumno(@PathVariable Integer idAlumno, @PathVariable Integer idTaller) {
+        tallerService.desinscribirAlumno(idAlumno, idTaller);
+        return ResponseEntity.noContent().build();
+    }
+    
 }

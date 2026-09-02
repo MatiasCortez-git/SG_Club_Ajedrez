@@ -2,6 +2,7 @@ package com.clubajedrez.backend.services;
 
 import java.util.List;
 
+import com.clubajedrez.backend.dtos.AlumnoResponseDTO;
 import com.clubajedrez.backend.dtos.TallerCreateDTO;
 import com.clubajedrez.backend.dtos.TallerResponseDTO;
 
@@ -26,5 +27,12 @@ public interface TallerService {
     TallerResponseDTO actualizarTaller(Integer id, TallerCreateDTO dto);
     
     void eliminarTaller(Integer id);
+    
+    void desinscribirAlumno(Integer idAlumno, Integer idTaller);
+    void resetearCicloLectivo();
+    List<AlumnoResponseDTO> obtenerAlumnosPorTaller(Integer idTaller);
+    void resetearCicloLectivoPorTaller(Integer idTaller);
+    
+    
 
 }

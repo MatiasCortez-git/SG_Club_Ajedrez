@@ -18,15 +18,12 @@ public class AlumnoServiceImpl implements AlumnoService {
 
     private final AlumnoRepository alumnoRepository;
     private final FederadoRepository federadoRepository;
-    private final TallerService tallerService; // Inyectamos el servicio para reutilizar la lógica de cupos
-
+    
     // Inyección por constructor
     public AlumnoServiceImpl(AlumnoRepository alumnoRepository, 
-                             FederadoRepository federadoRepository,
-                             TallerService tallerService) {
+                             FederadoRepository federadoRepository) {
         this.alumnoRepository = alumnoRepository;
         this.federadoRepository = federadoRepository;
-        this.tallerService = tallerService;
     }
 
     @Override
@@ -71,12 +68,7 @@ public class AlumnoServiceImpl implements AlumnoService {
         return mapToDTO(alumno);
     }
 
-    @Override
-    @Transactional
-    public void inscribirEnTaller(Integer idAlumno, Integer idTaller) {
-        // Delegamos la tarea al TallerService que ya tiene programada la validación del cupo y el Trigger
-        tallerService.inscribirAlumno(idAlumno, idTaller);
-    }
+   
     
     @Override
     @Transactional(readOnly = true)
