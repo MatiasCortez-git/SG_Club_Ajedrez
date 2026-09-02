@@ -46,9 +46,9 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="col-md-4 mb-3">
-          <div className="card shadow-sm h-100 border-primary">
+          <div className="card shadow-sm h-100">
             <div className="card-body d-flex flex-column justify-content-center">
-              <h5 className="card-title text-primary fw-bold">Gestión de Inscripciones</h5>
+              <h5 className="card-title">Gestión de Inscripciones</h5>
               <Link to="/inscripciones" className="btn btn-outline-primary mt-3">Ingresar</Link>
             </div>
           </div>
