@@ -8,6 +8,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import VistaProfesores from './components/VistaProfesores';
 import VistaReportes from './components/VistaReportes'
+import VistaInscripciones from './components/VistaInscripciones';
 
 // El Guardián
 const PrivateRoute = ({ children }) => {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/caja" element={<PrivateRoute><VistaCaja /></PrivateRoute>} />
         <Route path="/profesores" element={<PrivateRoute><VistaProfesores /></PrivateRoute>} />
         <Route path="/reportes" element={<PrivateRoute><VistaReportes /></PrivateRoute>} />
+        <Route path="/inscripciones" element={<PrivateRoute><VistaInscripciones /></PrivateRoute>} />
       </Routes>
     </Router>
   );

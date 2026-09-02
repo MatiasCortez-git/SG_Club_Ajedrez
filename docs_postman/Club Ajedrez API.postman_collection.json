@@ -153,6 +153,86 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "ListarAlumnos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/talleres/:idTaller/alumnos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "talleres",
+                ":idTaller",
+                "alumnos"
+              ],
+              "variable": [
+                {
+                  "key": "idTaller",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "VaciarTaller",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/talleres/:id/reset-ciclo",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "talleres",
+                ":id",
+                "reset-ciclo"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "VaciarTodo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/talleres/reset-ciclo",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "talleres",
+                "reset-ciclo"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -195,7 +275,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/v1/alumnos/3/talleres/1",
+              "raw": "http://localhost:8081/api/v1/alumnos/:id1/talleres/:id2",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -205,9 +285,19 @@
                 "api",
                 "v1",
                 "alumnos",
-                "3",
+                ":id1",
                 "talleres",
-                "1"
+                ":id2"
+              ],
+              "variable": [
+                {
+                  "key": "id1",
+                  "value": "12"
+                },
+                {
+                  "key": "id2",
+                  "value": "1"
+                }
               ]
             }
           },
@@ -241,7 +331,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/v1/cuotas/calcular/2",
+              "raw": "http://localhost:8081/api/v1/cuotas/calcular/3",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -252,7 +342,7 @@
                 "v1",
                 "cuotas",
                 "calcular",
-                "2"
+                "3"
               ]
             }
           },
@@ -366,7 +456,41 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "12"
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "BorrarInscripcion",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/alumnos/:idAlumno/talleres/:idTaller",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "alumnos",
+                ":idAlumno",
+                "talleres",
+                ":idTaller"
+              ],
+              "variable": [
+                {
+                  "key": "idAlumno",
+                  "value": "3"
+                },
+                {
+                  "key": "idTaller",
+                  "value": "1"
                 }
               ]
             }
@@ -603,6 +727,111 @@
                   "key": "id",
                   "value": "3"
                 }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reportes",
+      "item": [
+        {
+          "name": "RankingElo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/reportes/ranking",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "reportes",
+                "ranking"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Morosos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/reportes/morosos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "reportes",
+                "morosos"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tarifas",
+      "item": [
+        {
+          "name": "ObtenerTarifas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/tarifas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "tarifas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ActualizarTarifas",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    {\r\n        \"concepto\": \"Cuota Socio\",\r\n        \"montoActual\": 10000\r\n    },\r\n    {\r\n        \"concepto\": \"Adicional Federado\",\r\n        \"montoActual\": 3000\r\n    }\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/tarifas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "tarifas"
               ]
             }
           },

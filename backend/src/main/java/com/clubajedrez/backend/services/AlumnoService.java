@@ -10,8 +10,6 @@ public interface AlumnoService {
     AlumnoResponseDTO crearAlumno(AlumnoCreateDTO dto);
 
     AlumnoResponseDTO obtenerAlumnoPorId(Integer id);
-
-    void inscribirEnTaller(Integer idAlumno, Integer idTaller);
     
     List<AlumnoResponseDTO> obtenerTodos();
     

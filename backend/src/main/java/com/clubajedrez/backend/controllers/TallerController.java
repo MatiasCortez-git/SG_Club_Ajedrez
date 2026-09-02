@@ -1,5 +1,6 @@
 package com.clubajedrez.backend.controllers;
 
+import com.clubajedrez.backend.dtos.AlumnoResponseDTO;
 import com.clubajedrez.backend.dtos.TallerCreateDTO;
 import com.clubajedrez.backend.dtos.TallerResponseDTO;
 import com.clubajedrez.backend.services.TallerService;
@@ -57,6 +58,27 @@ public class TallerController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarTaller(@PathVariable Integer id) {
         tallerService.eliminarTaller(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    // Endpoint 6: Eliminar todas las inscripciones de todos los Taller
+    @DeleteMapping("/reset-ciclo")
+    public ResponseEntity<Void> resetearCiclo() {
+        tallerService.resetearCicloLectivo();
+        return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint 7: Lista los alumnos de un taller
+    @GetMapping("/{idTaller}/alumnos")
+    public ResponseEntity<List<AlumnoResponseDTO>> listarAlumnosDelTaller(@PathVariable Integer idTaller) {
+        List<AlumnoResponseDTO> alumnos = tallerService.obtenerAlumnosPorTaller(idTaller);
+        return ResponseEntity.ok(alumnos);
+    }
+    
+    // Endpoint 8: Eliminar todas las inscripciones de un solo Taller
+    @DeleteMapping("/{idTaller}/reset-ciclo")
+    public ResponseEntity<Void> resetearCicloDelTaller(@PathVariable Integer idTaller) {
+        tallerService.resetearCicloLectivoPorTaller(idTaller);
         return ResponseEntity.noContent().build();
     }
 

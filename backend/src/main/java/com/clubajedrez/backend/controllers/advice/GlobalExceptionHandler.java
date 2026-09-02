@@ -8,6 +8,8 @@ import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoFederadoException;
 import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerSinCupoException;
+import com.clubajedrez.backend.exceptions.TarifaNoEncontradaException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,7 +25,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({AlumnoNoEncontradoException.class , 
     				   TallerNoEncontradoException.class, 
     				   ProfesorNoEncontradoException.class,
-    				   PagoNoEncontradoException.class })
+    				   PagoNoEncontradoException.class, 
+    				   TarifaNoEncontradaException.class})
+    
     
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();

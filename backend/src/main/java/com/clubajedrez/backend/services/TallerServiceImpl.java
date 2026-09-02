@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clubajedrez.backend.dtos.AlumnoResponseDTO;
 import com.clubajedrez.backend.dtos.TallerCreateDTO;
 import com.clubajedrez.backend.dtos.TallerResponseDTO;
 import com.clubajedrez.backend.entities.Alumno;
@@ -75,7 +76,7 @@ public class TallerServiceImpl implements TallerService {
 
         // B. Validar que exista el taller
         Taller taller = tallerRepository.findById(idTaller)
-                .orElseThrow(() -> new RuntimeException("No se encontró el taller con ID: " + idTaller));
+                .orElseThrow(() -> new TallerNoEncontradoException("Taller no encontrado con ID: " + idTaller));
 
         // C. Consultar la cantidad de alumnos inscriptos en la tabla intermedia
        
@@ -141,6 +142,35 @@ public class TallerServiceImpl implements TallerService {
         tallerRepository.save(taller);
     }
     
+    @Override
+    @Transactional
+    public void desinscribirAlumno(Integer idAlumno, Integer idTaller) {
+        alumnoTallerRepository.eliminarInscripcion(idAlumno, idTaller);
+    }
+
+    @Override
+    @Transactional
+    public void resetearCicloLectivo() {
+        // TRUNCATE vacía la tabla a nivel de disco al instante
+        alumnoTallerRepository.vaciarTodasLasAulas();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AlumnoResponseDTO> obtenerAlumnosPorTaller(Integer idTaller) {
+        List<Alumno> alumnos = alumnoTallerRepository.findAlumnosByTallerId(idTaller);
+        
+        return alumnos.stream()
+                .map(this::mapAlumnoToDTO) // Asume que tienes este método privado mapeando tu AlumnoResponseDTO
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional
+    public void resetearCicloLectivoPorTaller(Integer idTaller) {
+        alumnoTallerRepository.vaciarAulaPorTaller(idTaller);
+    }
+    
  // =========================================================================
     // MÉTODOS PRIVADOS DE MAPEO (DTO <-> ENTIDAD)
     // =========================================================================
@@ -181,6 +211,18 @@ public class TallerServiceImpl implements TallerService {
         long cantidadInscriptos = alumnoTallerRepository.countByTaller_IdTaller(taller.getIdTaller());
         dto.setInscriptos((int) cantidadInscriptos);
         
+        return dto;
+    }
+    
+    private AlumnoResponseDTO mapAlumnoToDTO(Alumno alumno) {
+        AlumnoResponseDTO dto = new AlumnoResponseDTO();
+        dto.setIdPersona(alumno.getIdPersona());
+        dto.setNombre(alumno.getNombre());
+        dto.setApellido(alumno.getApellido());
+        dto.setDni(alumno.getDni());
+        dto.setEmail(alumno.getEmail());
+        dto.setTelefono(alumno.getTelefono());
+        dto.setFechaNacimiento(alumno.getFechaNacimiento());
         return dto;
     }
 }
