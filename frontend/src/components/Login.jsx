@@ -9,7 +9,7 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     if (password === 'alianza2026') {
-      localStorage.setItem('isLogged', 'true');
+      sessionStorage.setItem('isLogged', 'true');
       window.location.href = '/dashboard'; 
     } else {
       alert('Acceso denegado: Contraseña incorrecta');

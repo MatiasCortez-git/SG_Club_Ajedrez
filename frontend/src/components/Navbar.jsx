@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
-  const isLogged = localStorage.getItem('isLogged') === 'true';
+  const isLogged = sessionStorage.getItem('isLogged') === 'true';
 
   const handleLogout = () => {
     setIsNavCollapsed(true);
-    localStorage.removeItem('isLogged');
+    sessionStorage.removeItem('isLogged');
     window.location.href = '/'; 
   };
 
