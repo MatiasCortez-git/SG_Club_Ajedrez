@@ -12,7 +12,7 @@ import VistaInscripciones from './components/VistaInscripciones';
 
 // El Guardián
 const PrivateRoute = ({ children }) => {
-  const isLogged = localStorage.getItem('isLogged') === 'true';
+  const isLogged = sessionStorage.getItem('isLogged') === 'true';
   return isLogged ? children : <Navigate to="/login" />;
 };
 
