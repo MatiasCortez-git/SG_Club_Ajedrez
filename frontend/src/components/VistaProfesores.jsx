@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../api'; // <-- Importamos nuestro interceptor de Axios
 
 const VistaProfesores = () => {
   const [profesores, setProfesores] = useState([]);
@@ -15,8 +16,8 @@ const VistaProfesores = () => {
   // GET: Cargar profesores
   const fetchProfesores = async () => {
     try {
-      const res = await fetch('http://localhost:8081/api/v1/profesores');
-      if (res.ok) setProfesores(await res.json());
+      const res = await api.get('/profesores');
+      setProfesores(res.data);
     } catch (err) {
       console.error('Error al cargar profesores', err);
     }
@@ -40,36 +41,30 @@ const VistaProfesores = () => {
       return;
     }
 
-    const url = isEditing 
-      ? `http://localhost:8081/api/v1/profesores/${currentId}` 
-      : 'http://localhost:8081/api/v1/profesores';
-      
-    const method = isEditing ? 'PUT' : 'POST';
-
     try {
-      const res = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      if (res.ok || res.status === 201) {
-        alert(isEditing ? '¡Profesor actualizado!' : '¡Profesor registrado!');
-        setFormData(estadoInicial);
-        setIsEditing(false);
-        setCurrentId(null);
-        fetchProfesores();
+      if (isEditing) {
+        await api.put(`/profesores/${currentId}`, formData);
+        alert('¡Profesor actualizado!');
       } else {
-        setError('Error al procesar la solicitud.');
+        await api.post('/profesores', formData);
+        alert('¡Profesor registrado!');
       }
+      
+      setFormData(estadoInicial);
+      setIsEditing(false);
+      setCurrentId(null);
+      fetchProfesores();
     } catch (err) {
-      setError('Error de conexión.');
+      setError('Error al procesar la solicitud.');
     }
   };
 
   // Cargar datos en el formulario para editar
   const handleEdit = (profesor) => {
-    setFormData(profesor);
+    setFormData({
+      ...estadoInicial,
+      ...profesor
+    });
     setIsEditing(true);
     setCurrentId(profesor.idPersona || profesor.id);
   };
@@ -78,11 +73,9 @@ const VistaProfesores = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de dar de baja a este profesor?')) return;
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/profesores/${id}`, { method: 'DELETE' });
-      if (res.ok || res.status === 204) {
-        alert('Profesor dado de baja exitosamente.');
-        fetchProfesores();
-      }
+      await api.delete(`/profesores/${id}`);
+      alert('Profesor dado de baja exitosamente.');
+      fetchProfesores();
     } catch (err) {
       console.error('Error al eliminar', err);
     }

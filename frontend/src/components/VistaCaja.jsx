@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import ComprobantePago from './ComprobantePago';
+import api from '../api'; // <-- Importamos nuestra llave maestra JWT
 
 const VistaCaja = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -25,16 +26,17 @@ const VistaCaja = () => {
   useEffect(() => {
     const fetchAlumnosYTarifas = async () => {
       try {
-        const resAlumnos = await fetch('http://localhost:8081/api/v1/alumnos');
-        if (resAlumnos.ok) setAlumnos(await resAlumnos.json());
+        const [resAlumnos, resTarifas] = await Promise.all([
+          api.get('/alumnos'),
+          api.get('/tarifas')
+        ]);
+        
+        setAlumnos(resAlumnos.data);
 
-        const resTarifas = await fetch('http://localhost:8081/api/v1/tarifas');
-        if (resTarifas.ok) {
-          const dataTarifas = await resTarifas.json();
-          const cuotaSocio = dataTarifas.find(t => t.concepto === 'Cuota Socio')?.montoActual || '';
-          const adicionalFederado = dataTarifas.find(t => t.concepto === 'Adicional Federado')?.montoActual || '';
-          setTarifas({ cuotaSocio, adicionalFederado });
-        }
+        const dataTarifas = resTarifas.data;
+        const cuotaSocio = dataTarifas.find(t => t.concepto === 'Cuota Socio')?.montoActual || '';
+        const adicionalFederado = dataTarifas.find(t => t.concepto === 'Adicional Federado')?.montoActual || '';
+        setTarifas({ cuotaSocio, adicionalFederado });
       } catch (error) {
         console.error('Error al cargar datos iniciales:', error);
       }
@@ -48,8 +50,8 @@ const VistaCaja = () => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/cuotas/alumno/${id}`);
-      if (res.ok) setCuotas(await res.json());
+      const res = await api.get(`/cuotas/alumno/${id}`);
+      setCuotas(res.data);
     } catch (error) {
       console.error('Error al cargar cuotas:', error);
     }
@@ -67,19 +69,11 @@ const VistaCaja = () => {
         { concepto: 'Adicional Federado', montoActual: parseFloat(tarifas.adicionalFederado) }
       ];
 
-      const res = await fetch('http://localhost:8081/api/v1/tarifas', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        alert('¡Tarifas actualizadas! Los próximos recibos se generarán con los nuevos montos.');
-        setIsTarifasOpen(false);
-      } else {
-        alert('Error al actualizar las tarifas.');
-      }
+      await api.put('/tarifas', payload);
+      alert('¡Tarifas actualizadas! Los próximos recibos se generarán con los nuevos montos.');
+      setIsTarifasOpen(false);
     } catch (error) {
+      alert('Error al actualizar las tarifas.');
       console.error('Error:', error);
     }
   };
@@ -91,38 +85,31 @@ const VistaCaja = () => {
       return;
     }
     try {
-      const res = await fetch('http://localhost:8081/api/v1/cuotas/generar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idAlumno: parseInt(idAlumno), periodo })
-      });
-      if (res.status === 201) {
-        alert('¡Cuota generada con éxito!');
-        setPeriodo('');
-        fetchCuotas(idAlumno); 
-      } else if (res.status === 409) {
+      await api.post('/cuotas/generar', { idAlumno: parseInt(idAlumno), periodo });
+      alert('¡Cuota generada con éxito!');
+      setPeriodo('');
+      fetchCuotas(idAlumno); 
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
         alert('La cuota para este periodo ya fue generada previamente.');
       } else {
         alert('Error al generar la cuota.');
       }
-    } catch (error) {
       console.error('Error:', error);
     }
   };
 
-  // Función para obtener el comprobante y disparar la impresión
+  // Función para obtener el comprobante y disparar la impresión (Igual a tu código original)
   const handleImprimirRecibo = async (idPago) => {
     if (!idPago) return;
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/pagos/${idPago}/comprobante`);
-      if (res.ok) {
-        const data = await res.json();
-        setDatosRecibo(data);
-        // Le damos 100ms a React para que re-renderice el componente oculto con los datos nuevos
-        setTimeout(() => {
-          handlePrint();
-        }, 100);
-      }
+      const res = await api.get(`/pagos/${idPago}/comprobante`);
+      setDatosRecibo(res.data); // Axios guarda el JSON en res.data
+      
+      // Le damos 100ms a React para que re-renderice el componente oculto con los datos nuevos
+      setTimeout(() => {
+        handlePrint();
+      }, 100);
     } catch (error) {
       console.error('Error al cargar comprobante:', error);
     }
@@ -135,22 +122,16 @@ const VistaCaja = () => {
         medioPago: medioPago,
         idsCuotasAPagar: [idCuota] 
       };
-      const res = await fetch('http://localhost:8081/api/v1/pagos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
       
-      if (res.status === 201 || res.ok) {
-        const pagoData = await res.json();
-        alert('¡Pago registrado correctamente!');
-        fetchCuotas(idAlumno); 
-        // Disparamos el ticket automáticamente tras pagar
-        handleImprimirRecibo(pagoData.idPago);
-      } else {
-        alert('Error al registrar el pago (¿Quizás ya estaba pagada?).');
-      }
+      const res = await api.post('/pagos', payload);
+      
+      alert('¡Pago registrado correctamente!');
+      fetchCuotas(idAlumno); 
+      // Disparamos el ticket automáticamente tras pagar usando res.data.idPago
+      handleImprimirRecibo(res.data.idPago);
+      
     } catch (error) {
+      alert('Error al registrar el pago (¿Quizás ya estaba pagada?).');
       console.error('Error:', error);
     }
   };

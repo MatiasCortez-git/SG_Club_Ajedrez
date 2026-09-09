@@ -24,26 +24,31 @@ public interface AlumnoTallerRepository extends JpaRepository<AlumnoTaller, Alum
            nativeQuery = true)
     Double sumarTalleresVigentes(@Param("idAlumno") Integer idAlumno);
 	    
- // NUEVO MÉTODO TICKET COMPROBANTES
+    // NUEVO MÉTODO TICKET COMPROBANTES
     List<AlumnoTaller> findByAlumno_IdPersona(Integer idPersona);
     
- // 1. Desinscripción individual (Borrado físico)
+    //  Desinscripción individual (Borrado físico)
     @Modifying
     @Query(value = "DELETE FROM alumno_taller WHERE id_alumno = :idAlumno AND id_taller = :idTaller", nativeQuery = true)
     void eliminarInscripcion(@Param("idAlumno") Integer idAlumno, @Param("idTaller") Integer idTaller);
 
-    // 2. Reset masivo del ciclo lectivo
+    //  Reset masivo del ciclo lectivo
     @Modifying
     @Query(value = "TRUNCATE TABLE alumno_taller", nativeQuery = true)
     void vaciarTodasLasAulas();
 
-    // 3. Listado de alumnos sentados en el aula hoy
+    //  Listado de alumnos sentados en el aula hoy
     @Query("SELECT at.alumno FROM AlumnoTaller at WHERE at.taller.idTaller = :idTaller")
     List<Alumno> findAlumnosByTallerId(@Param("idTaller") Integer idTaller);
 
- // Reset individual de un taller específico
+    // Reset individual de un taller específico
     @Modifying
     @Query(value = "DELETE FROM alumno_taller WHERE id_taller = :idTaller", nativeQuery = true)
     void vaciarAulaPorTaller(@Param("idTaller") Integer idTaller);
+    
+    //  Prevenir doble inscripción
+    @Query(value = "SELECT COUNT(*) > 0 FROM Alumno_Taller WHERE id_alumno = :idAlumno AND id_taller = :idTaller", nativeQuery = true)
+    boolean existsByAlumnoAndTaller(@Param("idAlumno") Integer idAlumno, @Param("idTaller") Integer idTaller);
+    
     
 }

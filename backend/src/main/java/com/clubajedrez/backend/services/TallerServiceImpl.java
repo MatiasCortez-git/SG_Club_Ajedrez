@@ -15,6 +15,7 @@ import com.clubajedrez.backend.entities.AlumnoTaller;
 import com.clubajedrez.backend.entities.Profesor;
 import com.clubajedrez.backend.entities.Taller;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
+import com.clubajedrez.backend.exceptions.InscripcionDuplicadaException;
 import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerSinCupoException;
@@ -78,16 +79,21 @@ public class TallerServiceImpl implements TallerService {
         Taller taller = tallerRepository.findById(idTaller)
                 .orElseThrow(() -> new TallerNoEncontradoException("Taller no encontrado con ID: " + idTaller));
 
-        // C. Consultar la cantidad de alumnos inscriptos en la tabla intermedia
+        // C. Validar que el alumno NO esté inscripto ya en este taller
+        if (alumnoTallerRepository.existsByAlumnoAndTaller(idAlumno, idTaller)) {
+            throw new InscripcionDuplicadaException("El alumno ya se encuentra inscripto en este taller.");
+        }
+        
+        // D. Consultar la cantidad de alumnos inscriptos en la tabla intermedia
        
         long inscriptosActuales = alumnoTallerRepository.countByTaller_IdTaller(idTaller);
 
-        // D. REGLA DE NEGOCIO: Validar contra el cupo máximo del taller
+        // E. REGLA DE NEGOCIO: Validar contra el cupo máximo del taller
         if (inscriptosActuales >= taller.getCupoMaximo()) { 
             throw new TallerSinCupoException("El taller '" + taller.getNombre() + "' ya no tiene cupos disponibles.");
         }
 
-        // E. Guardar el nuevo registro en la tabla intermedia Alumno_Taller
+        // F. Guardar el nuevo registro en la tabla intermedia Alumno_Taller
         AlumnoTaller nuevaInscripcion = new AlumnoTaller();
         nuevaInscripcion.setAlumno(alumno);
         nuevaInscripcion.setTaller(taller);
