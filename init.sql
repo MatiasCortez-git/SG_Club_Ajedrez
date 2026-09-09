@@ -106,6 +106,18 @@ CREATE TABLE Detalle_Cuota (
     FOREIGN KEY (id_cuota) REFERENCES Cuota(id_cuota) ON DELETE CASCADE
 );
 
+-- 12. Tabla de Usuarios (Autenticación y Spring Security)
+CREATE TABLE usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    username VARCHAR(150) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL
+);
+
+-- Insertamos el administrador semilla (La contraseña es 'admin123' encriptada con BCrypt)
+INSERT INTO usuario (username, password, rol) 
+VALUES ('admin@admin.com', '$2a$10$EblZqNptyYvcLm/VwDCVAuIssDAT1V43iG70M2sYJtZ.L502K0.QO', 'ROLE_ADMIN');
+
 -- Función que cuenta inscriptos y evalúa el cupo
 CREATE OR REPLACE FUNCTION verificar_cupo_taller()
 RETURNS TRIGGER AS $$

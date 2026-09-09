@@ -2,16 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import ReporteRanking from './ReporteRanking';
 import ReporteMorosos from './ReporteMorosos';
+import api from '../api'; // <-- Importamos Axios con JWT
 
 const VistaReportes = () => {
-  // Estado para controlar la pestaña activa
   const [tabActiva, setTabActiva] = useState('ELO');
   
-  // Estados para los datos
   const [ranking, setRanking] = useState([]);
   const [morosos, setMorosos] = useState([]);
 
-  // Referencias y Hooks de impresión desacoplados
   const eloRef = useRef();
   const morososRef = useRef();
 
@@ -25,22 +23,25 @@ const VistaReportes = () => {
     documentTitle: 'Alumnos_Morosos_Club_Ajedrez',
   });
 
-  // Lazy Fetching: Solo busca los datos cuando se activa la pestaña y si aún no se cargaron
   useEffect(() => {
-    if (tabActiva === 'ELO' && ranking.length === 0) {
-      fetch('http://localhost:8081/api/v1/reportes/ranking')
-        .then(res => res.ok ? res.json() : [])
-        .then(data => setRanking(data))
-        .catch(err => console.error(err));
-    }
+    const fetchReportes = async () => {
+      try {
+        if (tabActiva === 'ELO' && ranking.length === 0) {
+          const res = await api.get('/reportes/ranking');
+          setRanking(res.data);
+        }
+        
+        if (tabActiva === 'MOROSOS' && morosos.length === 0) {
+          const res = await api.get('/reportes/morosos');
+          setMorosos(res.data);
+        }
+      } catch (err) {
+        console.error('Error al cargar reportes:', err);
+      }
+    };
     
-    if (tabActiva === 'MOROSOS' && morosos.length === 0) {
-      fetch('http://localhost:8081/api/v1/reportes/morosos')
-        .then(res => res.ok ? res.json() : [])
-        .then(data => setMorosos(data))
-        .catch(err => console.error(err));
-    }
-  }, [tabActiva]); 
+    fetchReportes();
+  }, [tabActiva, ranking.length, morosos.length]); 
 
   return (
     <div className="container mt-4">

@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
+import api from '../api'; // <-- 1. Importamos nuestra llave maestra
 
 const VistaTalleres = () => {
   const [talleres, setTalleres] = useState([]);
   const [profesores, setProfesores] = useState([]);
-  const [alumnos, setAlumnos] = useState([]); // Nuevo estado para alumnos
+  const [alumnos, setAlumnos] = useState([]); 
   const [error, setError] = useState('');
   
-  // Estados para Edición
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   
-  // Estados para el Modal de Inscripción
   const [showModal, setShowModal] = useState(false);
   const [tallerSeleccionado, setTallerSeleccionado] = useState(null);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState('');
@@ -20,17 +19,17 @@ const VistaTalleres = () => {
   };
   const [formData, setFormData] = useState(estadoInicial);
 
-  // GET: Cargar Talleres, Profesores y Alumnos
+  // GET: Cargar Talleres, Profesores y Alumnos (Axios hace el Promise.all súper limpio)
   const fetchData = async () => {
     try {
       const [resTalleres, resProfesores, resAlumnos] = await Promise.all([
-        fetch('http://localhost:8081/api/v1/talleres'),
-        fetch('http://localhost:8081/api/v1/profesores'),
-        fetch('http://localhost:8081/api/v1/alumnos')
+        api.get('/talleres'),
+        api.get('/profesores'),
+        api.get('/alumnos')
       ]);
-      if (resTalleres.ok) setTalleres(await resTalleres.json());
-      if (resProfesores.ok) setProfesores(await resProfesores.json());
-      if (resAlumnos.ok) setAlumnos(await resAlumnos.json());
+      setTalleres(resTalleres.data);
+      setProfesores(resProfesores.data);
+      setAlumnos(resAlumnos.data);
     } catch (err) {
       console.error('Error al cargar datos:', err);
     }
@@ -49,35 +48,28 @@ const VistaTalleres = () => {
     e.preventDefault();
     setError('');
 
-    const url = isEditing 
-      ? `http://localhost:8081/api/v1/talleres/${currentId}` 
-      : 'http://localhost:8081/api/v1/talleres';
-      
-    const method = isEditing ? 'PUT' : 'POST';
+    const payload = {
+      ...formData,
+      cupoMaximo: parseInt(formData.cupoMaximo),
+      costo: parseFloat(formData.costo),
+      idProfesor: parseInt(formData.idProfesor)
+    };
 
     try {
-      const res = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          cupoMaximo: parseInt(formData.cupoMaximo),
-          costo: parseFloat(formData.costo),
-          idProfesor: parseInt(formData.idProfesor)
-        })
-      });
-
-      if (res.ok || res.status === 201) {
-        alert(isEditing ? '¡Taller actualizado!' : '¡Taller registrado!');
-        setFormData(estadoInicial);
-        setIsEditing(false);
-        setCurrentId(null);
-        fetchData();
+      if (isEditing) {
+        await api.put(`/talleres/${currentId}`, payload);
+        alert('¡Taller actualizado!');
       } else {
-        setError('Error al procesar la solicitud.');
+        await api.post('/talleres', payload);
+        alert('¡Taller registrado!');
       }
+      
+      setFormData(estadoInicial);
+      setIsEditing(false);
+      setCurrentId(null);
+      fetchData();
     } catch (err) {
-      setError('Error de conexión.');
+      setError('Error al procesar la solicitud.');
     }
   };
 
@@ -94,41 +86,37 @@ const VistaTalleres = () => {
     setCurrentId(taller.idTaller);
   };
 
+  // DELETE: Baja lógica
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de dar de baja este taller?')) return;
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/talleres/${id}`, { method: 'DELETE' });
-      if (res.ok || res.status === 204) {
-        alert('Taller eliminado exitosamente.');
-        fetchData();
-      }
+      await api.delete(`/talleres/${id}`);
+      alert('Taller eliminado exitosamente.');
+      fetchData();
     } catch (err) {
       console.error('Error al eliminar', err);
     }
   };
 
-  // POST: Procesar la Inscripción
+  // POST: Procesar la Inscripción usando la ruta anidada
   const handleInscribir = async (e) => {
     e.preventDefault();
     if (!alumnoSeleccionado) return;
 
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/alumnos/${alumnoSeleccionado}/talleres/${tallerSeleccionado.idTaller}`, {
-        method: 'POST'
-      }); // No enviamos body porque los IDs ya viajan en la URL[cite: 1]
-
-      if (res.status === 201) {
-        alert('¡Alumno inscripto con éxito!');
-        setShowModal(false);
-        setAlumnoSeleccionado('');
-        fetchData(); // Refresca para actualizar la barra de cupos
-      } else {
-        alert('Error al inscribir (Verificá si el taller ya está lleno o si el alumno ya está inscripto).');
-      }
+      // Axios envía el POST vacío solo con la URL, tal como lo diseñamos en el backend[cite: 5]
+      await api.post(`/alumnos/${alumnoSeleccionado}/talleres/${tallerSeleccionado.idTaller}`);
+      
+      alert('¡Alumno inscripto con éxito!');
+      setShowModal(false);
+      setAlumnoSeleccionado('');
+      fetchData(); // Refresca para actualizar la barra de cupos automáticamente
     } catch (err) {
+      alert('Error al inscribir (Verificá si el taller ya está lleno o si el alumno ya está inscripto).');
       console.error('Error en la inscripción:', err);
     }
   };
+
 
   return (
     <div className="container mt-4 position-relative">

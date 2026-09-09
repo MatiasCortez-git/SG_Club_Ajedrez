@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../api'; // <-- Importamos Axios con JWT
 
 const VistaInscripciones = () => {
   const [talleres, setTalleres] = useState([]);
@@ -7,19 +8,19 @@ const VistaInscripciones = () => {
   
   const [idTallerSeleccionado, setIdTallerSeleccionado] = useState('');
   
-  // Estado del Modal
   const [showModal, setShowModal] = useState(false);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState('');
 
-  // 1. Cargar catálogo de talleres y padrón general de alumnos al iniciar
+  // 1. Cargar catálogo base al iniciar usando Axios Promise.all
   useEffect(() => {
     const fetchInicial = async () => {
       try {
-        const resTalleres = await fetch('http://localhost:8081/api/v1/talleres');
-        if (resTalleres.ok) setTalleres(await resTalleres.json());
-
-        const resAlumnos = await fetch('http://localhost:8081/api/v1/alumnos');
-        if (resAlumnos.ok) setAlumnos(await resAlumnos.json());
+        const [resTalleres, resAlumnos] = await Promise.all([
+          api.get('/talleres'),
+          api.get('/alumnos')
+        ]);
+        setTalleres(resTalleres.data);
+        setAlumnos(resAlumnos.data);
       } catch (error) {
         console.error('Error al cargar datos base:', error);
       }
@@ -27,15 +28,15 @@ const VistaInscripciones = () => {
     fetchInicial();
   }, []);
 
-  // 2. Cargar inscriptos CADA VEZ que se selecciona un taller
+  // 2. Cargar inscriptos al seleccionar un taller
   const fetchInscriptos = async (idTaller) => {
     if (!idTaller) {
       setInscriptos([]);
       return;
     }
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/talleres/${idTaller}/alumnos`);
-      if (res.ok) setInscriptos(await res.json());
+      const res = await api.get(`/talleres/${idTaller}/alumnos`);
+      setInscriptos(res.data);
     } catch (error) {
       console.error('Error al cargar inscriptos:', error);
     }
@@ -45,62 +46,50 @@ const VistaInscripciones = () => {
     fetchInscriptos(idTallerSeleccionado);
   }, [idTallerSeleccionado]);
 
-  // 3. Acción: Desinscripción Individual
+  // 3. Desinscripción Individual (DELETE)
   const handleBaja = async (idAlumno) => {
     if (!window.confirm('¿Seguro que deseas remover a este alumno del taller?')) return;
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/alumnos/${idAlumno}/talleres/${idTallerSeleccionado}`, {
-        method: 'DELETE'
-      });
-      if (res.status === 204 || res.ok) {
-        fetchInscriptos(idTallerSeleccionado);
-      }
+      await api.delete(`/alumnos/${idAlumno}/talleres/${idTallerSeleccionado}`);
+      fetchInscriptos(idTallerSeleccionado);
     } catch (error) {
       console.error('Error al dar de baja:', error);
     }
   };
 
-  // 4. Acción: Reset Masivo del Taller (Doble Confirmación)
+  // 4. Reset Masivo (DELETE)
   const handleResetCiclo = async () => {
     if (!idTallerSeleccionado) return;
     
-    const primeraConfirmacion = window.confirm('⚠️ ATENCIÓN: Estás a punto de vaciar este taller por completo. ¿Deseas continuar?');
-    if (!primeraConfirmacion) return;
-
-    const segundaConfirmacion = window.confirm('🛑 ÚLTIMO AVISO: Esta acción es irreversible. ¿Confirmás el vaciado del aula?');
-    if (!segundaConfirmacion) return;
+    if (!window.confirm('⚠️ ATENCIÓN: Estás a punto de vaciar este taller por completo. ¿Deseas continuar?')) return;
+    if (!window.confirm('🛑 ÚLTIMO AVISO: Esta acción es irreversible. ¿Confirmás el vaciado del aula?')) return;
 
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/talleres/${idTallerSeleccionado}/reset-ciclo`, {
-        method: 'DELETE'
-      });
-      if (res.status === 204 || res.ok) {
-        alert('El ciclo lectivo de este taller ha sido reseteado exitosamente.');
-        fetchInscriptos(idTallerSeleccionado);
-      }
+      await api.delete(`/talleres/${idTallerSeleccionado}/reset-ciclo`);
+      alert('El ciclo lectivo de este taller ha sido reseteado exitosamente.');
+      fetchInscriptos(idTallerSeleccionado);
     } catch (error) {
       console.error('Error en el reset:', error);
     }
   };
 
-  // 5. Acción: Inscribir Nuevo Alumno
+  // 5. Inscribir Nuevo Alumno (POST)
   const handleInscribir = async (e) => {
     e.preventDefault();
     if (!alumnoSeleccionado) return;
 
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/alumnos/${alumnoSeleccionado}/talleres/${idTallerSeleccionado}`, {
-        method: 'POST'
-      }); 
-      if (res.status === 201 || res.ok) {
-        setShowModal(false);
-        setAlumnoSeleccionado('');
-        fetchInscriptos(idTallerSeleccionado);
-      } else {
-        alert('Error al inscribir (Verificá si el alumno ya está inscripto).');
-      }
+      await api.post(`/alumnos/${alumnoSeleccionado}/talleres/${idTallerSeleccionado}`);
+      setShowModal(false);
+      setAlumnoSeleccionado('');
+      fetchInscriptos(idTallerSeleccionado);
     } catch (error) {
-      console.error('Error en inscripción:', error);
+      if (error.response && error.response.status === 409) {
+        // Atrapamos el error controlado del backend
+        alert('Atención: El alumno ya se encuentra inscripto en este taller.');
+      } else {
+        alert('Error inesperado al intentar inscribir al alumno.');
+      }
     }
   };
 

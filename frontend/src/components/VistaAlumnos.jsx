@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../api'; // <-- Agregamos nuestro interceptor
 
 const VistaAlumnos = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -15,8 +16,9 @@ const VistaAlumnos = () => {
   // GET: Cargar alumnos
   const fetchAlumnos = async () => {
     try {
-      const res = await fetch('http://localhost:8081/api/v1/alumnos');
-      if (res.ok) setAlumnos(await res.json());
+      // Axios ya asume la URL base y te devuelve el JSON listo en res.data
+      const res = await api.get('/alumnos');
+      setAlumnos(res.data);
     } catch (err) {
       console.error('Error al cargar alumnos', err);
     }
@@ -35,30 +37,21 @@ const VistaAlumnos = () => {
     e.preventDefault();
     setError('');
 
-    const url = isEditing 
-      ? `http://localhost:8081/api/v1/alumnos/${currentId}` 
-      : 'http://localhost:8081/api/v1/alumnos';
-      
-    const method = isEditing ? 'PUT' : 'POST';
-
     try {
-      const res = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      if (res.ok || res.status === 201) {
-        alert(isEditing ? '¡Alumno actualizado!' : '¡Alumno registrado!');
-        setFormData(estadoInicial);
-        setIsEditing(false);
-        setCurrentId(null);
-        fetchAlumnos();
+      if (isEditing) {
+        await api.put(`/alumnos/${currentId}`, formData);
+        alert('¡Alumno actualizado!');
       } else {
-        setError('Error al procesar la solicitud. Verificá los datos.');
+        await api.post('/alumnos', formData);
+        alert('¡Alumno registrado!');
       }
+      
+      setFormData(estadoInicial);
+      setIsEditing(false);
+      setCurrentId(null);
+      fetchAlumnos();
     } catch (err) {
-      setError('Error de conexión.');
+      setError('Error al procesar la solicitud. Verificá los datos.');
     }
   };
 
@@ -72,15 +65,13 @@ const VistaAlumnos = () => {
     setCurrentId(alumno.idPersona);
   };
 
-  // DELETE: Baja lógica
+// DELETE: Baja lógica
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de dar de baja a este alumno?')) return;
     try {
-      const res = await fetch(`http://localhost:8081/api/v1/alumnos/${id}`, { method: 'DELETE' });
-      if (res.ok || res.status === 204) {
-        alert('Alumno dado de baja exitosamente.');
-        fetchAlumnos();
-      }
+      await api.delete(`/alumnos/${id}`);
+      alert('Alumno dado de baja exitosamente.');
+      fetchAlumnos();
     } catch (err) {
       console.error('Error al eliminar', err);
     }
