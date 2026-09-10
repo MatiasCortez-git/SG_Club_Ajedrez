@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../api';
 
 const PortalAlumno = () => {
   const [dni, setDni] = useState('');
@@ -8,9 +9,8 @@ const PortalAlumno = () => {
   const [ranking, setRanking] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8081/api/v1/reportes/ranking')
-      .then(res => res.ok ? res.json() : [])
-      .then(data => setRanking(data))
+    api.get('/reportes/ranking')
+      .then(res => setRanking(res.data))
       .catch(err => console.error('Error al cargar ranking:', err));
   }, []);
 
@@ -21,18 +21,20 @@ const PortalAlumno = () => {
     setCuotas([]);
 
     try {
-      const resAlumno = await fetch(`http://localhost:8081/api/v1/alumnos/dni/${dni}`);
-      if (!resAlumno.ok) {
-        setError('No se encontró ningún alumno con ese DNI.');
-        return;
-      }
-      const dataAlumno = await resAlumno.json();
+      const resAlumno = await api.get(`/alumnos/dni/${dni}`);
+      const dataAlumno = resAlumno.data; // Axios guarda el JSON acá
       setAlumno(dataAlumno);
 
-      const resCuotas = await fetch(`http://localhost:8081/api/v1/cuotas/alumno/${dataAlumno.idPersona}`);
-      if (resCuotas.ok) setCuotas(await resCuotas.json());
+      const resCuotas = await api.get(`/cuotas/alumno/${dataAlumno.idPersona}`);
+      setCuotas(resCuotas.data);
+      
     } catch (err) {
-      setError('Error de conexión con el servidor.');
+      // Axios manda los errores HTTP (como un 404 Not Found) directo al catch
+      if (err.response && err.response.status === 404) {
+        setError('No se encontró ningún alumno con ese DNI.');
+      } else {
+        setError('Error de conexión con el servidor.');
+      }
     }
   };
 
