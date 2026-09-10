@@ -203,8 +203,8 @@ const VistaCaja = () => {
             <div className="card-body">
               <form onSubmit={handleGenerarCuota}>
                 <div className="mb-3">
-                  <label className="form-label">Periodo (Ej: 2026-09)</label>
-                  <input type="text" className="form-control" value={periodo} onChange={(e) => setPeriodo(e.target.value)} placeholder="AAAA-MM" required />
+                  <label className="form-label">Periodo </label>
+                  <input type="month" className="form-control" value={periodo} onChange={(e) => setPeriodo(e.target.value)} required />
                 </div>
                 <button type="submit" className="btn btn-primary w-100" disabled={!idAlumno}>Generar Cuota</button>
               </form>
