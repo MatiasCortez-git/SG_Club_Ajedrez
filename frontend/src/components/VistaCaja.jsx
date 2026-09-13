@@ -136,6 +136,19 @@ const VistaCaja = () => {
     }
   };
 
+    // Ordenamos las cuotas por periodo de más ACTUAL a más VIEJA (Descendente)
+  const cuotasOrdenadas = [...cuotas].sort((a, b) => {
+    // 1. Prioridad: 'Pendiente' 
+    if (a.estado === 'Pendiente' && b.estado !== 'Pendiente') return -1;
+    if (a.estado !== 'Pendiente' && b.estado === 'Pendiente') return 1;
+
+    // 2. Desempate : Orden Ascendente por periodo (el más viejo arriba)
+    // Compara cadenas como "2026-05" vs "2026-06" de forma alfabética
+    return a.periodo.localeCompare(b.periodo);
+  });
+  
+
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4 text-center text-primary">Caja: Gestión de Cuotas y Pagos</h2>
@@ -241,7 +254,7 @@ const VistaCaja = () => {
                   ) : cuotas.length === 0 ? (
                     <tr><td colSpan="5" className="py-4 text-muted">El alumno no tiene cuotas generadas</td></tr>
                   ) : (
-                    cuotas.map(c => (
+                    cuotasOrdenadas.map(c => (
                       <tr key={c.idCuota}>
                         <td className="fw-bold">{c.periodo}</td>
                         <td>{c.fechaVencimiento}</td>

@@ -38,6 +38,18 @@ const PortalAlumno = () => {
     }
   };
 
+  // Ordenamos las cuotas por periodo de más ACTUAL a más VIEJA (Descendente)
+  const cuotasOrdenadas = [...cuotas].sort((a, b) => {
+    // 1. Prioridad: 'Pendiente' 
+    if (a.estado === 'Pendiente' && b.estado !== 'Pendiente') return -1;
+    if (a.estado !== 'Pendiente' && b.estado === 'Pendiente') return 1;
+
+    // 2. Desempate : Orden Ascendente por periodo (el más viejo arriba)
+    // Compara cadenas como "2026-05" vs "2026-06" de forma alfabética
+    return a.periodo.localeCompare(b.periodo);
+  });
+  
+
   return (
     <div className="container mt-5">
       
@@ -94,7 +106,7 @@ const PortalAlumno = () => {
                         {cuotas.length === 0 ? (
                           <tr><td colSpan="4" className="py-3 text-muted">No tenés cuotas generadas.</td></tr>
                         ) : (
-                          cuotas.map(c => (
+                          cuotasOrdenadas.map(c => (
                             <tr key={c.idCuota}>
                               <td className="fw-bold text-secondary">{c.periodo}</td>
                               <td>{c.fechaVencimiento}</td>
