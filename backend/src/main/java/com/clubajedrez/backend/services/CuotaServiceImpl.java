@@ -190,6 +190,9 @@ public class CuotaServiceImpl implements CuotaService {
         if (cuota.getPago() != null) {
             dto.setIdPago(cuota.getPago().getIdPago());
         }
+        if (cuota.getPago() != null && cuota.getPago().getUsuarioCobrador() != null) {
+            dto.setCobradoPor(cuota.getPago().getUsuarioCobrador().getNombreCompleto());
+        }
         
         return dto;
     }

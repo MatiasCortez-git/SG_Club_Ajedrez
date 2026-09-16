@@ -13,4 +13,5 @@ public class CuotaResponseDTO {
     private String estado;
     private BigDecimal montoTotal;
     private Integer idPago;
+    private String cobradoPor;
 }
