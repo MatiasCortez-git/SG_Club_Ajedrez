@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -55,6 +56,7 @@ public class TallerController {
     } 
 
     // Endpoint 5: Eliminar Taller
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarTaller(@PathVariable Integer id) {
         tallerService.eliminarTaller(id);
@@ -62,6 +64,7 @@ public class TallerController {
     }
     
     // Endpoint 6: Eliminar todas las inscripciones de todos los Taller
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/reset-ciclo")
     public ResponseEntity<Void> resetearCiclo() {
         tallerService.resetearCicloLectivo();
@@ -76,6 +79,7 @@ public class TallerController {
     }
     
     // Endpoint 8: Eliminar todas las inscripciones de un solo Taller
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{idTaller}/reset-ciclo")
     public ResponseEntity<Void> resetearCicloDelTaller(@PathVariable Integer idTaller) {
         tallerService.resetearCicloLectivoPorTaller(idTaller);

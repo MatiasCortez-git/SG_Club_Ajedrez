@@ -6,6 +6,7 @@ import com.clubajedrez.backend.services.ProfesorService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,7 @@ public class ProfesorController {
         return ResponseEntity.ok(profesorService.actualizarProfesor(id, dto));
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProfesor(@PathVariable Integer id) {
         profesorService.eliminarProfesor(id);

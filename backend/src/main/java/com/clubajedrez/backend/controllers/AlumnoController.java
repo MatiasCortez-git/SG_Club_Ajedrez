@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -69,6 +70,7 @@ public class AlumnoController {
     }
 
     // 7. Eliminar    
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarAlumno(@PathVariable Integer id) {
         alumnoService.eliminarAlumno(id);
@@ -76,6 +78,7 @@ public class AlumnoController {
     }
     
     // 8. Eliminar alumno de un taller
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{idAlumno}/talleres/{idTaller}")
     public ResponseEntity<Void> desinscribirAlumno(@PathVariable Integer idAlumno, @PathVariable Integer idTaller) {
         tallerService.desinscribirAlumno(idAlumno, idTaller);
