@@ -18,8 +18,9 @@ const Login = () => {
         password
       });
       
-      // Guardamos el token y la bandera en sessionStorage
+      // Guardamos el token, el ROL y la bandera en sessionStorage
       sessionStorage.setItem('token', response.data.jwt);
+      sessionStorage.setItem('rol', response.data.rol);
       sessionStorage.setItem('isLogged', 'true');
       
       // Redirigimos al panel forzando la recarga para el Navbar
