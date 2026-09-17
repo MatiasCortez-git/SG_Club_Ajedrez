@@ -16,6 +16,7 @@ public class ComprobanteDTO {
     private List<String> talleres;
     private BigDecimal montoSocio;
     private BigDecimal montoFederado;
+    private String cobradoPor;
     
     
 }

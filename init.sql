@@ -64,17 +64,28 @@ CREATE TABLE Taller_Horario (
     FOREIGN KEY (id_taller) REFERENCES Taller(id_taller)
 );
 
--- 8. Tabla Pago (El recibo de ingreso que registra la transacción)
+-- 8. Tabla de Usuarios (Autenticación y Spring Security)
+CREATE TABLE usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    username VARCHAR(150) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL,
+    nombre_completo VARCHAR(150) NOT NULL
+);
+
+-- 9. Tabla Pago (El recibo de ingreso que registra la transacción)
 CREATE TABLE Pago (
     id_pago SERIAL PRIMARY KEY,
     id_alumno INT NOT NULL,
+    id_usuario_cobrador INT NOT NULL,
     fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     monto_total NUMERIC(10, 2) NOT NULL,
     medio_pago VARCHAR(50) NOT NULL CHECK (medio_pago IN ('Efectivo', 'Transferencia', 'MercadoPago', 'Tarjeta')),
-    FOREIGN KEY (id_alumno) REFERENCES Alumno(id_persona)
+    FOREIGN KEY (id_alumno) REFERENCES Alumno(id_persona),
+    FOREIGN KEY (id_usuario_cobrador) REFERENCES usuario(id_usuario)
 );
 
--- 9. Tabla Alumno_Taller (La tabla intermedia de inscripciones y snapshot financiero)
+-- 10. Tabla Alumno_Taller (La tabla intermedia de inscripciones y snapshot financiero)
 CREATE TABLE Alumno_Taller (
     id_alumno INT NOT NULL,
     id_taller INT NOT NULL,
@@ -85,7 +96,7 @@ CREATE TABLE Alumno_Taller (
     FOREIGN KEY (id_taller) REFERENCES Taller(id_taller)
 );
 
--- 10. Tabla Cuota (El compromiso mensual, con el Snapshot de precios)
+-- 11. Tabla Cuota (El compromiso mensual, con el Snapshot de precios)
 CREATE TABLE Cuota (
     id_cuota SERIAL PRIMARY KEY,
     id_alumno INT NOT NULL,
@@ -97,7 +108,7 @@ CREATE TABLE Cuota (
     FOREIGN KEY (id_pago) REFERENCES Pago(id_pago)
 );
 
--- 11. Nueva tabla de detalles contables
+-- 12. Nueva tabla de detalles contables
 CREATE TABLE Detalle_Cuota (
     id_detalle SERIAL PRIMARY KEY,
     id_cuota INT NOT NULL,
@@ -105,18 +116,6 @@ CREATE TABLE Detalle_Cuota (
     monto_congelado NUMERIC(10, 2) NOT NULL,
     FOREIGN KEY (id_cuota) REFERENCES Cuota(id_cuota) ON DELETE CASCADE
 );
-
--- 12. Tabla de Usuarios (Autenticación y Spring Security)
-CREATE TABLE usuario (
-    id_usuario SERIAL PRIMARY KEY,
-    username VARCHAR(150) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    rol VARCHAR(50) NOT NULL
-);
-
--- Insertamos el administrador semilla (La contraseña es 'admin123' encriptada con BCrypt)
-INSERT INTO usuario (username, password, rol) 
-VALUES ('admin@admin.com', '$2a$10$EblZqNptyYvcLm/VwDCVAuIssDAT1V43iG70M2sYJtZ.L502K0.QO', 'ROLE_ADMIN');
 
 -- Función que cuenta inscriptos y evalúa el cupo
 CREATE OR REPLACE FUNCTION verificar_cupo_taller()
@@ -168,8 +167,12 @@ VALUES
 ('Beth', 'Harmon', '33333333', 'beth@ajedrez.com', '99001122');     -- ID 3 (Será Alumno Recreativo)
 
 -- ==========================================
--- 3. ASIGNACIÓN DE ROLES (Herencia 1:1)
+-- 3. ASIGNACIÓN de rol (Herencia 1:1)
 -- ==========================================
+-- Insertamos el administrador semilla (La contraseña es 'admin123' encriptada con BCrypt)
+INSERT INTO usuario (username, password, rol, nombre_completo) 
+VALUES ('admin@admin.com', '$2a$10$s/KybK76jl9t9PJWC9BHt.5yvkjccvS1EuBcLl.i5C8qM7/yd7xrq', 'ROLE_ADMIN','Matias Cortez');
+
 -- A Garry (1) le damos el rol de Profesor
 INSERT INTO Profesor (id_persona) VALUES (1);
 
@@ -205,25 +208,21 @@ VALUES
 INSERT INTO Alumno_Taller (id_alumno, id_taller, precio_acordado)
 VALUES
 (2, 1, 15000.00), -- Magnus se anota al Avanzado (Paga precio completo)
-(3, 2, 8000.00);  -- Beth se anota a Iniciación (¡Mirá! El taller sale 10000, pero le congelamos el precio a 8000 por una beca)
+(3, 2, 8000.00);  -- Beth se anota a Iniciación (Pero el taller sale 10000 y le congelamos el precio a 8000 por una beca)
 
 -- ==========================================
 -- 6. GESTIÓN CONTABLE (Pagos y Cuotas)
 -- ==========================================
+-- Pago de Beth (Usuario cobrador ID 1)
+INSERT INTO Pago (id_alumno, id_usuario_cobrador, monto_total, medio_pago) 
+VALUES (3, 1, 18000.00, 'Transferencia');
 
--- CASO A: Magnus (Debe el mes de Julio)
--- Generamos su cuota, pero NO creamos un pago. El id_pago queda en NULL y estado Pendiente.
--- Fijo: 10000 (Socio) + 3000 (Federado) + 15000 (Taller) = Total adeudado: 28000.
-INSERT INTO Cuota (id_alumno, periodo, monto_base, monto_federado, monto_talleres, fecha_vencimiento, estado, id_pago)
-VALUES
-(2, '2026-07', 10000.00, 3000.00, 15000.00, '2026-07-10', 'Pendiente', NULL);
+-- Cuota de Magnus (Pendiente) y Beth (Pagada vinculada al pago 1)
+INSERT INTO Cuota (id_alumno, periodo, fecha_vencimiento, estado, id_pago) VALUES 
+(2, '2026-07', '2026-07-10', 'Pendiente', NULL),
+(3, '2026-07', '2026-07-10', 'Pagada', 1);
 
--- CASO B: Beth (Pagó el mes de Julio)
--- 1ro: Registramos el ingreso de dinero (Socio 10000 + Taller Beca 8000 = 18000 total).
-INSERT INTO Pago (id_alumno, monto_total, medio_pago)
-VALUES (3, 18000.00, 'Transferencia'); -- Esto generará el id_pago = 1
-
--- 2do: Generamos su cuota y la vinculamos directamente al recibo que acabamos de crear (id_pago = 1).
-INSERT INTO Cuota (id_alumno, periodo, monto_base, monto_federado, monto_talleres, fecha_vencimiento, estado, id_pago)
-VALUES
-(3, '2026-07', 10000.00, 0.00, 8000.00, '2026-07-10', 'Pagada', 1);
+-- Detalles contables
+INSERT INTO Detalle_Cuota (id_cuota, nombre_concepto, monto_congelado) VALUES 
+(1, 'Cuota Socio', 10000.00), (1, 'Adicional Federado', 3000.00), (1, 'Taller Estrategia', 15000.00),
+(2, 'Cuota Socio', 10000.00), (2, 'Taller Iniciación', 8000.00);

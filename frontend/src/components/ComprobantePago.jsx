@@ -80,6 +80,12 @@ const ComprobantePago = forwardRef(({ datos }, ref) => {
         <p>Generado por el Sistema de Gestión del Club de Ajedrez</p>
       </div>
       
+      <div className="mt-4 text-end text-muted" style={{ fontSize: '0.85rem' }}>
+        <p className="mb-0">
+          Recibo emitido por: <strong>{datos.cobradoPor || 'Sistema'}</strong>
+        </p>
+      </div>
+
     </div>
   );
 });

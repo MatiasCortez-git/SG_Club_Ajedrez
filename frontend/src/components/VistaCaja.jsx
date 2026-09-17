@@ -245,6 +245,7 @@ const VistaCaja = () => {
                     <th>Vencimiento</th>
                     <th>Estado</th>
                     <th>Total</th>
+                    <th>Cobrador</th>
                     <th>Acción</th>
                   </tr>
                 </thead>
@@ -264,6 +265,7 @@ const VistaCaja = () => {
                           </span>
                         </td>
                         <td className="fw-bold text-success">${c.montoTotal}</td>
+                        <td className="text-muted small">{c.cobradoPor || '-'}</td>
                         <td>
                           {/* Lógica de botones restaurada: Imprimir si está saldada, Pagar si está pendiente */}
                           {c.estado === 'Pagada' ? (

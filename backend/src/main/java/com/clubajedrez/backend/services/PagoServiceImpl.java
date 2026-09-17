@@ -14,12 +14,14 @@ import com.clubajedrez.backend.entities.Alumno;
 import com.clubajedrez.backend.entities.Cuota;
 import com.clubajedrez.backend.entities.DetalleCuota;
 import com.clubajedrez.backend.entities.Pago;
+import com.clubajedrez.backend.entities.Usuario;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
 import com.clubajedrez.backend.exceptions.PagoNoEncontradoException;
 import com.clubajedrez.backend.repositories.AlumnoRepository;
 import com.clubajedrez.backend.repositories.CuotaRepository;
 import com.clubajedrez.backend.repositories.PagoRepository;
+import com.clubajedrez.backend.repositories.UsuarioRepository;
 
 @Service
 public class PagoServiceImpl implements PagoService {
@@ -27,15 +29,18 @@ public class PagoServiceImpl implements PagoService {
     private final PagoRepository pagoRepository;
     private final CuotaRepository cuotaRepository;
     private final AlumnoRepository alumnoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     // Inyección obligatoria por constructor
     public PagoServiceImpl(PagoRepository pagoRepository, 
     		CuotaRepository cuotaRepository,
-    		AlumnoRepository alumnoRepository) {
+    		AlumnoRepository alumnoRepository,
+    		UsuarioRepository usuarioRepository) {
         
     	this.pagoRepository = pagoRepository;
         this.cuotaRepository = cuotaRepository;
         this.alumnoRepository = alumnoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -69,6 +74,17 @@ public class PagoServiceImpl implements PagoService {
         nuevoPago.setMontoTotal(montoTotal);
         nuevoPago.setFechaPago(LocalDateTime.now());
         
+        // Extraer el email del token validado por Spring Security
+        String username = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+
+        // Buscar al Usuario en la BD
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario cajero no encontrado"));
+
+        // Dejar la firma del cajero en el pago
+        nuevoPago.setUsuarioCobrador(usuario);
+        
         Pago pagoGuardado = pagoRepository.save(nuevoPago);
 
         // Actualizar las cuotas asociándolas al nuevo pago
@@ -84,6 +100,7 @@ public class PagoServiceImpl implements PagoService {
         response.setFechaPago(pagoGuardado.getFechaPago());
         response.setMontoTotal(pagoGuardado.getMontoTotal());
         response.setMedioPago(pagoGuardado.getMedioPago());
+        response.setCobradoPor(pagoGuardado.getUsuarioCobrador().getNombreCompleto());
 
         return response;
     }
@@ -137,6 +154,8 @@ public class PagoServiceImpl implements PagoService {
         comprobante.setTalleres(talleres);
         comprobante.setMontoSocio(totalSocio);
         comprobante.setMontoFederado(totalFederado);
+        comprobante.setCobradoPor(pago.getUsuarioCobrador().getNombreCompleto());
+        
 
         return comprobante;
     }

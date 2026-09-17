@@ -35,4 +35,9 @@ public class Pago {
 
     @Column(name = "medio_pago", nullable = false, length = 50)
     private String medioPago;
+    
+    @ManyToOne
+    @JoinColumn(name = "id_usuario_cobrador", nullable = false)
+    private Usuario usuarioCobrador;
+    
 }

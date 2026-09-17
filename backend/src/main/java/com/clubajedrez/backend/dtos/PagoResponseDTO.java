@@ -10,4 +10,5 @@ public class PagoResponseDTO {
     private LocalDateTime fechaPago;
     private BigDecimal montoTotal;
     private String medioPago;
+    private String cobradoPor;
 }
