@@ -13,6 +13,7 @@ const VistaTalleres = () => {
   const [showModal, setShowModal] = useState(false);
   const [tallerSeleccionado, setTallerSeleccionado] = useState(null);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState('');
+  const rol = sessionStorage.getItem('rol');
 
   const estadoInicial = {
     nombre: '', cupoMaximo: '', duracion: '', costo: '', tipoNivel: 'Recreativo', idProfesor: ''
@@ -201,16 +202,34 @@ const VistaTalleres = () => {
 
                         {/* Botones de Acción */}
                         <div className="mt-auto d-flex flex-column gap-2">
-                          <button 
-                            className="btn btn-sm btn-primary fw-bold" 
-                            disabled={sinCupo}
-                            onClick={() => { setTallerSeleccionado(t); setShowModal(true); }}>
-                            {sinCupo ? 'Cupo Lleno' : 'Inscribir Alumno'}
-                          </button>
+                          
+                          {/* Fila 1: Editar e Inscribir (Juntos, 50/50) */}
                           <div className="d-flex gap-2">
-                            <button className="btn btn-sm btn-outline-secondary w-50" onClick={() => handleEdit(t)}>Editar</button>
-                            <button className="btn btn-sm btn-outline-danger w-50" onClick={() => handleDelete(t.idTaller)}>Baja</button>
+                            <button 
+                              className="btn btn-sm btn-outline-secondary w-50" 
+                              onClick={() => handleEdit(t)}
+                            >
+                              Editar
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-primary fw-bold w-50" 
+                              disabled={sinCupo}
+                              onClick={() => { setTallerSeleccionado(t); setShowModal(true); }}
+                            >
+                              {sinCupo ? 'Cupo Lleno' : 'Inscribir'}
+                            </button>
                           </div>
+
+                          {/* Fila 2: Baja (Debajo, ancho completo, solo para ADMIN) */}
+                          {rol === 'ROLE_ADMIN' && (
+                            <button 
+                              className="btn btn-sm btn-outline-danger w-100" 
+                              onClick={() => handleDelete(t.idTaller)}
+                            >
+                              Dar de Baja
+                            </button>
+                          )}
+                          
                         </div>
                       </div>
                     </div>

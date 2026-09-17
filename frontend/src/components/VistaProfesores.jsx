@@ -6,6 +6,7 @@ const VistaProfesores = () => {
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
+  const rol = sessionStorage.getItem('rol');
 
   const estadoInicial = {
     nombre: '', apellido: '', dni: '', email: '', 
@@ -139,7 +140,10 @@ const VistaProfesores = () => {
                         <td><span className="badge bg-info text-dark">{p.codFederacion || 'N/A'}</span></td>
                         <td>
                           <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleEdit(p)}>Editar</button>
+                          {/* Solo renderiza este botón si el rol es estrictamente ROLE_ADMIN */}
+                          {rol === 'ROLE_ADMIN' && (
                           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(p.idPersona || p.id)}>Baja</button>
+                          )}  
                         </td>
                       </tr>
                     ))

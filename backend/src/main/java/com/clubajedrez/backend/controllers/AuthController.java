@@ -46,7 +46,10 @@ public class AuthController {
         // 3. Generamos el pase VIP
         final String jwt = jwtUtil.generateToken(userDetails);
 
-        // 4. Devolvemos el token al frontend
-        return ResponseEntity.ok(new AuthResponseDTO(jwt));
+        // EXTRAEMOS EL ROL (Tomamos el primer permiso de la lista)
+        final String rolUsuario = userDetails.getAuthorities().iterator().next().getAuthority();
+
+        // 4. Devolvemos el token y el rol al frontend
+        return ResponseEntity.ok(new AuthResponseDTO(jwt, rolUsuario));
     }
 }

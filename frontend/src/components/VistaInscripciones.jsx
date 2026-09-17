@@ -10,6 +10,7 @@ const VistaInscripciones = () => {
   
   const [showModal, setShowModal] = useState(false);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState('');
+  const rol = sessionStorage.getItem('rol');
 
   // 1. Cargar catálogo base al iniciar usando Axios Promise.all
   useEffect(() => {
@@ -115,13 +116,16 @@ const VistaInscripciones = () => {
           </div>
           
           <div>
-            <button 
-              className="btn btn-danger fw-bold shadow-sm" 
-              onClick={handleResetCiclo}
-              disabled={!idTallerSeleccionado}
-            >
-              ⚠️ Resetear Ciclo Lectivo
-            </button>
+            {/* Solo renderiza este botón si el rol es ROLE_ADMIN */}
+            {rol === 'ROLE_ADMIN' && (
+              <button 
+                className="btn btn-danger fw-bold shadow-sm" 
+                onClick={handleResetCiclo}
+                disabled={!idTallerSeleccionado}
+              >
+                ⚠️ Resetear Ciclo Lectivo
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -144,7 +148,8 @@ const VistaInscripciones = () => {
               <tr>
                 <th>Nombre y Apellido</th>
                 <th>DNI</th>
-                <th>Acción</th>
+                {/* Solo renderiza este columna si el rol es ROLE_ADMIN */}
+                {rol === 'ROLE_ADMIN' && (<th>Acción</th>)}
               </tr>
             </thead>
             <tbody>
@@ -158,13 +163,16 @@ const VistaInscripciones = () => {
                     <td className="fw-semibold text-start ps-4">{a.nombre} {a.apellido}</td>
                     <td>{a.dni}</td>
                     <td>
-                      <button 
-                        className="btn btn-sm btn-outline-danger" 
-                        onClick={() => handleBaja(a.idPersona)}
-                        title="Desinscribir del Taller"
-                      >
-                        🗑️ Dar de Baja
-                      </button>
+                      {/* Solo renderiza este botón si el rol es ROLE_ADMIN */}
+                      {rol === 'ROLE_ADMIN' && (
+                        <button 
+                          className="btn btn-sm btn-outline-danger" 
+                          onClick={() => handleBaja(a.idPersona)}
+                          title="Desinscribir del Taller"
+                        >
+                          🗑️ Dar de Baja
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
