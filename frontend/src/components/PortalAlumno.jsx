@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const PortalAlumno = () => {
   const [dni, setDni] = useState('');
@@ -11,7 +12,7 @@ const PortalAlumno = () => {
   useEffect(() => {
     api.get('/reportes/ranking')
       .then(res => setRanking(res.data))
-      .catch(err => console.error('Error al cargar ranking:', err));
+      .catch(err =>  Swal.fire('Error', 'Error al cargar ranking', 'error'));
   }, []);
 
   const buscarDeuda = async (e) => {

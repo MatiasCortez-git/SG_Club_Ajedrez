@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api'; // <-- 1. Importamos nuestra llave maestra
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const VistaTalleres = () => {
   const [talleres, setTalleres] = useState([]);
@@ -32,7 +33,7 @@ const VistaTalleres = () => {
       setProfesores(resProfesores.data);
       setAlumnos(resAlumnos.data);
     } catch (err) {
-      console.error('Error al cargar datos:', err);
+      Swal.fire('Érror', 'Error al cargar datos:', 'error');
     }
   };
 
@@ -59,10 +60,10 @@ const VistaTalleres = () => {
     try {
       if (isEditing) {
         await api.put(`/talleres/${currentId}`, payload);
-        alert('¡Taller actualizado!');
+        Swal.fire('Éxito!', '¡Taller actualizado!', 'success');
       } else {
         await api.post('/talleres', payload);
-        alert('¡Taller registrado!');
+         Swal.fire('Éxito!', '¡Taller actualizado!', 'success');
       }
       
       setFormData(estadoInicial);
@@ -92,10 +93,11 @@ const VistaTalleres = () => {
     if (!window.confirm('¿Estás seguro de dar de baja este taller?')) return;
     try {
       await api.delete(`/talleres/${id}`);
-      alert('Taller eliminado exitosamente.');
+      Swal.fire('Éxito!', 'Taller eliminado exitosamente.', 'success');
       fetchData();
     } catch (err) {
-      console.error('Error al eliminar', err);
+      Swal.fire('Error!', 'Error al eliminar.', 'error');
+
     }
   };
 
@@ -107,14 +109,13 @@ const VistaTalleres = () => {
     try {
       // Axios envía el POST vacío solo con la URL, tal como lo diseñamos en el backend[cite: 5]
       await api.post(`/alumnos/${alumnoSeleccionado}/talleres/${tallerSeleccionado.idTaller}`);
-      
-      alert('¡Alumno inscripto con éxito!');
+      Swal.fire('Exito!', 'Alumno inscripto con éxito.', 'success');
+
       setShowModal(false);
       setAlumnoSeleccionado('');
       fetchData(); // Refresca para actualizar la barra de cupos automáticamente
     } catch (err) {
-      alert('Error al inscribir (Verificá si el taller ya está lleno o si el alumno ya está inscripto).');
-      console.error('Error en la inscripción:', err);
+      Swal.fire('Error!', 'Error al inscribir (Verificá si el taller ya está lleno o si el alumno ya está inscripto)', 'error');
     }
   };
 

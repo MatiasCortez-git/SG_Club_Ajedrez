@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import api from '../api'; // <-- Agregamos nuestro interceptor
+import api from '../api'; // <-- interceptor
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const VistaAlumnos = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -17,11 +18,10 @@ const VistaAlumnos = () => {
   // GET: Cargar alumnos
   const fetchAlumnos = async () => {
     try {
-      // Axios ya asume la URL base y te devuelve el JSON listo en res.data
       const res = await api.get('/alumnos');
       setAlumnos(res.data);
     } catch (err) {
-      console.error('Error al cargar alumnos', err);
+      Swal.fire('Error', 'Error al cargar alumnos', 'error');
     }
   };
 
@@ -41,10 +41,10 @@ const VistaAlumnos = () => {
     try {
       if (isEditing) {
         await api.put(`/alumnos/${currentId}`, formData);
-        alert('¡Alumno actualizado!');
+        Swal.fire('Éxito', '¡Alumno actualizado!', 'success');
       } else {
         await api.post('/alumnos', formData);
-        alert('¡Alumno registrado!');
+        Swal.fire('Éxito', '¡Alumno registrado!', 'success');
       }
       
       setFormData(estadoInicial);
@@ -52,30 +52,40 @@ const VistaAlumnos = () => {
       setCurrentId(null);
       fetchAlumnos();
     } catch (err) {
-      setError('Error al procesar la solicitud. Verificá los datos.');
+      Swal.fire('Error', 'Error al procesar la solicitud. Verificá los datos.', 'error');
     }
   };
 
   // Cargar datos en el formulario para editar
   const handleEdit = (alumno) => {
     setFormData({
-      ...estadoInicial, // Asegura que no queden campos undefined
+      ...estadoInicial,
       ...alumno
     });
     setIsEditing(true);
     setCurrentId(alumno.idPersona);
   };
 
-// DELETE: Baja lógica
+  // DELETE: Baja lógica
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de dar de baja a este alumno?')) return;
-    try {
-      await api.delete(`/alumnos/${id}`);
-      alert('Alumno dado de baja exitosamente.');
-      fetchAlumnos();
-    } catch (err) {
-      console.error('Error al eliminar', err);
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción no se puede revertir",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/alumnos/${id}`);
+          Swal.fire('Éxito', 'Alumno dado de baja exitosamente.', 'success');
+          fetchAlumnos();
+        } catch (err) {
+          Swal.fire('Error', 'Hubo un problema al eliminar el alumno.', 'error');
+        }
+      }
+    });
   };
 
   return (
@@ -87,36 +97,163 @@ const VistaAlumnos = () => {
       <div className="row">
         {/* Formulario (Izquierda) */}
         <div className="col-md-4 mb-4">
-          <div className="card shadow-sm border-primary">
-            <div className="card-header bg-primary text-white">
-              <h5 className="mb-0">{isEditing ? 'Editar Alumno' : 'Nuevo Alumno'}</h5>
-            </div>
-            <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                <div className="row g-2 mb-2">
-                  <div className="col-6"><input type="text" className="form-control" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required /></div>
-                  <div className="col-6"><input type="text" className="form-control" name="apellido" placeholder="Apellido" value={formData.apellido} onChange={handleChange} required /></div>
-                </div>
-                <input type="text" className="form-control mb-2" name="dni" placeholder="DNI" value={formData.dni || ''} onChange={handleChange} required />
-                <input type="email" className="form-control mb-2" name="email" placeholder="Email" value={formData.email || ''} onChange={handleChange} required />
-                <input type="text" className="form-control mb-2" name="telefono" placeholder="Teléfono" value={formData.telefono || ''} onChange={handleChange} required />
-                <input type="date" className="form-control mb-2" name="fechaNacimiento" value={formData.fechaNacimiento || ''} onChange={handleChange} required />
-                
-                {/* Campos Opcionales de Federación */}
-                <h6 className="mt-3 text-secondary">Datos Federativos (Opcional)</h6>
-                <input type="text" className="form-control mb-2 border-info" name="codFederacion" placeholder="Cod. Federación" value={formData.codFederacion || ''} onChange={handleChange} />
-                <input type="number" className="form-control mb-3 border-info" name="elo" placeholder="Puntaje ELO" value={formData.elo || ''} onChange={handleChange} />
-                
-                <button type="submit" className={`btn w-100 ${isEditing ? 'btn-warning text-dark fw-bold' : 'btn-primary'}`}>
-                  {isEditing ? 'Guardar Cambios' : 'Registrar Alumno'}
-                </button>
-                {isEditing && (
-                  <button type="button" className="btn btn-secondary w-100 mt-2" onClick={() => { setIsEditing(false); setFormData(estadoInicial); }}>Cancelar</button>
-                )}
-              </form>
-            </div>
+  <div className="card shadow-sm border-primary">
+    <div className="card-header bg-primary text-white">
+      <h5 className="mb-0">{isEditing ? 'Editar Alumno' : 'Nuevo Alumno'}</h5>
+    </div>
+    <div className="card-body">
+      <form onSubmit={handleSubmit}>
+        <div className="row g-2 mb-2">
+          {/* Nombre */}
+          <div className="col-6">
+            <input
+              type="text"
+              className="form-control"
+              name="nombre"
+              placeholder="Nombre"
+              value={formData.nombre}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  nombre: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+                })
+              }
+              minLength={2}
+              maxLength={50}
+              required
+            />
+          </div>
+          {/* Apellido */}
+          <div className="col-6">
+            <input
+              type="text"
+              className="form-control"
+              name="apellido"
+              placeholder="Apellido"
+              value={formData.apellido}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  apellido: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+                })
+              }
+              minLength={2}
+              maxLength={50}
+              required
+            />
           </div>
         </div>
+
+        {/* DNI */}
+        <input
+          type="text"
+          className="form-control mb-2"
+          name="dni"
+          placeholder="DNI"
+          value={formData.dni || ""}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              dni: e.target.value.replace(/[^0-9]/g, "")
+            })
+          }
+          minLength={8}
+          maxLength={8}
+          required
+        />
+
+        {/* Email */}
+        <input
+          type="email"
+          className="form-control mb-2"
+          name="email"
+          placeholder="Email"
+          value={formData.email || ""}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              email: e.target.value
+            })
+          }
+          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+          required
+        />
+
+        {/* Teléfono */}
+        <input
+          type="text"
+          className="form-control mb-2"
+          name="telefono"
+          placeholder="Teléfono"
+          value={formData.telefono || ""}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              telefono: e.target.value.replace(/[^0-9]/g, "")
+            })
+          }
+          minLength={10}
+          maxLength={15}
+          required
+        />
+
+        {/* Fecha de nacimiento */}
+        <input
+          type="date"
+          className="form-control mb-2"
+          name="fechaNacimiento"
+          value={formData.fechaNacimiento || ""}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              fechaNacimiento: e.target.value
+            })
+          }
+          max={new Date().toISOString().split("T")[0]}
+          required
+        />
+
+        {/* Campos Opcionales de Federación */}
+        <h6 className="mt-3 text-secondary">Datos Federativos (Opcional)</h6>
+        <input
+          type="text"
+          className="form-control mb-2 border-info"
+          name="codFederacion"
+          placeholder="Cod. Federación"
+          value={formData.codFederacion || ""}
+          onChange={handleChange}
+        />
+        <input
+          type="number"
+          className="form-control mb-3 border-info"
+          name="elo"
+          placeholder="Puntaje ELO"
+          value={formData.elo || ""}
+          onChange={handleChange}
+          min={0}
+          max={2999}
+        />
+
+        <button
+          type="submit"
+          className={`btn w-100 ${isEditing ? 'btn-warning text-dark fw-bold' : 'btn-primary'}`}
+        >
+          {isEditing ? 'Guardar Cambios' : 'Registrar Alumno'}
+        </button>
+        {isEditing && (
+          <button
+            type="button"
+            className="btn btn-secondary w-100 mt-2"
+            onClick={() => { setIsEditing(false); setFormData(estadoInicial); }}
+          >
+            Cancelar
+          </button>
+        )}
+      </form>
+    </div>
+  </div>
+</div>
+
 
         {/* Grilla (Derecha) */}
         <div className="col-md-8">
@@ -150,7 +287,6 @@ const VistaAlumnos = () => {
                         </td>
                         <td>
                           <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleEdit(a)}>Editar</button>
-                          {/* Solo renderiza este botón si el rol es estrictamente ROLE_ADMIN */}
                           {rol === 'ROLE_ADMIN' && (
                             <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(a.idPersona)}>Baja</button>
                           )}

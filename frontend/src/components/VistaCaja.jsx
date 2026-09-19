@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import ComprobantePago from './ComprobantePago';
 import api from '../api'; // <-- Importamos nuestra llave maestra JWT
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const VistaCaja = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -38,7 +39,7 @@ const VistaCaja = () => {
         const adicionalFederado = dataTarifas.find(t => t.concepto === 'Adicional Federado')?.montoActual || '';
         setTarifas({ cuotaSocio, adicionalFederado });
       } catch (error) {
-        console.error('Error al cargar datos iniciales:', error);
+        Swal.fire('Error', 'Error al cargar datos iniciales', 'error');
       }
     };
     fetchAlumnosYTarifas();
@@ -53,7 +54,7 @@ const VistaCaja = () => {
       const res = await api.get(`/cuotas/alumno/${id}`);
       setCuotas(res.data);
     } catch (error) {
-      console.error('Error al cargar cuotas:', error);
+      Swal.fire('Error', 'Error al cargar cuotas', 'error');
     }
   };
 
@@ -73,30 +74,29 @@ const VistaCaja = () => {
       alert('¡Tarifas actualizadas! Los próximos recibos se generarán con los nuevos montos.');
       setIsTarifasOpen(false);
     } catch (error) {
-      alert('Error al actualizar las tarifas.');
-      console.error('Error:', error);
+       Swal.fire('Error', `Error al actualizar las tarifas: ${error.message}`, 'error');
     }
   };
 
   const handleGenerarCuota = async (e) => {
     e.preventDefault();
     if (!idAlumno || !periodo) {
-      alert('Seleccioná un alumno y escribí un periodo.');
+      Swal.fire('Atención', 'Seleccioná un alumno y escribí un periodo.', 'warning');
       return;
     }
     try {
       await api.post('/cuotas/generar', { idAlumno: parseInt(idAlumno), periodo });
-      alert('¡Cuota generada con éxito!');
+      Swal.fire('Éxito', '¡Cuota generada con éxito!', 'success');
       setPeriodo('');
       fetchCuotas(idAlumno); 
     } catch (error) {
       if (error.response && error.response.status === 409) {
-        alert('La cuota para este periodo ya fue generada previamente.');
+        Swal.fire('Atención', 'La cuota para este periodo ya fue generada previamente.', 'warning');
       } else {
-        alert('Error al generar la cuota.');
-      }
-      console.error('Error:', error);
-    }
+        Swal.fire('Error', 'Error al generar la cuota.', 'error');
+  }
+}
+
   };
 
   // Función para obtener el comprobante y disparar la impresión (Igual a tu código original)
@@ -111,7 +111,7 @@ const VistaCaja = () => {
         handlePrint();
       }, 100);
     } catch (error) {
-      console.error('Error al cargar comprobante:', error);
+      Swal.fire('Error', 'Error al cargar comprobante:', 'error');
     }
   };
 
@@ -125,14 +125,14 @@ const VistaCaja = () => {
       
       const res = await api.post('/pagos', payload);
       
-      alert('¡Pago registrado correctamente!');
+      Swal.fire('Éxito', '¡Pago registrado correctamente!', 'success');
+      
       fetchCuotas(idAlumno); 
       // Disparamos el ticket automáticamente tras pagar usando res.data.idPago
       handleImprimirRecibo(res.data.idPago);
       
     } catch (error) {
-      alert('Error al registrar el pago (¿Quizás ya estaba pagada?).');
-      console.error('Error:', error);
+      Swal.fire('Error', '¡Error al registrar el pago! (¿Quizás ya estaba pagada?).', 'error');
     }
   };
 
