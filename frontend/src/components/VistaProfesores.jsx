@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api'; // <-- Importamos nuestro interceptor de Axios
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const VistaProfesores = () => {
   const [profesores, setProfesores] = useState([]);
@@ -20,7 +21,7 @@ const VistaProfesores = () => {
       const res = await api.get('/profesores');
       setProfesores(res.data);
     } catch (err) {
-      console.error('Error al cargar profesores', err);
+      Swal.fire('Error', 'Error al cargar profesores', 'error');
     }
   };
 
@@ -45,10 +46,11 @@ const VistaProfesores = () => {
     try {
       if (isEditing) {
         await api.put(`/profesores/${currentId}`, formData);
-        alert('¡Profesor actualizado!');
+        Swal.fire('Éxito', '¡Profesor actualizado!', 'success');
+        
       } else {
         await api.post('/profesores', formData);
-        alert('¡Profesor registrado!');
+        Swal.fire('Éxito', '¡Profesor registrado!', 'success');
       }
       
       setFormData(estadoInicial);
@@ -56,7 +58,7 @@ const VistaProfesores = () => {
       setCurrentId(null);
       fetchProfesores();
     } catch (err) {
-      setError('Error al procesar la solicitud.');
+      Swal.fire('Error', 'Error al procesar la solicitud.', 'error');
     }
   };
 
@@ -75,10 +77,10 @@ const VistaProfesores = () => {
     if (!window.confirm('¿Estás seguro de dar de baja a este profesor?')) return;
     try {
       await api.delete(`/profesores/${id}`);
-      alert('Profesor dado de baja exitosamente.');
+      Swal.fire('Éxito', 'Profesor dado de baja exitosamente.', 'success');
       fetchProfesores();
     } catch (err) {
-      console.error('Error al eliminar', err);
+      Swal.fire('Érror', 'Error al eliminar', 'error');
     }
   };
 
