@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api'; // <-- Importamos Axios con JWT
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const VistaInscripciones = () => {
   const [talleres, setTalleres] = useState([]);
@@ -23,7 +24,7 @@ const VistaInscripciones = () => {
         setTalleres(resTalleres.data);
         setAlumnos(resAlumnos.data);
       } catch (error) {
-        console.error('Error al cargar datos base:', error);
+        Swal.fire('Error', 'Error al cargar datos base:', 'error');
       }
     };
     fetchInicial();
@@ -39,7 +40,7 @@ const VistaInscripciones = () => {
       const res = await api.get(`/talleres/${idTaller}/alumnos`);
       setInscriptos(res.data);
     } catch (error) {
-      console.error('Error al cargar inscriptos:', error);
+      Swal.fire('Error', 'Error al cargar inscriptos:', 'error');
     }
   };
 
@@ -54,7 +55,7 @@ const VistaInscripciones = () => {
       await api.delete(`/alumnos/${idAlumno}/talleres/${idTallerSeleccionado}`);
       fetchInscriptos(idTallerSeleccionado);
     } catch (error) {
-      console.error('Error al dar de baja:', error);
+      Swal.fire('Error', 'Error al dar de baja:', 'error');
     }
   };
 
@@ -67,10 +68,10 @@ const VistaInscripciones = () => {
 
     try {
       await api.delete(`/talleres/${idTallerSeleccionado}/reset-ciclo`);
-      alert('El ciclo lectivo de este taller ha sido reseteado exitosamente.');
+      Swal.fire('Éxito', 'El ciclo lectivo de este taller ha sido reseteado exitosamente.', 'success');
       fetchInscriptos(idTallerSeleccionado);
     } catch (error) {
-      console.error('Error en el reset:', error);
+      Swal.fire('Error', 'Error en el reset del ciclo lectivo:', 'error');
     }
   };
 
@@ -87,9 +88,9 @@ const VistaInscripciones = () => {
     } catch (error) {
       if (error.response && error.response.status === 409) {
         // Atrapamos el error controlado del backend
-        alert('Atención: El alumno ya se encuentra inscripto en este taller.');
+        Swal.fire('Atención', 'Atención: El alumno ya se encuentra inscripto en este taller.', 'error');
       } else {
-        alert('Error inesperado al intentar inscribir al alumno.');
+        Swal.fire('Error', 'Error inesperado al intentar inscribir al alumno.', 'error');
       }
     }
   };

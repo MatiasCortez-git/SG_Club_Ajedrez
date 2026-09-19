@@ -3,6 +3,7 @@ import { useReactToPrint } from 'react-to-print';
 import ReporteRanking from './ReporteRanking';
 import ReporteMorosos from './ReporteMorosos';
 import api from '../api'; // <-- Importamos Axios con JWT
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const VistaReportes = () => {
   const [tabActiva, setTabActiva] = useState('ELO');
