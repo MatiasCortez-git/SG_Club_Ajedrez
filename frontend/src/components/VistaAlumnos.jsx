@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import api from '../api'; // <-- Agregamos nuestro interceptor
+import api from '../api'; // <-- interceptor
+import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
 
 const VistaAlumnos = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -17,7 +18,6 @@ const VistaAlumnos = () => {
   // GET: Cargar alumnos
   const fetchAlumnos = async () => {
     try {
-      // Axios ya asume la URL base y te devuelve el JSON listo en res.data
       const res = await api.get('/alumnos');
       setAlumnos(res.data);
     } catch (err) {
@@ -41,10 +41,10 @@ const VistaAlumnos = () => {
     try {
       if (isEditing) {
         await api.put(`/alumnos/${currentId}`, formData);
-        alert('¡Alumno actualizado!');
+        Swal.fire('Éxito', '¡Alumno actualizado!', 'success');
       } else {
         await api.post('/alumnos', formData);
-        alert('¡Alumno registrado!');
+        Swal.fire('Éxito', '¡Alumno registrado!', 'success');
       }
       
       setFormData(estadoInicial);
@@ -52,30 +52,40 @@ const VistaAlumnos = () => {
       setCurrentId(null);
       fetchAlumnos();
     } catch (err) {
-      setError('Error al procesar la solicitud. Verificá los datos.');
+      Swal.fire('Error', 'Error al procesar la solicitud. Verificá los datos.', 'error');
     }
   };
 
   // Cargar datos en el formulario para editar
   const handleEdit = (alumno) => {
     setFormData({
-      ...estadoInicial, // Asegura que no queden campos undefined
+      ...estadoInicial,
       ...alumno
     });
     setIsEditing(true);
     setCurrentId(alumno.idPersona);
   };
 
-// DELETE: Baja lógica
+  // DELETE: Baja lógica
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de dar de baja a este alumno?')) return;
-    try {
-      await api.delete(`/alumnos/${id}`);
-      alert('Alumno dado de baja exitosamente.');
-      fetchAlumnos();
-    } catch (err) {
-      console.error('Error al eliminar', err);
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción no se puede revertir",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/alumnos/${id}`);
+          Swal.fire('Éxito', 'Alumno dado de baja exitosamente.', 'success');
+          fetchAlumnos();
+        } catch (err) {
+          Swal.fire('Error', 'Hubo un problema al eliminar el alumno.', 'error');
+        }
+      }
+    });
   };
 
   return (
@@ -150,7 +160,6 @@ const VistaAlumnos = () => {
                         </td>
                         <td>
                           <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleEdit(a)}>Editar</button>
-                          {/* Solo renderiza este botón si el rol es estrictamente ROLE_ADMIN */}
                           {rol === 'ROLE_ADMIN' && (
                             <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(a.idPersona)}>Baja</button>
                           )}
