@@ -37,7 +37,7 @@ const VistaReportes = () => {
           setMorosos(res.data);
         }
       } catch (err) {
-        console.error('Error al cargar reportes:', err);
+        Swal.fire('Érror', 'Error al cargar reportes:', 'error');
       }
     };
     

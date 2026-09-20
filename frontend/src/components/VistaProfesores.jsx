@@ -100,17 +100,133 @@ const VistaProfesores = () => {
             <div className="card-body">
               <form onSubmit={handleSubmit}>
                 <div className="row g-2 mb-2">
-                  <div className="col-6"><input type="text" className="form-control" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required /></div>
-                  <div className="col-6"><input type="text" className="form-control" name="apellido" placeholder="Apellido" value={formData.apellido} onChange={handleChange} required /></div>
+                  <div className="col-6">
+                    {/* Nombre */}
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="nombre"
+                        placeholder="Nombre"
+                        value={formData.nombre}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            nombre: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+                          })
+                        }
+                        minLength={2}
+                        maxLength={50}
+                        required
+                      />
+                  </div>
+                  <div className="col-6">
+                      {/* Apellido */}
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="apellido"
+                        placeholder="Apellido"
+                        value={formData.apellido}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            apellido: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
+                          })
+                        }
+                        minLength={2}
+                        maxLength={50}
+                        required
+                      />
+                    </div>
                 </div>
-                <input type="text" className="form-control mb-2" name="dni" placeholder="DNI" value={formData.dni || ''} onChange={handleChange} required />
-                <input type="email" className="form-control mb-2" name="email" placeholder="Email" value={formData.email || ''} onChange={handleChange} required />
-                <input type="text" className="form-control mb-2" name="telefono" placeholder="Teléfono" value={formData.telefono || ''} onChange={handleChange} required />
+                      {/* DNI */}
+                      <input
+                        type="text"
+                        className="form-control mb-2"
+                        name="dni"
+                        placeholder="DNI"
+                        value={formData.dni || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            dni: e.target.value.replace(/[^0-9]/g, "")
+                          })
+                        }
+                        minLength={8}
+                        maxLength={8}
+                        required
+                      />
+
+                      {/* Email */}
+                      <input
+                        type="email"
+                        className="form-control mb-2"
+                        name="email"
+                        placeholder="Email"
+                        value={formData.email || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            email: e.target.value
+                          })
+                        }
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                        required
+                      />
+
+                      {/* Teléfono */}
+                      <input
+                        type="text"
+                        className="form-control mb-2"
+                        name="telefono"
+                        placeholder="Teléfono"
+                        value={formData.telefono || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            telefono: e.target.value.replace(/[^0-9]/g, "")
+                          })
+                        }
+                        minLength={10}
+                        maxLength={15}
+                        required
+                      />
                 
                 <h6 className="mt-3 text-secondary">Datos Federativos</h6>
-                <input type="text" className="form-control mb-2 border-warning" name="codFederacion" placeholder="Cod. Federación (Req)" value={formData.codFederacion || ''} onChange={handleChange} required />
-                <input type="number" className="form-control mb-3" name="elo" placeholder="Puntaje ELO" value={formData.elo || ''} onChange={handleChange} />
-                
+                    {/* Código Federación */}
+                      <input
+                        type="text"
+                        className="form-control mb-2 border-warning"
+                        name="codFederacion"
+                        placeholder="Cod. Federación (Req)"
+                        value={formData.codFederacion || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            codFederacion: e.target.value.replace(/[^A-Za-z0-9]/g, "")
+                          })
+                        }
+                        minLength={3}
+                        maxLength={20}
+                        required
+                      />
+
+                      {/* Puntaje ELO */}
+                      <input
+                        type="number"
+                        className="form-control mb-3"
+                        name="elo"
+                        placeholder="Puntaje ELO"
+                        value={formData.elo || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            elo: e.target.value.replace(/[^0-9]/g, "")
+                          })
+                        }
+                        min={0}
+                        max={2999}
+                      />
                 <button type="submit" className={`btn w-100 ${isEditing ? 'btn-warning' : 'btn-primary'}`}>
                   {isEditing ? 'Guardar Cambios' : 'Registrar'}
                 </button>

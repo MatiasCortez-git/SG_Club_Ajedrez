@@ -136,11 +136,64 @@ const VistaTalleres = () => {
             <div className="card-body">
               <form onSubmit={handleSubmit}>
                 <input type="text" className="form-control mb-2" name="nombre" placeholder="Nombre del Taller" value={formData.nombre} onChange={handleChange} required />
+                
                 <div className="row g-2 mb-2">
-                  <div className="col-6"><input type="number" className="form-control" name="cupoMaximo" placeholder="Cupo Máx" value={formData.cupoMaximo} onChange={handleChange} required /></div>
-                  <div className="col-6"><input type="number" className="form-control" name="costo" placeholder="Costo Mensual ($)" value={formData.costo} onChange={handleChange} required /></div>
+                  <div className="col-6">
+                    <input
+                      type="number"
+                      className="form-control mb-2"
+                      name="cupoMax"
+                      placeholder="Cupo Máximo"
+                      value={formData.cupoMax || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          cupoMax: e.target.value.replace(/[^0-9]/g, "")
+                        })
+                      }
+                      min={1}
+                      max={50}
+                      required
+                    />
+                   
+                    </div>
+                  <div className="col-6">
+                    <input
+                      type="number"
+                      className="form-control mb-2"
+                      name="costoMensual"
+                      placeholder="Costo Mensual ($)"
+                      value={formData.costoMensual || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          costoMensual: e.target.value.replace(/[^0-9]/g, "")
+                        })
+                      }
+                      min={0}  
+                      step={1000} // múltiplos de 1000
+                      required
+                    />
+                    </div>
                 </div>
-                <input type="text" className="form-control mb-2" name="duracion" placeholder="Duración (Ej: 4 meses)" value={formData.duracion} onChange={handleChange} required />
+                    {/* Duración en meses */}
+                    <input
+                    type="number"
+                    className="form-control mb-2"
+                    name="duracionMeses"
+                    placeholder="Duración (Ej: 4 meses)"
+                    value={formData.duracionMeses || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        duracionMeses: e.target.value.replace(/[^0-9]/g, "")
+                      })
+                    }
+                    min={1}
+                    max={12}
+                    step={1}  // rango de incremento
+                    required
+                  />
                 
                 <select className="form-select mb-2" name="tipoNivel" value={formData.tipoNivel} onChange={handleChange} required>
                   <option value="Principiante">Principiante</option>
