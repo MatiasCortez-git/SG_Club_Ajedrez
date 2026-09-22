@@ -42,29 +42,42 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                // Si el token es inválido, adulterado o expiró, lo atrapamos acá
+            	// EL TOKEN ESTÁ ROTO O VENCIDO: Cortamos la petición acá y devolvemos JSON (401)
                 logger.warn("El token JWT es inválido o ha expirado");
-            }
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 No Autorizado
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"error\": \"Sesión Expirada\", \"mensaje\": \"El token es inválido o ha expirado. Por favor, inicie sesión nuevamente.\"}");
+                return;            }
         }
 
         // 3. Si encontramos un usuario en el token y todavía no está autenticado en este hilo
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Vamos a la base de datos a traer sus permisos reales
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-            // 4. Si el token es legítimo
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                
-                // Le armamos su credencial oficial de Spring Security
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                // Lo dejamos pasar oficialmente
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        	try {
+	        	// Vamos a la base de datos a traer sus permisos reales
+	            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+	
+	            // 4. Si el token es legítimo
+	            if (jwtUtil.validateToken(jwt, userDetails)) {
+	                
+	                // Le armamos su credencial oficial de Spring Security
+	                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+	                        userDetails, null, userDetails.getAuthorities());
+	                
+	                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+	                
+	                // Lo dejamos pasar oficialmente
+	                SecurityContextHolder.getContext().setAuthentication(authToken);
+	            }
+	        }catch (org.springframework.security.core.userdetails.UsernameNotFoundException ex) {
+	                // ATRAMPAMOS EL ERROR EN EL FILTRO Y ESCRIBIMOS EL JSON MANUALMENTE
+	                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+	                response.setContentType("application/json");
+	                response.setCharacterEncoding("UTF-8");
+	                response.getWriter().write("{\"error\": \"Acceso Denegado\", \"mensaje\": \"Acceso rechazado: Su cuenta de usuario se encuentra inactiva.\"}");
+	                return; // Cortamos la ejecución acá para que no siga avanzando
+	                }
         }
         
         // 5. Continuamos con el ciclo de vida de la petición

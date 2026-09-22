@@ -100,7 +100,7 @@ public class PagoServiceImpl implements PagoService {
         response.setFechaPago(pagoGuardado.getFechaPago());
         response.setMontoTotal(pagoGuardado.getMontoTotal());
         response.setMedioPago(pagoGuardado.getMedioPago());
-        response.setCobradoPor(pagoGuardado.getUsuarioCobrador().getNombreCompleto());
+        response.setCobradoPor(pagoGuardado.getUsuarioCobrador().getPersona().getApellido() + " " +pagoGuardado.getUsuarioCobrador().getPersona().getNombre());
 
         return response;
     }
@@ -154,7 +154,7 @@ public class PagoServiceImpl implements PagoService {
         comprobante.setTalleres(talleres);
         comprobante.setMontoSocio(totalSocio);
         comprobante.setMontoFederado(totalFederado);
-        comprobante.setCobradoPor(pago.getUsuarioCobrador().getNombreCompleto());
+        comprobante.setCobradoPor(pago.getUsuarioCobrador().getPersona().getApellido()+ " " +pago.getUsuarioCobrador().getPersona().getNombre());
         
 
         return comprobante;

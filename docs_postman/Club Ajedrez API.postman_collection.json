@@ -607,11 +607,21 @@
         {
           "name": "CrearProfesor",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca\",\r\n  \"dni\": \"55555555\",\r\n  \"email\": \"capablanca@ajedrez.com\",\r\n  \"telefono\": \"1122334455\",\r\n  \"codFederacion\": \"\",\r\n  \"elo\": 2700\r\n}",
+              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca\",\r\n  \"dni\": \"66555\",\r\n  \"email\": \"caca@ajedrez.com\",\r\n  \"telefono\": \"1122334455\",\r\n  \"codFederacion\": \"FIDE-34\",\r\n  \"elo\": 2000\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -637,11 +647,21 @@
         {
           "name": "ModificarProfesor",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca\",\r\n  \"dni\": \"55555555\",\r\n  \"email\": \"jose.nuevo@ajedrez.com\",\r\n  \"telefono\": \"999999999\",\r\n  \"codFederacion\": \"ARG-9987\",\r\n  \"elo\": 2700\r\n}",
+              "raw": "{\r\n  \"nombre\": \"José\",\r\n  \"apellido\": \"Capablanca man\",\r\n  \"dni\": \"566677\",\r\n  \"email\": \"jose.nueo@ajedrez.com\",\r\n  \"telefono\": \"999999999\",\r\n  \"codFederacion\": \"ARG-9\",\r\n  \"elo\": 2900\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -649,7 +669,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8081/api/v1/profesores/6",
+              "raw": "http://localhost:8081/api/v1/profesores/8",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -659,7 +679,7 @@
                 "api",
                 "v1",
                 "profesores",
-                "6"
+                "8"
               ]
             }
           },
@@ -671,7 +691,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8081/api/v1/profesores/6",
+              "raw": "http://localhost:8081/api/v1/profesores/1",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -681,7 +701,7 @@
                 "api",
                 "v1",
                 "profesores",
-                "6"
+                "1"
               ]
             }
           },
@@ -695,11 +715,21 @@
         {
           "name": "CrearCuota",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"idAlumno\": 3,\r\n  \"periodo\": \"2026-09\"\r\n}",
+              "raw": "{\r\n  \"idAlumno\": 2,\r\n  \"periodo\": \"2026-09\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -782,6 +812,16 @@
         {
           "name": "Morosos",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -865,11 +905,14 @@
         {
           "name": "Login",
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"username\": \"admin@admin.com\",\r\n    \"password\": \"admin123\"\r\n}",
+              "raw": "{\r\n    \"username\": \"mica@admin.com\",\r\n    \"password\": \"mica123\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -888,6 +931,237 @@
                 "v1",
                 "auth",
                 "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Backup",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/admin/backup",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "backup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [
+                    "/C:/Proyecto/SG Club de Ajedrez/docs_postman/backup_20260917_172905.sql"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/admin/restore",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "restore"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuario",
+      "item": [
+        {
+          "name": "CrearUsuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"gerencia@alianza.com\",\r\n    \"password\": \"PasswordSegura123\",\r\n    \"rol\": \"ROLE_ADMIN\",\r\n    \"idPersona\": 5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/usuarios",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ListarUsuarios",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "//localhost:8081/api/v1/usuarios",
+              "path": [
+                "",
+                "localhost:8081",
+                "api",
+                "v1",
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EliminarUsuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "//localhost:8081/api/v1/usuarios/:id",
+              "path": [
+                "",
+                "localhost:8081",
+                "api",
+                "v1",
+                "usuarios",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"mika@ajedrez.com\",\r\n  \"telefono\": \"3439997788\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/perfil/me/contacto",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "perfil",
+                "me",
+                "contacto"
               ]
             }
           },

@@ -6,5 +6,5 @@ public class UsuarioRequestDTO {
     private String username;
     private String password;
     private String rol;
-    private String nombreCompleto; // Agregado obligatorio por nuestra restricción
+    private Integer idPersona; // Agregado obligatorio por nuestra restricción
 }

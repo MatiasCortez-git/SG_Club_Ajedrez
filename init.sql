@@ -70,7 +70,9 @@ CREATE TABLE usuario (
     username VARCHAR(150) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     rol VARCHAR(50) NOT NULL,
-    nombre_completo VARCHAR(150) NOT NULL
+    is_active BOOLEAN DEFAULT TRUE,
+    id_persona INT NOT NULL,
+    FOREIGN KEY (id_persona) REFERENCES Persona(id_persona)
 );
 
 -- 9. Tabla Pago (El recibo de ingreso que registra la transacción)
@@ -164,14 +166,24 @@ INSERT INTO Persona (nombre, apellido, dni, email, telefono)
 VALUES
 ('Garry', 'Kasparov', '11111111', 'garry@ajedrez.com', '11223344'), -- ID 1 (Será Profesor)
 ('Magnus', 'Carlsen', '22222222', 'magnus@ajedrez.com', '55667788'), -- ID 2 (Será Alumno Federado)
-('Beth', 'Harmon', '33333333', 'beth@ajedrez.com', '99001122');     -- ID 3 (Será Alumno Recreativo)
+('Beth', 'Harmon', '33333333', 'beth@ajedrez.com', '99001122'),     -- ID 3 (Será Alumno Recreativo)
+('Matias', 'Cortez', '44444444', 'admin@admin.com', '00000000'),      -- ID 4 (Admin)
+('Bruno', 'Werner', '55555555', 'bruno@ajedrez.com', '00000000');     -- ID 5 (Profesor/Usuario)
 
 -- ==========================================
 -- 3. ASIGNACIÓN de rol (Herencia 1:1)
 -- ==========================================
 -- Insertamos el administrador semilla (La contraseña es 'admin123' encriptada con BCrypt)
-INSERT INTO usuario (username, password, rol, nombre_completo) 
-VALUES ('admin@admin.com', '$2a$10$s/KybK76jl9t9PJWC9BHt.5yvkjccvS1EuBcLl.i5C8qM7/yd7xrq', 'ROLE_ADMIN','Matias Cortez');
+INSERT INTO usuario (username, password, rol, id_persona) 
+VALUES ('admin@admin.com', '$2a$10$s/KybK76jl9t9PJWC9BHt.5yvkjccvS1EuBcLl.i5C8qM7/yd7xrq', 'ROLE_ADMIN', 4);
+
+-- Garry Kasparov (Profesor - ID Persona 1) y Bruno Werner (gerente - ID Persona 5)
+INSERT INTO usuario (username, password, rol, id_persona)
+VALUES ('profesor1@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_PROFESOR', 1);
+
+-- Bruno Werner (Profesor - ID Persona 5)
+INSERT INTO usuario (username, password, rol, id_persona)
+VALUES ('profesor2@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_PROFESOR', 5);
 
 -- A Garry (1) le damos el rol de Profesor
 INSERT INTO Profesor (id_persona) VALUES (1);
@@ -184,7 +196,9 @@ VALUES
 
 -- A Magnus (2) también le damos el estatus de Federado
 INSERT INTO Federado (id_persona, cod_federacion, elo)
-VALUES (2, 'FIDE-9999', 2882);
+VALUES 
+(1, 'FIDE-1010', 2812),
+(2, 'FIDE-9999', 2882);
 
 -- ==========================================
 -- 4. GESTIÓN ACADÉMICA (Talleres y Horarios)

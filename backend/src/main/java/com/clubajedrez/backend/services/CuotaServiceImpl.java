@@ -13,6 +13,7 @@ import com.clubajedrez.backend.dtos.CuotaCalculoResponseDTO;
 import com.clubajedrez.backend.dtos.CuotaResponseDTO;
 import com.clubajedrez.backend.exceptions.AlumnoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.CuotaDuplicadaException;
+import com.clubajedrez.backend.exceptions.TarifaNoConfiguradaException;
 import com.clubajedrez.backend.entities.Alumno;
 import com.clubajedrez.backend.entities.AlumnoTaller;
 import com.clubajedrez.backend.entities.Cuota;
@@ -57,10 +58,10 @@ public class CuotaServiceImpl implements CuotaService {
 
         // 2. Buscamos las tarifas en la Base de Datos por su "Concepto"
         TarifaGlobal tarifaSocio = tarifaGlobalRepository.findByConcepto("Cuota Socio")
-                .orElseThrow(() -> new RuntimeException("Error: Falta configurar la 'Cuota Socio' en la tabla Tarifa_Global"));
+                .orElseThrow(() -> new TarifaNoConfiguradaException("Error: Falta configurar la 'Cuota Socio' en la tabla Tarifa_Global"));
                 
         TarifaGlobal tarifaFederado = tarifaGlobalRepository.findByConcepto("Adicional Federado")
-                .orElseThrow(() -> new RuntimeException("Error: Falta configurar el 'Adicional Federado' en la tabla Tarifa_Global"));
+                .orElseThrow(() -> new TarifaNoConfiguradaException("Error: Falta configurar el 'Adicional Federado' en la tabla Tarifa_Global"));
 
         // 3. Iniciamos el acumulador con el monto de la cuota base
         BigDecimal montoTotal = tarifaSocio.getMontoActual();// BigDecimal en la entidad;
@@ -108,10 +109,10 @@ public class CuotaServiceImpl implements CuotaService {
         
         	// Leer tarifas globales actuales     
         TarifaGlobal tarifaSocio = tarifaGlobalRepository.findByConcepto("Cuota Socio")
-                .orElseThrow(() -> new RuntimeException("Error: Falta configurar la 'Cuota Socio' en la tabla Tarifa_Global"));
+                .orElseThrow(() -> new TarifaNoConfiguradaException("Error: Falta configurar la 'Cuota Socio' en la tabla Tarifa_Global"));
                 
         TarifaGlobal tarifaFederado = tarifaGlobalRepository.findByConcepto("Adicional Federado")
-                .orElseThrow(() -> new RuntimeException("Error: Falta configurar el 'Adicional Federado' en la tabla Tarifa_Global"));
+                .orElseThrow(() -> new TarifaNoConfiguradaException("Error: Falta configurar el 'Adicional Federado' en la tabla Tarifa_Global"));
 
         // 3. Crear la cabecera de la Cuota
         Cuota nuevaCuota = new Cuota();
@@ -191,7 +192,7 @@ public class CuotaServiceImpl implements CuotaService {
             dto.setIdPago(cuota.getPago().getIdPago());
         }
         if (cuota.getPago() != null && cuota.getPago().getUsuarioCobrador() != null) {
-            dto.setCobradoPor(cuota.getPago().getUsuarioCobrador().getNombreCompleto());
+            dto.setCobradoPor(cuota.getPago().getUsuarioCobrador().getPersona().getApellido() + " " +cuota.getPago().getUsuarioCobrador().getPersona().getNombre());
         }
         
         return dto;
