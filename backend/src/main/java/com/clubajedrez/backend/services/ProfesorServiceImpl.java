@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import com.clubajedrez.backend.dtos.ProfesorCreateDTO;
 import com.clubajedrez.backend.dtos.ProfesorResponseDTO;
 import com.clubajedrez.backend.entities.Profesor;
+import com.clubajedrez.backend.exceptions.PerfilProtegidoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoFederadoException;
 import com.clubajedrez.backend.repositories.ProfesorRepository;
+import com.clubajedrez.backend.repositories.UsuarioRepository;
 import com.clubajedrez.backend.repositories.FederadoRepository;
 
 @Service
@@ -18,11 +20,15 @@ public class ProfesorServiceImpl implements ProfesorService {
 
     private final ProfesorRepository profesorRepository;
     private final FederadoRepository federadoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     // Inyección obligatoria por constructor
-    public ProfesorServiceImpl(ProfesorRepository profesorRepository, FederadoRepository federadoRepository) {
+    public ProfesorServiceImpl(ProfesorRepository profesorRepository,
+    						   FederadoRepository federadoRepository,
+    						   UsuarioRepository usuarioRepository) {
         this.profesorRepository = profesorRepository;
         this.federadoRepository = federadoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -60,11 +66,18 @@ public class ProfesorServiceImpl implements ProfesorService {
     @Override
     @Transactional
     public ProfesorResponseDTO actualizarProfesor(Integer id, ProfesorCreateDTO dto) {
-        Profesor profesor = profesorRepository.findById(id)
+        
+    	// Bloqueo de edición si el profesor tiene cuenta de acceso
+        if (usuarioRepository.existsByPersona_IdPersona(id)) {
+            throw new PerfilProtegidoException("Acceso denegado: El perfil pertenece a un usuario del sistema y solo puede modificarse mediante autogestión.");
+        }
+    	
+    	Profesor profesor = profesorRepository.findById(id)
                 .orElseThrow(() -> new ProfesorNoEncontradoException("No se encontró ningún profesor con el ID: " + id));
 
         profesor.setNombre(dto.getNombre());
         profesor.setApellido(dto.getApellido());
+        profesor.setDni(dto.getDni());
         profesor.setTelefono(dto.getTelefono());
         profesor.setEmail(dto.getEmail());
         

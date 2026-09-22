@@ -29,16 +29,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO request) {
     	
-        try {
-            // 1. Spring cruza la contraseña plana contra el hash de PostgreSQL
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401).body("Error: Credenciales incorrectas");
-        }
+        // 1. Spring cruza la contraseña plana contra el hash de PostgreSQL
+        authenticationManager.authenticate(
+        		new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+        
 
         // 2. Si la contraseña es correcta, traemos los datos del usuario
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());

@@ -26,7 +26,12 @@ public class Usuario {
     @Column(nullable = false, length = 50)
     private String rol;
     
-    @Column(name = "nombre_completo", nullable = false, length = 150)
-    private String nombreCompleto;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
+    // Relación inquebrantable con la persona física
+    @ManyToOne
+    @JoinColumn(name = "id_persona", nullable = false)
+    private Persona persona;
     
 }
