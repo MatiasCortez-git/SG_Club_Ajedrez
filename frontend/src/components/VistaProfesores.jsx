@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import api from '../api'; // <-- Importamos nuestro interceptor de Axios
-import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
+import api from '../api'; 
+import Swal from 'sweetalert2'; 
 
 const VistaProfesores = () => {
   const [profesores, setProfesores] = useState([]);
-  const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const rol = sessionStorage.getItem('rol');
@@ -15,13 +14,12 @@ const VistaProfesores = () => {
   };
   const [formData, setFormData] = useState(estadoInicial);
 
-  // GET: Cargar profesores
   const fetchProfesores = async () => {
     try {
       const res = await api.get('/profesores');
       setProfesores(res.data);
     } catch (err) {
-      Swal.fire('Error', 'Error al cargar profesores', 'error');
+      // Amortiguador silencioso: api.js avisará si el servidor está caído
     }
   };
 
@@ -33,24 +31,16 @@ const VistaProfesores = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // POST o PUT: Guardar o Editar
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!formData.codFederacion) {
-      setError('El Código de Federación es obligatorio.');
-      return;
-    }
 
     try {
       if (isEditing) {
         await api.put(`/profesores/${currentId}`, formData);
-        Swal.fire('Éxito', '¡Profesor actualizado!', 'success');
-        
+        Swal.fire('Operación completada', 'Profesor actualizado correctamente.', 'success');
       } else {
         await api.post('/profesores', formData);
-        Swal.fire('Éxito', '¡Profesor registrado!', 'success');
+        Swal.fire('Operación completada', 'Profesor registrado correctamente.', 'success');
       }
       
       setFormData(estadoInicial);
@@ -58,11 +48,10 @@ const VistaProfesores = () => {
       setCurrentId(null);
       fetchProfesores();
     } catch (err) {
-      Swal.fire('Error', 'Error al procesar la solicitud.', 'error');
+      // Amortiguador: api.js ataja el 400 Bad Request si el profesor no cumple la regla de federación
     }
   };
 
-  // Cargar datos en el formulario para editar
   const handleEdit = (profesor) => {
     setFormData({
       ...estadoInicial,
@@ -72,24 +61,33 @@ const VistaProfesores = () => {
     setCurrentId(profesor.idPersona || profesor.id);
   };
 
-  // DELETE: Baja lógica
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de dar de baja a este profesor?')) return;
-    try {
-      await api.delete(`/profesores/${id}`);
-      Swal.fire('Éxito', 'Profesor dado de baja exitosamente.', 'success');
-      fetchProfesores();
-    } catch (err) {
-      Swal.fire('Érror', 'Error al eliminar', 'error');
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción dará de baja al profesor del sistema.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, dar de baja',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/profesores/${id}`);
+          Swal.fire('Operación completada', 'Profesor dado de baja exitosamente.', 'success');
+          fetchProfesores();
+        } catch (err) {
+          // Amortiguador silencioso: api.js mostrará el error si hay un problema
+        }
+      }
+    });
   };
 
   return (
     <div className="container mt-4">
       <h2 className="mb-4 text-center text-primary">Gestión de Profesores</h2>
       
-      {error && <div className="alert alert-danger">{error}</div>}
-
       <div className="row">
         {/* Formulario (Izquierda) */}
         <div className="col-md-4 mb-4">

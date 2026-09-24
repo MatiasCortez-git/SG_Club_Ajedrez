@@ -16,46 +16,38 @@ const PortalAlumno = () => {
 
   const buscarDeuda = async (e) => {
     e.preventDefault();
+    
+    // Limpiamos estados previos en cada nueva búsqueda
     setError('');
     setAlumno(null);
     setCuotas([]);
 
     try {
       const resAlumno = await api.get(`/alumnos/dni/${dni}`);
-      const dataAlumno = resAlumno.data; // Axios guarda el JSON acá
+      const dataAlumno = resAlumno.data; 
       setAlumno(dataAlumno);
 
       const resCuotas = await api.get(`/cuotas/alumno/${dataAlumno.idPersona}`);
       setCuotas(resCuotas.data);
       
     } catch (err) {
-      // Axios manda los errores HTTP (como un 404 Not Found) directo al catch
+      // Manejo local exclusivo para la AlumnoNoEncontradoException (404)
       if (err.response && err.response.status === 404) {
         setError('No se encontró ningún alumno con ese DNI.');
-      } else {
-        setError('Error de conexión con el servidor.');
       }
+      // Si el error es 500 o de red, api.js ya se encargó de mostrar el SweetAlert.
+      // Al no poner un "else" acá, evitamos textos rojos genéricos.
     }
   };
 
-  // Ordenamos las cuotas por periodo de más ACTUAL a más VIEJA (Descendente)
   const cuotasOrdenadas = [...cuotas].sort((a, b) => {
-    // 1. Prioridad: 'Pendiente' 
     if (a.estado === 'Pendiente' && b.estado !== 'Pendiente') return -1;
     if (a.estado !== 'Pendiente' && b.estado === 'Pendiente') return 1;
-
-    // 2. Desempate : Orden Ascendente por periodo (el más viejo arriba)
-    // Compara cadenas como "2026-05" vs "2026-06" de forma alfabética
     return a.periodo.localeCompare(b.periodo);
   });
-  
 
   return (
     <div className="container mt-5">
-      
-      {/* =========================================
-          HERO BANNER INSTITUCIONAL (Margen reducido a mb-3)
-          ========================================= */}
       <div className="row justify-content-center mb-3">
         <div className="col-md-10 text-center">
           <h1 className="display-5 fw-bold text-primary mb-2">Bienvenido al Club de Ajedrez</h1>
@@ -67,7 +59,6 @@ const PortalAlumno = () => {
       </div>
 
       <div className="row">
-        {/* COLUMNA IZQUIERDA: Buscador y Estado de Cuenta */}
         <div className="col-md-6 mb-4">
           <div className="card shadow-sm border-primary h-100">
             <div className="card-header bg-primary text-white text-center">
@@ -90,6 +81,7 @@ const PortalAlumno = () => {
                 <button type="submit" className="btn btn-primary btn-lg px-4 fw-bold">Consultar</button>
               </form>
               
+              {/* Renderizado condicional del error INLINE */}
               {error && <div className="alert alert-danger">{error}</div>}
 
               {alumno && (
@@ -128,7 +120,6 @@ const PortalAlumno = () => {
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: Top 5 Jugadores Federados */}
         <div className="col-md-6 mb-4">
           <div className="card shadow-sm border-warning h-100">
             <div className="card-header bg-warning text-dark text-center">

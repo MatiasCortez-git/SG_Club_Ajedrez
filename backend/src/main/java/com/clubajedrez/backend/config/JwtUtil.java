@@ -22,7 +22,7 @@ public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     // Tiempo de validez del token: 10 horas (en milisegundos)
-    private static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * 10;
+    private static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * 10 ;
 
     // 1. Extraer el nombre de usuario (email) del token
     public String extractUsername(String token) {

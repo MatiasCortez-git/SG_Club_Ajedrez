@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import api from '../api'; // <-- interceptor
-import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
+import api from '../api'; 
+import Swal from 'sweetalert2'; 
 
 const VistaAlumnos = () => {
   const [alumnos, setAlumnos] = useState([]);
-  const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const rol = sessionStorage.getItem('rol');
@@ -15,13 +14,12 @@ const VistaAlumnos = () => {
   };
   const [formData, setFormData] = useState(estadoInicial);
 
-  // GET: Cargar alumnos
   const fetchAlumnos = async () => {
     try {
       const res = await api.get('/alumnos');
       setAlumnos(res.data);
     } catch (err) {
-      console.error('Error al cargar alumnos', err);
+      // Amortiguador: api.js mostrará error de red si el servidor está caído
     }
   };
 
@@ -33,10 +31,8 @@ const VistaAlumnos = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // POST o PUT: Guardar o Editar
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     try {
       if (isEditing) {
@@ -47,16 +43,16 @@ const VistaAlumnos = () => {
         Swal.fire('Éxito', '¡Alumno registrado!', 'success');
       }
       
+      // Estas líneas solo se ejecutan si el backend devolvió un éxito (200 o 201)
       setFormData(estadoInicial);
       setIsEditing(false);
       setCurrentId(null);
       fetchAlumnos();
     } catch (err) {
-      Swal.fire('Error', 'Error al procesar la solicitud. Verificá los datos.', 'error');
+      // Amortiguador: interrumpe el flujo de éxito. api.js mostrará el conflicto (ej: DNI duplicado)
     }
   };
 
-  // Cargar datos en el formulario para editar
   const handleEdit = (alumno) => {
     setFormData({
       ...estadoInicial,
@@ -66,7 +62,6 @@ const VistaAlumnos = () => {
     setCurrentId(alumno.idPersona);
   };
 
-  // DELETE: Baja lógica
   const handleDelete = async (id) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -82,7 +77,7 @@ const VistaAlumnos = () => {
           Swal.fire('Éxito', 'Alumno dado de baja exitosamente.', 'success');
           fetchAlumnos();
         } catch (err) {
-          Swal.fire('Error', 'Hubo un problema al eliminar el alumno.', 'error');
+          // Amortiguador silencioso
         }
       }
     });
@@ -92,8 +87,6 @@ const VistaAlumnos = () => {
     <div className="container mt-4">
       <h2 className="mb-4 text-center text-primary">Gestión de Alumnos</h2>
       
-      {error && <div className="alert alert-danger">{error}</div>}
-
       <div className="row">
         {/* Formulario (Izquierda) */}
         <div className="col-md-4 mb-4">
@@ -112,7 +105,6 @@ const VistaAlumnos = () => {
                 <input type="text" className="form-control mb-2" name="telefono" placeholder="Teléfono" value={formData.telefono || ''} onChange={handleChange} required />
                 <input type="date" className="form-control mb-2" name="fechaNacimiento" value={formData.fechaNacimiento || ''} onChange={handleChange} required />
                 
-                {/* Campos Opcionales de Federación */}
                 <h6 className="mt-3 text-secondary">Datos Federativos (Opcional)</h6>
                 <input type="text" className="form-control mb-2 border-info" name="codFederacion" placeholder="Cod. Federación" value={formData.codFederacion || ''} onChange={handleChange} />
                 <input type="number" className="form-control mb-3 border-info" name="elo" placeholder="Puntaje ELO" value={formData.elo || ''} onChange={handleChange} />

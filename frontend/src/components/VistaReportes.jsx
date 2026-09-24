@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import ReporteRanking from './ReporteRanking';
 import ReporteMorosos from './ReporteMorosos';
-import api from '../api'; // <-- Importamos Axios con JWT
-import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
+import api from '../api'; 
 
 const VistaReportes = () => {
   const [tabActiva, setTabActiva] = useState('ELO');
@@ -37,7 +36,7 @@ const VistaReportes = () => {
           setMorosos(res.data);
         }
       } catch (err) {
-        console.error('Error al cargar reportes:', err);
+        // Amortiguador silencioso: api.js atajará errores de red o sesión expirada
       }
     };
     

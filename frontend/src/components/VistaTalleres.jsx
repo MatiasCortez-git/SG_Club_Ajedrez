@@ -6,7 +6,6 @@ const VistaTalleres = () => {
   const [talleres, setTalleres] = useState([]);
   const [profesores, setProfesores] = useState([]);
   const [alumnos, setAlumnos] = useState([]); 
-  const [error, setError] = useState('');
   
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
@@ -33,7 +32,7 @@ const VistaTalleres = () => {
       setProfesores(resProfesores.data);
       setAlumnos(resAlumnos.data);
     } catch (err) {
-      Swal.fire('Érror', 'Error al cargar datos:', 'error');
+      // api.js mostrará la alerta de Error de Red si el servidor no responde
     }
   };
 
@@ -48,7 +47,6 @@ const VistaTalleres = () => {
   // POST o PUT: Guardar o Editar Taller
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     const payload = {
       ...formData,
@@ -71,7 +69,7 @@ const VistaTalleres = () => {
       setCurrentId(null);
       fetchData();
     } catch (err) {
-      setError('Error al procesar la solicitud.');
+      // Amortiguador silencioso: api.js ataja validaciones fallidas
     }
   };
 
@@ -90,15 +88,26 @@ const VistaTalleres = () => {
 
   // DELETE: Baja lógica
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de dar de baja este taller?')) return;
-    try {
-      await api.delete(`/talleres/${id}`);
-      Swal.fire('Éxito!', 'Taller eliminado exitosamente.', 'success');
-      fetchData();
-    } catch (err) {
-      Swal.fire('Error!', 'Error al eliminar.', 'error');
-
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción dará de baja este taller.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, dar de baja',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/talleres/${id}`);
+          Swal.fire('Operación completada', 'Taller eliminado exitosamente.', 'success');
+          fetchData();
+        } catch (err) {
+          // Amortiguador silencioso
+        }
+      }
+    });
   };
 
   // POST: Procesar la Inscripción usando la ruta anidada
@@ -109,13 +118,14 @@ const VistaTalleres = () => {
     try {
       // Axios envía el POST vacío solo con la URL, tal como lo diseñamos en el backend[cite: 5]
       await api.post(`/alumnos/${alumnoSeleccionado}/talleres/${tallerSeleccionado.idTaller}`);
-      Swal.fire('Exito!', 'Alumno inscripto con éxito.', 'success');
+      Swal.fire('Exito!', 'Alumno inscripto correctamente.', 'success');
 
       setShowModal(false);
       setAlumnoSeleccionado('');
       fetchData(); // Refresca para actualizar la barra de cupos automáticamente
     } catch (err) {
-      Swal.fire('Error!', 'Error al inscribir (Verificá si el taller ya está lleno o si el alumno ya está inscripto)', 'error');
+      // El backend lanza TallerSinCupoException si está lleno.
+      // api.js lo atrapa (Status 400) y lanza el SweetAlert automáticamente.
     }
   };
 
@@ -124,8 +134,6 @@ const VistaTalleres = () => {
     <div className="container mt-4 position-relative">
       <h2 className="mb-4 text-center text-primary">Catálogo y Gestión de Talleres</h2>
       
-      {error && <div className="alert alert-danger">{error}</div>}
-
       <div className="row">
         {/* Formulario (Izquierda) */}
         <div className="col-md-4 mb-4">

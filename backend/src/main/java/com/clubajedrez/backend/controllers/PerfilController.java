@@ -26,7 +26,7 @@ public class PerfilController {
         String usernameActual = authentication.getName();
         
         Usuario usuario = usuarioRepository.findByUsernameAndIsActiveTrue(usernameActual)
-                .orElseThrow(() -> new CuentaInactivaException("Acceso rechazado: Su cuenta de usuario se encuentra inactiva."));
+                .orElseThrow(() -> new CuentaInactivaException("Acceso rechazado: Su cuenta de usuario se encuentra inactiva Ecptons."));
 
         // Modificamos ÚNICAMENTE el teléfono y el email de la persona vinculada
         usuario.getPersona().setTelefono(dto.getTelefono());
