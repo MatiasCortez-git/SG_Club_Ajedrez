@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
     
- // NUEVO: Maneja excepciones de tipo "Acceso Denegado" (403)
+ // Maneja excepciones de tipo "Acceso Denegado" (403)
     @ExceptionHandler({
         PerfilProtegidoException.class,
         CuentaInactivaException.class
@@ -83,6 +83,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
     
+ // Maneja excepciones de autenticación (401)
     @ExceptionHandler({
         BadCredentialsException.class,
         UsernameNotFoundException.class

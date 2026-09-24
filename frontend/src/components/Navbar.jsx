@@ -7,7 +7,10 @@ const Navbar = () => {
 
   const handleLogout = () => {
     setIsNavCollapsed(true);
-    sessionStorage.removeItem('isLogged');
+    
+    // Limpieza absoluta de seguridad: Destruye isLogged, token y rol
+    sessionStorage.clear();
+    
     window.location.href = '/'; 
   };
 
@@ -15,7 +18,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
       <div className="container">
         
-        {/* 1. LOGO DINÁMICO: Navega a /dashboard o / según la sesión */}
+        {/* LOGO DINÁMICO: Navega a /dashboard o / según la sesión */}
         <Link className="navbar-brand d-flex align-items-center" to={isLogged ? '/dashboard' : '/'}>
           <img 
             src="/logo-alianza.png" 
@@ -38,7 +41,7 @@ const Navbar = () => {
         <div className={`${isNavCollapsed ? 'collapse' : 'collapse show'} navbar-collapse`} id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-center">
             
-            {/* 2. ENLACE EXPLÍCITO: Solo visible si el usuario inició sesión */}
+            {/* ENLACE EXPLÍCITO: Solo visible si el usuario inició sesión */}
             {isLogged && (
               <li className="nav-item me-3">
                 <Link 

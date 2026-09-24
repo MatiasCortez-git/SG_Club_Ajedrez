@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import ComprobantePago from './ComprobantePago';
-import api from '../api'; // <-- Importamos nuestra llave maestra JWT
-import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
+import api from '../api'; 
+import Swal from 'sweetalert2'; 
 
 const VistaCaja = () => {
   const [alumnos, setAlumnos] = useState([]);
@@ -15,7 +15,6 @@ const VistaCaja = () => {
   const [tarifas, setTarifas] = useState({ cuotaSocio: '', adicionalFederado: '' });
   const [isTarifasOpen, setIsTarifasOpen] = useState(false);
 
-  // Estados y Referencias para la Impresión del Recibo
   const [datosRecibo, setDatosRecibo] = useState(null);
   const componentePDFRef = useRef();
 
@@ -39,7 +38,7 @@ const VistaCaja = () => {
         const adicionalFederado = dataTarifas.find(t => t.concepto === 'Adicional Federado')?.montoActual || '';
         setTarifas({ cuotaSocio, adicionalFederado });
       } catch (error) {
-        Swal.fire('Error', 'Error al cargar datos iniciales', 'error');
+        // Amortiguador silencioso: api.js avisa si no hay conexión
       }
     };
     fetchAlumnosYTarifas();
@@ -54,7 +53,7 @@ const VistaCaja = () => {
       const res = await api.get(`/cuotas/alumno/${id}`);
       setCuotas(res.data);
     } catch (error) {
-      Swal.fire('Error', 'Error al cargar cuotas', 'error');
+      // Amortiguador silencioso
     }
   };
 
@@ -71,10 +70,9 @@ const VistaCaja = () => {
       ];
 
       await api.put('/tarifas', payload);
-      alert('¡Tarifas actualizadas! Los próximos recibos se generarán con los nuevos montos.');
-      setIsTarifasOpen(false);
+      Swal.fire('Operación completada', 'Tarifas actualizadas correctamente.', 'success');      setIsTarifasOpen(false);
     } catch (error) {
-       Swal.fire('Error', `Error al actualizar las tarifas: ${error.message}`, 'error');
+       // Amortiguador: api.js ataja el error
     }
   };
 
@@ -86,32 +84,29 @@ const VistaCaja = () => {
     }
     try {
       await api.post('/cuotas/generar', { idAlumno: parseInt(idAlumno), periodo });
-      Swal.fire('Éxito', '¡Cuota generada con éxito!', 'success');
+      
+      // Texto redundante corregido
+      Swal.fire('Operación completada', 'Cuota generada correctamente.', 'success');
+      
       setPeriodo('');
       fetchCuotas(idAlumno); 
     } catch (error) {
-      if (error.response && error.response.status === 409) {
-        Swal.fire('Atención', 'La cuota para este periodo ya fue generada previamente.', 'warning');
-      } else {
-        Swal.fire('Error', 'Error al generar la cuota.', 'error');
-  }
-}
-
+      // MAGIA DEL INTERCEPTOR: Si la cuota ya existe, el backend lanza CuotaDuplicadaException (409).
+      // Tu api.js lo atrapa y muestra el SweetAlert amarillo automáticamente. No necesitamos IFs acá.
+    }
   };
 
-  // Función para obtener el comprobante y disparar la impresión (Igual a tu código original)
   const handleImprimirRecibo = async (idPago) => {
     if (!idPago) return;
     try {
       const res = await api.get(`/pagos/${idPago}/comprobante`);
-      setDatosRecibo(res.data); // Axios guarda el JSON en res.data
+      setDatosRecibo(res.data); 
       
-      // Le damos 100ms a React para que re-renderice el componente oculto con los datos nuevos
       setTimeout(() => {
         handlePrint();
       }, 100);
     } catch (error) {
-      Swal.fire('Error', 'Error al cargar comprobante:', 'error');
+      // Amortiguador silencioso
     }
   };
 
@@ -123,32 +118,22 @@ const VistaCaja = () => {
         idsCuotasAPagar: [idCuota] 
       };
       
-      const res = await api.post('/pagos', payload);
-      
-      Swal.fire('Éxito', '¡Pago registrado correctamente!', 'success');
-      
-      fetchCuotas(idAlumno); 
-      // Disparamos el ticket automáticamente tras pagar usando res.data.idPago
-      handleImprimirRecibo(res.data.idPago);
+      await api.post('/pagos', payload);
+      Swal.fire('Operación completada', 'Pago registrado correctamente.', 'success');
+      fetchCuotas(idAlumno);
       
     } catch (error) {
-      Swal.fire('Error', '¡Error al registrar el pago! (¿Quizás ya estaba pagada?).', 'error');
+      // Amortiguador: Si la cuota ya estaba pagada, el backend lanza CuotaYaPagadaException (409)[cite: 1, 3, 6].
+      // api.js mostrará el cartel por nosotros.
     }
   };
 
-    // Ordenamos las cuotas por periodo de más ACTUAL a más VIEJA (Descendente)
   const cuotasOrdenadas = [...cuotas].sort((a, b) => {
-    // 1. Prioridad: 'Pendiente' 
     if (a.estado === 'Pendiente' && b.estado !== 'Pendiente') return -1;
     if (a.estado !== 'Pendiente' && b.estado === 'Pendiente') return 1;
-
-    // 2. Desempate : Orden Ascendente por periodo (el más viejo arriba)
-    // Compara cadenas como "2026-05" vs "2026-06" de forma alfabética
     return a.periodo.localeCompare(b.periodo);
   });
   
-
-
   return (
     <div className="container mt-4">
       <h2 className="mb-4 text-center text-primary">Caja: Gestión de Cuotas y Pagos</h2>
@@ -160,7 +145,14 @@ const VistaCaja = () => {
           onClick={() => setIsTarifasOpen(!isTarifasOpen)} 
           style={{ cursor: 'pointer' }}
         >
-          <span>⚙️ Configuración de Valores Actuales</span>
+          <span> 
+            
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" className="me-2" viewBox="0 0 16 16">
+                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+                  </svg>
+            
+            Configuración de Valores Actuales</span>
           <small>{isTarifasOpen ? '(Ocultar)' : '(Desplegar)'}</small>
         </div>
         

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import api from '../api'; // <-- Importamos Axios con JWT
-import Swal from 'sweetalert2'; // <-- importamos SweetAlert2
+import api from '../api'; 
+import Swal from 'sweetalert2'; 
 
 const VistaInscripciones = () => {
   const [talleres, setTalleres] = useState([]);
@@ -13,7 +13,6 @@ const VistaInscripciones = () => {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState('');
   const rol = sessionStorage.getItem('rol');
 
-  // 1. Cargar catálogo base al iniciar usando Axios Promise.all
   useEffect(() => {
     const fetchInicial = async () => {
       try {
@@ -24,13 +23,12 @@ const VistaInscripciones = () => {
         setTalleres(resTalleres.data);
         setAlumnos(resAlumnos.data);
       } catch (error) {
-        Swal.fire('Error', 'Error al cargar datos base:', 'error');
+        // Amortiguador silencioso: api.js mostrará error de conexión si falla
       }
     };
     fetchInicial();
   }, []);
 
-  // 2. Cargar inscriptos al seleccionar un taller
   const fetchInscriptos = async (idTaller) => {
     if (!idTaller) {
       setInscriptos([]);
@@ -40,7 +38,7 @@ const VistaInscripciones = () => {
       const res = await api.get(`/talleres/${idTaller}/alumnos`);
       setInscriptos(res.data);
     } catch (error) {
-      Swal.fire('Error', 'Error al cargar inscriptos:', 'error');
+      // Amortiguador silencioso
     }
   };
 
@@ -48,50 +46,66 @@ const VistaInscripciones = () => {
     fetchInscriptos(idTallerSeleccionado);
   }, [idTallerSeleccionado]);
 
-  // 3. Desinscripción Individual (DELETE)
   const handleBaja = async (idAlumno) => {
-    if (!window.confirm('¿Seguro que deseas remover a este alumno del taller?')) return;
-    try {
-      await api.delete(`/alumnos/${idAlumno}/talleres/${idTallerSeleccionado}`);
-      fetchInscriptos(idTallerSeleccionado);
-    } catch (error) {
-      Swal.fire('Error', 'Error al dar de baja:', 'error');
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción removerá al alumno del taller.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, remover',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/alumnos/${idAlumno}/talleres/${idTallerSeleccionado}`);
+          Swal.fire('Operación completada', 'Alumno removido exitosamente.', 'success');
+          fetchInscriptos(idTallerSeleccionado);
+        } catch (error) {
+          // Amortiguador silencioso
+        }
+      }
+    });
   };
 
-  // 4. Reset Masivo (DELETE)
   const handleResetCiclo = async () => {
     if (!idTallerSeleccionado) return;
     
-    if (!window.confirm('⚠️ ATENCIÓN: Estás a punto de vaciar este taller por completo. ¿Deseas continuar?')) return;
-    if (!window.confirm('🛑 ÚLTIMO AVISO: Esta acción es irreversible. ¿Confirmás el vaciado del aula?')) return;
-
-    try {
-      await api.delete(`/talleres/${idTallerSeleccionado}/reset-ciclo`);
-      Swal.fire('Éxito', 'El ciclo lectivo de este taller ha sido reseteado exitosamente.', 'success');
-      fetchInscriptos(idTallerSeleccionado);
-    } catch (error) {
-      Swal.fire('Error', 'Error en el reset del ciclo lectivo:', 'error');
-    }
+    Swal.fire({
+      title: '⚠️ ATENCIÓN: Vaciado de Aula',
+      text: "Estás a punto de vaciar este taller por completo. Esta acción es irreversible. ¿Confirmás el reseteo del ciclo lectivo?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, vaciar aula',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/talleres/${idTallerSeleccionado}/reset-ciclo`);
+          Swal.fire('Operación completada', 'El ciclo lectivo ha sido reseteado exitosamente.', 'success');
+          fetchInscriptos(idTallerSeleccionado);
+        } catch (error) {
+          // Amortiguador silencioso
+        }
+      }
+    });
   };
 
-  // 5. Inscribir Nuevo Alumno (POST)
   const handleInscribir = async (e) => {
     e.preventDefault();
     if (!alumnoSeleccionado) return;
 
     try {
       await api.post(`/alumnos/${alumnoSeleccionado}/talleres/${idTallerSeleccionado}`);
+      Swal.fire('Operación completada', 'Alumno inscripto correctamente.', 'success');
       setShowModal(false);
       setAlumnoSeleccionado('');
       fetchInscriptos(idTallerSeleccionado);
     } catch (error) {
-      if (error.response && error.response.status === 409) {
-        // Atrapamos el error controlado del backend
-        Swal.fire('Atención', 'Atención: El alumno ya se encuentra inscripto en este taller.', 'error');
-      } else {
-        Swal.fire('Error', 'Error inesperado al intentar inscribir al alumno.', 'error');
-      }
+      // Amortiguador: api.js atrapa automáticamente si el taller está lleno (400) o si el alumno ya está inscripto (409)
     }
   };
 
@@ -140,7 +154,7 @@ const VistaInscripciones = () => {
             onClick={() => setShowModal(true)}
             disabled={!idTallerSeleccionado}
           >
-            ➕ Inscribir Nuevo Alumno
+            + Inscribir Nuevo Alumno
           </button>
         </div>
         <div className="card-body p-0 table-responsive">
@@ -171,7 +185,7 @@ const VistaInscripciones = () => {
                           onClick={() => handleBaja(a.idPersona)}
                           title="Desinscribir del Taller"
                         >
-                          🗑️ Dar de Baja
+                          Dar de Baja
                         </button>
                       )}
                     </td>
