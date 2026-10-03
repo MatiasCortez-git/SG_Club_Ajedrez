@@ -8,6 +8,15 @@ const VistaProfesores = () => {
   const [currentId, setCurrentId] = useState(null);
   const rol = sessionStorage.getItem('rol');
 
+   //  Identificamos exactamente quién es el usuario
+  const esAdmin = rol === 'ROLE_ADMIN';
+  const esProfesor = rol === 'ROLE_PROFESOR';
+  const esStaff = rol === 'ROLE_STAFF';
+
+  // Creamos los permisos agrupados
+  const puedeEditar = esAdmin || esProfesor;
+
+
   const estadoInicial = {
     nombre: '', apellido: '', dni: '', email: '', 
     telefono: '', codFederacion: '', elo: ''
@@ -90,6 +99,7 @@ const VistaProfesores = () => {
       
       <div className="row">
         {/* Formulario (Izquierda) */}
+        {puedeEditar && (
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm border-primary">
             <div className="card-header bg-primary text-white">
@@ -119,14 +129,16 @@ const VistaProfesores = () => {
             </div>
           </div>
         </div>
+        )}
 
         {/* Grilla (Derecha) */}
-        <div className="col-md-8">
+        <div className={puedeEditar ? "col-md-8" : "col-md-12"}>
           <div className="card shadow-sm">
             <div className="card-body p-0 table-responsive">
               <table className="table table-striped table-hover mb-0 text-center align-middle">
                 <thead className="table-light">
-                  <tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Cod. Fed</th><th>Acciones</th></tr>
+                  <tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Cod. Fed</th>
+                  {puedeEditar && (<th>Acciones</th>)}</tr>
                 </thead>
                 <tbody>
                   {profesores.length === 0 ? (
@@ -139,7 +151,9 @@ const VistaProfesores = () => {
                         <td>{p.telefono}</td>
                         <td><span className="badge bg-info text-dark">{p.codFederacion || 'N/A'}</span></td>
                         <td>
+                          {puedeEditar && (
                           <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleEdit(p)}>Editar</button>
+                          )}
                           {/* Solo renderiza este botón si el rol es estrictamente ROLE_ADMIN */}
                           {rol === 'ROLE_ADMIN' && (
                           <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(p.idPersona || p.id)}>Baja</button>

@@ -34,11 +34,13 @@ public class ProfesorController {
         return ResponseEntity.ok(profesores); // Devuelve 200 OK con la lista
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<ProfesorResponseDTO> crearProfesor(@RequestBody ProfesorCreateDTO dto) {
         return new ResponseEntity<>(profesorService.crearProfesor(dto), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProfesorResponseDTO> actualizarProfesor(@PathVariable Integer id, @RequestBody ProfesorCreateDTO dto) {
         return ResponseEntity.ok(profesorService.actualizarProfesor(id, dto));
