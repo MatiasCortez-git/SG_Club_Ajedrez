@@ -18,6 +18,9 @@ const VistaCaja = () => {
   const [datosRecibo, setDatosRecibo] = useState(null);
   const componentePDFRef = useRef();
 
+  const rolUsuario = sessionStorage.getItem('rol');
+  const esAdmin = rolUsuario === 'ROLE_ADMIN';
+
   const handlePrint = useReactToPrint({
     contentRef: componentePDFRef,
     documentTitle: 'Comprobante_Pago_Club_Ajedrez',
@@ -139,6 +142,7 @@ const VistaCaja = () => {
       <h2 className="mb-4 text-center text-primary">Caja: Gestión de Cuotas y Pagos</h2>
 
       {/* PANEL DE TARIFAS GLOBALES */}
+      {esAdmin && (
       <div className="card shadow-sm mb-4 border-warning">
         <div 
           className="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center" 
@@ -155,6 +159,7 @@ const VistaCaja = () => {
             Configuración de Valores Actuales</span>
           <small>{isTarifasOpen ? '(Ocultar)' : '(Desplegar)'}</small>
         </div>
+        
         
         <div className={isTarifasOpen ? 'collapse show' : 'collapse'}>
           <div className="card-body bg-light">
@@ -186,6 +191,7 @@ const VistaCaja = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* BUSCADOR PRINCIPAL */}
       <div className="card shadow-sm mb-4 border-info">

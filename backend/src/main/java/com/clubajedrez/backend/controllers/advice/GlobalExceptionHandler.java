@@ -19,6 +19,7 @@ import com.clubajedrez.backend.exceptions.UsuarioNoEncontradoException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,7 +50,8 @@ public class GlobalExceptionHandler {
 
     // Maneja excepciones de reglas de negocio / validaciones (400)
     @ExceptionHandler({TallerSinCupoException.class, 
-    				   ProfesorNoFederadoException.class})
+    				   ProfesorNoFederadoException.class,
+    				   IllegalArgumentException.class})
     public ResponseEntity<Map<String, String>> handleBadRequest(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "Regla de negocio violada");
@@ -71,17 +73,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
     
+
  // Maneja excepciones de tipo "Acceso Denegado" (403)
-    @ExceptionHandler({
-        PerfilProtegidoException.class,
-        CuentaInactivaException.class
-    })
-    public ResponseEntity<Map<String, String>> handleAccesoDenegado(RuntimeException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Acceso Denegado");
-        response.put("mensaje", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
+ @ExceptionHandler({
+     PerfilProtegidoException.class,
+     CuentaInactivaException.class,
+     AccessDeniedException.class
+ })
+ public ResponseEntity<Map<String, String>> handleAccesoDenegado(RuntimeException ex) {
+     Map<String, String> response = new HashMap<>();
+     response.put("error", "Acceso Denegado");
+     
+     // Si es el error nativo de Spring, forzamos nuestro mensaje. Si es una excepción propia, usamos su mensaje.
+     String mensaje = (ex instanceof AccessDeniedException) 
+         ? "No tienes los permisos de administrador necesarios para realizar esta acción." 
+         : ex.getMessage();
+         
+     response.put("mensaje", mensaje);
+     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+ }
     
  // Maneja excepciones de autenticación (401)
     @ExceptionHandler({

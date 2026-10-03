@@ -1,5 +1,6 @@
 package com.clubajedrez.backend.controllers;
 
+import com.clubajedrez.backend.dtos.UsuarioPersonalCreateDTO;
 import com.clubajedrez.backend.dtos.UsuarioRequestDTO;
 import com.clubajedrez.backend.dtos.UsuarioResponseDTO;
 import com.clubajedrez.backend.services.UsuarioServiceImpl;
@@ -37,4 +38,10 @@ public class UsuarioController {
         usuarioService.eliminarUsuario(id);
         return ResponseEntity.noContent().build();
     }
+    @PostMapping("/personal")
+    public ResponseEntity<UsuarioResponseDTO> crearPersonal(@RequestBody UsuarioPersonalCreateDTO dto) {
+        UsuarioResponseDTO nuevoAdmin = usuarioService.crearPersonal(dto);
+        return new ResponseEntity<>(nuevoAdmin, HttpStatus.CREATED);
+    }
+    
 }

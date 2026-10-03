@@ -17,6 +17,7 @@
     
     <properties>
         <java.version>17</java.version>
+        <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
     </properties>
 
     <dependencies>
@@ -74,10 +75,26 @@
 		    <version>0.11.5</version>
 		    <scope>runtime</scope>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
         
     </dependencies>
 
     <build>
+        <!-- Forzamos la versión del plugin de recursos para evitar el bug de Eclipse -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

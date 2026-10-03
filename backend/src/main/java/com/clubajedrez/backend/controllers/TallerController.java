@@ -24,6 +24,7 @@ public class TallerController {
     }
 
     // Endpoint 1: Crear Taller
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PROFESOR')")
     @PostMapping
     public ResponseEntity<TallerResponseDTO> crearTaller(@RequestBody TallerCreateDTO createDTO) {
         // El servicio debe encargarse de recibir el DTO, transformarlo a Entidad, guardarlo y devolver otro DTO
@@ -50,6 +51,7 @@ public class TallerController {
     }
     
     // Endpoint 4: Actualizar un Taller por ID
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PROFESOR')")
     @PutMapping("/{id}")
     public ResponseEntity<TallerResponseDTO> actualizarTaller(@PathVariable Integer id, @RequestBody TallerCreateDTO dto) {
         return ResponseEntity.ok(tallerService.actualizarTaller(id, dto));

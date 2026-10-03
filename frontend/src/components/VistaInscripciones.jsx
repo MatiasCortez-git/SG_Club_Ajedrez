@@ -13,6 +13,15 @@ const VistaInscripciones = () => {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState('');
   const rol = sessionStorage.getItem('rol');
 
+   //  Identificamos exactamente quién es el usuario
+  const esAdmin = rol === 'ROLE_ADMIN';
+  const esProfesor = rol === 'ROLE_PROFESOR';
+  const esStaff = rol === 'ROLE_STAFF';
+
+  // Creamos los permisos agrupados
+  const puedeEditar = esAdmin || esProfesor;
+
+
   useEffect(() => {
     const fetchInicial = async () => {
       try {
@@ -134,11 +143,14 @@ const VistaInscripciones = () => {
             {/* Solo renderiza este botón si el rol es ROLE_ADMIN */}
             {rol === 'ROLE_ADMIN' && (
               <button 
-                className="btn btn-danger fw-bold shadow-sm" 
+                className="btn btn-danger fw-bold shadow-sm d-flex align-items-center" 
                 onClick={handleResetCiclo}
                 disabled={!idTallerSeleccionado}
               >
-                ⚠️ Resetear Ciclo Lectivo
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="me-2" viewBox="0 0 16 16">
+                  <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                Resetear Ciclo Lectivo
               </button>
             )}
           </div>
@@ -149,6 +161,7 @@ const VistaInscripciones = () => {
       <div className="card shadow-sm border-info">
         <div className="card-header bg-info text-dark d-flex justify-content-between align-items-center">
           <h5 className="mb-0 fw-bold">Alumnos Inscriptos</h5>
+          {puedeEditar && (
           <button 
             className="btn btn-sm btn-success fw-bold shadow-sm"
             onClick={() => setShowModal(true)}
@@ -156,6 +169,7 @@ const VistaInscripciones = () => {
           >
             + Inscribir Nuevo Alumno
           </button>
+          )}
         </div>
         <div className="card-body p-0 table-responsive">
           <table className="table table-striped table-hover mb-0 text-center align-middle">

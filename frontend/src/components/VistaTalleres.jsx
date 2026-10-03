@@ -15,6 +15,14 @@ const VistaTalleres = () => {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState('');
   const rol = sessionStorage.getItem('rol');
 
+   //  Identificamos exactamente quién es el usuario
+  const esAdmin = rol === 'ROLE_ADMIN';
+  const esProfesor = rol === 'ROLE_PROFESOR';
+  const esStaff = rol === 'ROLE_STAFF';
+
+  // Creamos los permisos agrupados
+  const puedeEditar = esAdmin || esProfesor;
+
   const estadoInicial = {
     nombre: '', cupoMaximo: '', duracion: '', costo: '', tipoNivel: 'Recreativo', idProfesor: ''
   };
@@ -136,6 +144,7 @@ const VistaTalleres = () => {
       
       <div className="row">
         {/* Formulario (Izquierda) */}
+        {puedeEditar && (
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm border-primary">
             <div className="card-header bg-primary text-white">
@@ -173,9 +182,10 @@ const VistaTalleres = () => {
             </div>
           </div>
         </div>
+        )}
 
         {/* Grilla de Cards (Derecha) */}
-        <div className="col-md-8">
+        <div className={puedeEditar ? "col-md-8" : "col-md-12"}>
           <div className="row">
             {talleres.length === 0 ? (
               <div className="col-12 text-center py-4 text-muted">No hay talleres disponibles en el catálogo.</div>
@@ -210,6 +220,7 @@ const VistaTalleres = () => {
                         </div>
 
                         {/* Botones de Acción */}
+                        {puedeEditar && (
                         <div className="mt-auto d-flex flex-column gap-2">
                           
                           {/* Fila 1: Editar e Inscribir (Juntos, 50/50) */}
@@ -240,6 +251,7 @@ const VistaTalleres = () => {
                           )}
                           
                         </div>
+                        )}
                       </div>
                     </div>
                   </div>

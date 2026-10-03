@@ -25,6 +25,7 @@ public class AlumnoController {
     }
 
     // 1. Crear Alumno
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PROFESOR')")
     @PostMapping
     public ResponseEntity<AlumnoResponseDTO> crearAlumno(@RequestBody AlumnoCreateDTO dto) {
         AlumnoResponseDTO nuevoAlumno = alumnoService.crearAlumno(dto);
@@ -39,6 +40,7 @@ public class AlumnoController {
     }
 
     // 3. Inscribir Alumno a Taller (Ruta anidada RESTful)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PROFESOR')")
     @PostMapping("/{idAlumno}/talleres/{idTaller}")
     public ResponseEntity<Void> inscribirEnTaller(
             @PathVariable Integer idAlumno, 
@@ -64,6 +66,7 @@ public class AlumnoController {
     }
     
     // 6. Actualizar alumno	
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PROFESOR')")
     @PutMapping("/{id}")
     public ResponseEntity<AlumnoResponseDTO> actualizarAlumno(@PathVariable Integer id, @RequestBody AlumnoCreateDTO dto) {
         return ResponseEntity.ok(alumnoService.actualizarAlumno(id, dto));

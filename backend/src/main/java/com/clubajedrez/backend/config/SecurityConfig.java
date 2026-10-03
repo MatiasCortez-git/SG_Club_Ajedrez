@@ -11,15 +11,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // Habilita el uso de @PreAuthorize en los controladores
 public class SecurityConfig {
 	
 	private final JwtRequestFilter jwtRequestFilter;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint; 
 
-    public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
+	public SecurityConfig(JwtRequestFilter jwtRequestFilter, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.jwtRequestFilter = jwtRequestFilter;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
     @Bean
@@ -34,6 +37,9 @@ public class SecurityConfig {
             
             // 2. Le indicamos a Spring que nuestra API es "Stateless" (Sin estado)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
+            // Delegamos el rechazo de anónimos a nuestro componente JSON
+            .exceptionHandling(exc -> exc.authenticationEntryPoint(customAuthenticationEntryPoint))
             
             // 3. Configuramos las reglas de las rutas
             .authorizeHttpRequests(auth -> auth
