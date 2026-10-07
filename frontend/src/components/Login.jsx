@@ -19,11 +19,23 @@ const Login = () => {
         password
       });
       
-      sessionStorage.setItem('token', response.data.jwt);
-      sessionStorage.setItem('rol', response.data.rol);
-      sessionStorage.setItem('isLogged', 'true');
-      
-      window.location.href = '/dashboard';
+      const { jwt, rol, debe_cambiar_password, debeCambiarPassword } = response.data;
+
+      // Guardamos el token y el rol (necesarios tanto para el dashboard como para activar la cuenta)
+      sessionStorage.setItem('token', jwt);
+      sessionStorage.setItem('rol', rol);
+
+      // Evaluamos la bandera (soportando snake_case y camelCase por seguridad)
+      const requiereCambio = debe_cambiar_password ?? debeCambiarPassword ?? false;
+      sessionStorage.setItem('debe_cambiar_password', String(requiereCambio));
+
+      if (requiereCambio) {
+        // Aún NO marcamos 'isLogged' como true para evitar que el Navbar principal se active si está global
+        window.location.href = '/primer-ingreso';
+      } else {
+        sessionStorage.setItem('isLogged', 'true');
+        window.location.href = '/dashboard';
+      }
       
     } catch (err) {
       // Manejo local EXCLUSIVO para credenciales incorrectas (401)
@@ -54,7 +66,7 @@ const Login = () => {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Contraseña</label>
-                 <div className="input-group">
+                  <div className="input-group">
                     <input 
                       type={mostrarPassword ? "text" : "password"} 
                       className="form-control" 

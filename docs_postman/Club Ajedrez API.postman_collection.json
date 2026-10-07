@@ -13,11 +13,21 @@
         {
           "name": "CrearTaller",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"nombre\": \"Ajedrez Avanzado\",\r\n  \"cupoMaximo\": 15,\r\n  \"duracion\": \"3 meses\",\r\n  \"costo\": 15000.00,\r\n  \"tipoNivel\": \"Recreativo\",\r\n  \"idProfesor\": 1\r\n}",
+              "raw": "{\r\n  \"nombre\": \"Taller Hackeado\",\r\n  \"cupoMaximo\": 50,\r\n  \"duracion\": 120,\r\n  \"costo\": 5000.0,\r\n  \"tipoNivel\": \"Principiante\",\r\n  \"idProfesor\": 1\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -43,6 +53,16 @@
         {
           "name": "ObtenerTaller",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -136,6 +156,16 @@
         {
           "name": "ObtenerTodos",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -525,11 +555,21 @@
         {
           "name": "CrearPago",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"idAlumno\": 3,\r\n  \"medioPago\": \"Transferencia\",\r\n  \"idsCuotasAPagar\": [12]\r\n}",
+              "raw": "{\r\n  \"idAlumno\": 2,\r\n  \"medioPago\": \"Transferencia\",\r\n  \"idsCuotasAPagar\": [14]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -586,6 +626,16 @@
         {
           "name": "ListarProfesores",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -729,7 +779,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"idAlumno\": 2,\r\n  \"periodo\": \"2026-09\"\r\n}",
+              "raw": "{\r\n  \"idAlumno\": 2,\r\n  \"periodo\": \"2026-11\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1066,14 +1116,7 @@
           "name": "ListarUsuarios",
           "request": {
             "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
+              "type": "noauth"
             },
             "method": "GET",
             "header": [],
@@ -1162,6 +1205,163 @@
                 "perfil",
                 "me",
                 "contacto"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CrearPersonal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombre\": \"Lilo\",\r\n  \"apellido\": \"Perez\",\r\n  \"dni\": \"11993344\",\r\n  \"email\": \"matyrsd99+1@gmail.com\",\r\n  \"telefono\": \"3434666677\",\r\n  \"username\": \"secretaria@ajedrez.com\",\r\n  \"rol\": \"ROLE_CAJA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/usuarios/personal",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "usuarios",
+                "personal"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "VerPerfil",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/perfil/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "perfil",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CambiarContraseña",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"passwordActual\": \"SuperClaveSegura2026!\",\r\n  \"passwordNueva\": \"profe890\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/perfil/me/password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "perfil",
+                "me",
+                "password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ActivarCuenta",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nuevaPassword\": \"Nueva2026!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/perfil/me/activar-cuenta",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "perfil",
+                "me",
+                "activar-cuenta"
               ]
             }
           },

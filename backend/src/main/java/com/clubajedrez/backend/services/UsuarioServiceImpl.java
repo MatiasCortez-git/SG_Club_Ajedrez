@@ -1,6 +1,7 @@
 package com.clubajedrez.backend.services;
 
 import com.clubajedrez.backend.dtos.DatosContactoDTO;
+import com.clubajedrez.backend.dtos.PerfilResponseDTO;
 import com.clubajedrez.backend.dtos.UsuarioPersonalCreateDTO;
 import com.clubajedrez.backend.dtos.UsuarioRequestDTO;
 import com.clubajedrez.backend.dtos.UsuarioResponseDTO;
@@ -155,6 +156,57 @@ public class UsuarioServiceImpl implements UsuarioService{ // Puedes implementar
         
         return mapToDTO(usuarioGuardado);
     }
+    
+    @Override
+    @Transactional
+    public void activarCuenta(String username, String nuevaPassword) {
+        Usuario usuario = usuarioRepository.findByUsernameAndIsActiveTrue(username)
+                .orElseThrow(() -> new CuentaInactivaException("Acceso rechazado: Su cuenta de usuario se encuentra inactiva."));
+
+        // Verificamos que realmente necesite cambiarla
+        if (!usuario.getDebeCambiarPassword()) {
+            throw new IllegalArgumentException("La cuenta ya se encuentra activada.");
+        }
+
+        // Encriptamos la nueva clave obligatoriamente[cite: 1]
+        usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+        
+        // Bajamos la bandera para que no vuelva a pedirlo
+        usuario.setDebeCambiarPassword(false);
+        
+        usuarioRepository.save(usuario);
+    }
+    @Transactional(readOnly = true)
+    public PerfilResponseDTO obtenerPerfil(String username) {
+        Usuario usuario = usuarioRepository.findByUsernameAndIsActiveTrue(username)
+                .orElseThrow(() -> new CuentaInactivaException("Cuenta inactiva."));
+        
+        PerfilResponseDTO dto = new PerfilResponseDTO();
+        dto.setNombre(usuario.getPersona().getNombre());
+        dto.setApellido(usuario.getPersona().getApellido());
+        dto.setDni(usuario.getPersona().getDni());
+        dto.setEmail(usuario.getPersona().getEmail());
+        dto.setTelefono(usuario.getPersona().getTelefono());
+        
+        return dto;
+    }
+
+    @Transactional
+    public void cambiarPassword(String username, String passwordActual, String passwordNueva) {
+        Usuario usuario = usuarioRepository.findByUsernameAndIsActiveTrue(username)
+                .orElseThrow(() -> new CuentaInactivaException("Cuenta inactiva."));
+
+        // Validamos que la contraseña actual ingresada coincida con el hash de la base de datos
+        if (!passwordEncoder.matches(passwordActual, usuario.getPassword())) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta.");
+        }
+
+        // Encriptamos y seteamos la nueva contraseña
+        usuario.setPassword(passwordEncoder.encode(passwordNueva));
+        
+        usuarioRepository.save(usuario);
+    }
+    
     
     private String generarPasswordAleatorio() {
         String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";

@@ -34,4 +34,8 @@ public class Usuario {
     @JoinColumn(name = "id_persona", nullable = false)
     private Persona persona;
     
+    @Column(name = "debe_cambiar_password")
+    private Boolean debeCambiarPassword = true; // Por defecto es true al crear la cuenta
+
+
 }
