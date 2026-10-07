@@ -72,6 +72,7 @@ CREATE TABLE usuario (
     rol VARCHAR(50) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     id_persona INT NOT NULL,
+    debe_cambiar_password BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (id_persona) REFERENCES Persona(id_persona)
 );
 
@@ -161,7 +162,7 @@ VALUES
 -- ==========================================
 -- 2. PERSONAS (La tabla central)
 -- ==========================================
--- Insertamos 3 personas. PostgreSQL les asignará automáticamente los IDs 1, 2 y 3.
+-- Insertamos 5 personas. PostgreSQL les asignará automáticamente los IDs 1, 2, 3...
 INSERT INTO Persona (nombre, apellido, dni, email, telefono)
 VALUES
 ('Garry', 'Kasparov', '11111111', 'garry@ajedrez.com', '11223344'), -- ID 1 (Será Profesor)
@@ -174,18 +175,18 @@ VALUES
 -- 3. ASIGNACIÓN de rol (Herencia 1:1)
 -- ==========================================
 -- Insertamos el administrador semilla (La contraseña es 'admin123' encriptada con BCrypt)
-INSERT INTO usuario (username, password, rol, id_persona) 
-VALUES ('admin@admin.com', '$2a$10$s/KybK76jl9t9PJWC9BHt.5yvkjccvS1EuBcLl.i5C8qM7/yd7xrq', 'ROLE_ADMIN', 4);
+INSERT INTO usuario (username, password, rol, id_persona, debe_cambiar_password) 
+VALUES ('admin@admin.com', '$2a$10$s/KybK76jl9t9PJWC9BHt.5yvkjccvS1EuBcLl.i5C8qM7/yd7xrq', 'ROLE_ADMIN', 4, FALSE);
 
 -- Garry Kasparov (Profesor - ID Persona 1) y Bruno Werner (gerente - ID Persona 5)
-INSERT INTO usuario (username, password, rol, id_persona)
-VALUES ('profesor1@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_PROFESOR', 1);
+INSERT INTO usuario (username, password, rol, id_persona, debe_cambiar_password)
+VALUES ('profesor1@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_PROFESOR', 1, FALSE);
 
 -- Bruno Werner (Profesor - ID Persona 5)
-INSERT INTO usuario (username, password, rol, id_persona)
-VALUES ('profesor2@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_PROFESOR', 5);
+INSERT INTO usuario (username, password, rol, id_persona, debe_cambiar_password)
+VALUES ('profesor2@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_STAFF', 5, FALSE);
 
--- A Garry (1) le damos el rol de Profesor
+-- A Garry (1) le damos lo registramos como Profesor
 INSERT INTO Profesor (id_persona) VALUES (1);
 
 -- A Magnus (2) y Beth (3) les damos el rol de Alumno (acá guardamos su fecha de nacimiento)

@@ -7,14 +7,34 @@ import VistaCaja from './components/VistaCaja';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import VistaProfesores from './components/VistaProfesores';
-import VistaReportes from './components/VistaReportes'
+import VistaReportes from './components/VistaReportes';
 import VistaInscripciones from './components/VistaInscripciones';
 import PanelAdmin from './components/PanelAdmin';
+import VistaPrimerIngreso from './components/VistaPrimerIngreso';
+import VistaPerfil from './components/VistaPerfil';
 
-// El Guardián
+// El Guardián de Rutas Privadas
 const PrivateRoute = ({ children }) => {
   const isLogged = sessionStorage.getItem('isLogged') === 'true';
-  return isLogged ? children : <Navigate to="/login" />;
+  const debeCambiar = sessionStorage.getItem('debe_cambiar_password') === 'true';
+
+  // Si está en cuarentena por primer ingreso, lo encerramos en /primer-ingreso
+  if (debeCambiar) {
+    return <Navigate to="/primer-ingreso" replace />;
+  }
+
+  return isLogged ? children : <Navigate to="/login" replace />;
+};
+
+// Guardián exclusivo para la pantalla de Cuarentena (/primer-ingreso)
+const PrimerIngresoRoute = ({ children }) => {
+  const token = sessionStorage.getItem('token');
+  const debeCambiar = sessionStorage.getItem('debe_cambiar_password') === 'true';
+
+  if (!token) return <Navigate to="/login" replace />;
+  if (!debeCambiar) return <Navigate to="/dashboard" replace />;
+
+  return children;
 };
 
 function App() {
@@ -25,8 +45,12 @@ function App() {
         <Route path="/" element={<PortalAlumno />} />
         <Route path="/login" element={<Login />} />
         
+        {/* Ruta de Cuarentena (Sin Navbar) */}
+        <Route path="/primer-ingreso" element={<PrimerIngresoRoute><VistaPrimerIngreso /></PrimerIngresoRoute>} />
+
         {/* Rutas Protegidas */}
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/mi-perfil" element={<PrivateRoute><VistaPerfil /></PrivateRoute>} />
         <Route path="/alumnos" element={<PrivateRoute><VistaAlumnos /></PrivateRoute>} />
         <Route path="/talleres" element={<PrivateRoute><VistaTalleres /></PrivateRoute>} />
         <Route path="/caja" element={<PrivateRoute><VistaCaja /></PrivateRoute>} />

@@ -7,4 +7,5 @@ import lombok.Data;
 public class AuthResponseDTO {
     private String jwt;
     private String rol;
+    private boolean debe_cambiar_password;
 }
