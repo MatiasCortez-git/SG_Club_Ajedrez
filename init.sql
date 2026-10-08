@@ -185,15 +185,15 @@ VALUES
 -- ==========================================
 -- Insertamos el administrador semilla (La contraseña es 'admin123' encriptada con BCrypt)
 INSERT INTO usuario (username, password, rol, id_persona, debe_cambiar_password) 
-VALUES ('admin@admin.com', '$2a$10$s/KybK76jl9t9PJWC9BHt.5yvkjccvS1EuBcLl.i5C8qM7/yd7xrq', 'ROLE_ADMIN', 4, FALSE);
+VALUES ('admin', '$2a$10$s/KybK76jl9t9PJWC9BHt.5yvkjccvS1EuBcLl.i5C8qM7/yd7xrq', 'ROLE_ADMIN', 4, FALSE);
 
 -- Garry Kasparov (Profesor - ID Persona 1) y Bruno Werner (gerente - ID Persona 5)
 INSERT INTO usuario (username, password, rol, id_persona, debe_cambiar_password)
-VALUES ('profesor1@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_PROFESOR', 1, FALSE);
+VALUES ('profesor1', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_PROFESOR', 1, FALSE);
 
 -- Bruno Werner (Profesor - ID Persona 5)
 INSERT INTO usuario (username, password, rol, id_persona, debe_cambiar_password)
-VALUES ('profesor2@alianza.com', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_STAFF', 5, FALSE);
+VALUES ('profesor2', '$2a$12$OOOcbAuEjigoQMS/bEt3AuG9IJ1eUtpsSOmyh5HGKZkOgT4q/Lzuu', 'ROLE_STAFF', 5, FALSE);
 
 -- A Garry (1) le damos lo registramos como Profesor
 INSERT INTO Profesor (id_persona) VALUES (1);
