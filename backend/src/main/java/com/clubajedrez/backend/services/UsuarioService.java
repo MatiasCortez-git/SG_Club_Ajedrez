@@ -25,4 +25,8 @@ public interface UsuarioService {
 	public void cambiarPassword(String username, String passwordActual, String passwordNueva);
 	
 	public PerfilResponseDTO obtenerPerfil(String username);
+
+	void solicitarRecuperacionPassword(String username);
+	
+	void resetearPasswordConToken(String token, String nuevaPassword);
 }

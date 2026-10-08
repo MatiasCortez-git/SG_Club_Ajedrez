@@ -35,12 +35,14 @@ api.interceptors.response.use(
 
       switch (status) {
         case 400: 
-          Swal.fire({
-            icon: 'warning',
-            title: 'Validación Incorrecta',
-            text: mensajeBackend,
-            confirmButtonColor: '#f8bb86'
-          });
+          if (window.location.pathname !== '/reset-password') {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Validación Incorrecta',
+              text: mensajeBackend,
+              confirmButtonColor: '#f8bb86'
+            });
+          }
           break;
 
         case 401:  
@@ -81,7 +83,7 @@ api.interceptors.response.use(
           break;
 
         case 404: 
-          if (window.location.pathname !== '/') {
+          if (window.location.pathname !== '/'&& window.location.pathname !== '/reset-password') {
             Swal.fire({
               icon: 'info',
               title: 'No encontrado',

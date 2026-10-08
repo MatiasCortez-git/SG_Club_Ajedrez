@@ -12,6 +12,8 @@ import VistaInscripciones from './components/VistaInscripciones';
 import PanelAdmin from './components/PanelAdmin';
 import VistaPrimerIngreso from './components/VistaPrimerIngreso';
 import VistaPerfil from './components/VistaPerfil';
+import VistaOlvidePassword from './components/VistaOlvidePassword';
+import VistaResetPassword from './components/VistaResetPassword';
 
 // El Guardián de Rutas Privadas
 const PrivateRoute = ({ children }) => {
@@ -44,6 +46,8 @@ function App() {
       <Routes>
         <Route path="/" element={<PortalAlumno />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/olvide-password" element={<VistaOlvidePassword />} />
+        <Route path="/reset-password" element={<VistaResetPassword />} />
         
         {/* Ruta de Cuarentena (Sin Navbar) */}
         <Route path="/primer-ingreso" element={<PrimerIngresoRoute><VistaPrimerIngreso /></PrimerIngresoRoute>} />

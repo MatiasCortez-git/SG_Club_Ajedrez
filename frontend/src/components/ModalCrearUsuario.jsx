@@ -26,6 +26,20 @@ const ModalCrearUsuario = ({ show, handleClose, refreshUsuarios }) => {
   
   useEffect(() => {
     if (show) {
+      // Limpiamos los datos en memoria cada vez que se abre el modal
+      setFormData({
+        idPersona: '',
+        nombre: '',
+        apellido: '',
+        dni: '',
+        email: '',
+        telefono: '',
+        codFederacion: '',
+        elo: '',
+        username: '',
+        rol: 'ROLE_PROFESOR'
+      });
+
       api.get('/profesores')
         .then(res => setProfesores(res.data))
         .catch(err => {
@@ -164,7 +178,7 @@ const ModalCrearUsuario = ({ show, handleClose, refreshUsuarios }) => {
                     </div>
                     <div className="col-md-4">
                       <label className="form-label">Email de Contacto</label>
-                      <input type="email" className="form-control" name="email" onChange={handleChange} disabled={isSubmitting} />
+                      <input type="email" className="form-control" name="email" onChange={handleChange} required disabled={isSubmitting} />
                     </div>
                   </div>
 
@@ -195,8 +209,8 @@ const ModalCrearUsuario = ({ show, handleClose, refreshUsuarios }) => {
               
               <div className="row g-2 mb-3">
                 <div className="col-md-12">
-                  <label className="form-label">Usuario (Email Login)</label>
-                  <input type="email" className="form-control" name="username" onChange={handleChange} required disabled={isSubmitting} />
+                  <label className="form-label">Nombre de Usuario</label>
+                  <input type="text" className="form-control" name="username" onChange={handleChange} required disabled={isSubmitting} />
                 </div>
               </div>
 

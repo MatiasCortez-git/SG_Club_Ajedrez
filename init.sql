@@ -120,6 +120,15 @@ CREATE TABLE Detalle_Cuota (
     FOREIGN KEY (id_cuota) REFERENCES Cuota(id_cuota) ON DELETE CASCADE
 );
 
+-- 13. Tabla para Recuperación de Contraseña
+CREATE TABLE Token_Recuperacion (
+    id_token SERIAL PRIMARY KEY,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    fecha_expiracion TIMESTAMP NOT NULL,
+    id_usuario INT NOT NULL,
+    CONSTRAINT fk_token_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
+);
+
 -- Función que cuenta inscriptos y evalúa el cupo
 CREATE OR REPLACE FUNCTION verificar_cupo_taller()
 RETURNS TRIGGER AS $$
