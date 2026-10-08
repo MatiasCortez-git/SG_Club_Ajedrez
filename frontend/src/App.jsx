@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import PortalAlumno from './components/PortalAlumno';
 import VistaAlumnos from './components/VistaAlumnos';
 import VistaTalleres from './components/VistaTalleres';
@@ -20,7 +21,6 @@ const PrivateRoute = ({ children }) => {
   const isLogged = sessionStorage.getItem('isLogged') === 'true';
   const debeCambiar = sessionStorage.getItem('debe_cambiar_password') === 'true';
 
-  // Si está en cuarentena por primer ingreso, lo encerramos en /primer-ingreso
   if (debeCambiar) {
     return <Navigate to="/primer-ingreso" replace />;
   }
@@ -42,27 +42,37 @@ const PrimerIngresoRoute = ({ children }) => {
 function App() {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<PortalAlumno />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/olvide-password" element={<VistaOlvidePassword />} />
-        <Route path="/reset-password" element={<VistaResetPassword />} />
+      {/* Contenedor Flexbox de altura completa para empujar el Footer al fondo */}
+      <div className="d-flex flex-column min-vh-100">
+        <Navbar />
         
-        {/* Ruta de Cuarentena (Sin Navbar) */}
-        <Route path="/primer-ingreso" element={<PrimerIngresoRoute><VistaPrimerIngreso /></PrimerIngresoRoute>} />
+        {/* El main con flex-grow-1 ocupa el espacio disponible entre el Navbar y el Footer */}
+        <main className="flex-grow-1">
+          <Routes>
+            {/* Rutas Públicas */}
+            <Route path="/" element={<PortalAlumno />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/olvide-password" element={<VistaOlvidePassword />} />
+            <Route path="/reset-password" element={<VistaResetPassword />} />
+            
+            {/* Ruta de Cuarentena (Sin Navbar ni Footer) */}
+            <Route path="/primer-ingreso" element={<PrimerIngresoRoute><VistaPrimerIngreso /></PrimerIngresoRoute>} />
 
-        {/* Rutas Protegidas */}
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/mi-perfil" element={<PrivateRoute><VistaPerfil /></PrivateRoute>} />
-        <Route path="/alumnos" element={<PrivateRoute><VistaAlumnos /></PrivateRoute>} />
-        <Route path="/talleres" element={<PrivateRoute><VistaTalleres /></PrivateRoute>} />
-        <Route path="/caja" element={<PrivateRoute><VistaCaja /></PrivateRoute>} />
-        <Route path="/profesores" element={<PrivateRoute><VistaProfesores /></PrivateRoute>} />
-        <Route path="/reportes" element={<PrivateRoute><VistaReportes /></PrivateRoute>} />
-        <Route path="/inscripciones" element={<PrivateRoute><VistaInscripciones /></PrivateRoute>} />
-        <Route path="/panel-admin" element={<PrivateRoute><PanelAdmin /></PrivateRoute>} />
-      </Routes>
+            {/* Rutas Protegidas */}
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/mi-perfil" element={<PrivateRoute><VistaPerfil /></PrivateRoute>} />
+            <Route path="/alumnos" element={<PrivateRoute><VistaAlumnos /></PrivateRoute>} />
+            <Route path="/talleres" element={<PrivateRoute><VistaTalleres /></PrivateRoute>} />
+            <Route path="/caja" element={<PrivateRoute><VistaCaja /></PrivateRoute>} />
+            <Route path="/profesores" element={<PrivateRoute><VistaProfesores /></PrivateRoute>} />
+            <Route path="/reportes" element={<PrivateRoute><VistaReportes /></PrivateRoute>} />
+            <Route path="/inscripciones" element={<PrivateRoute><VistaInscripciones /></PrivateRoute>} />
+            <Route path="/panel-admin" element={<PrivateRoute><PanelAdmin /></PrivateRoute>} />
+          </Routes>
+        </main>
+
+        <Footer />
+      </div>
     </Router>
   );
 }
