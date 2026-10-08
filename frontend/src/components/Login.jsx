@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api'; 
 
 const Login = () => {
@@ -61,11 +62,18 @@ const Login = () => {
               
               <form onSubmit={handleLogin}>
                 <div className="mb-3">
-                  <label className="form-label">Correo Electrónico</label>
-                  <input type="email" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                  <label className="form-label fw-semibold">Nombre de Usuario</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    placeholder="Ingresá tu usuario"
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value)} 
+                    required 
+                  />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Contraseña</label>
+                  <label className="form-label fw-semibold">Contraseña</label>
                   <div className="input-group">
                     <input 
                       type={mostrarPassword ? "text" : "password"} 
@@ -96,7 +104,17 @@ const Login = () => {
                     </button>
                   </div>
                 </div>
-                <button type="submit" className="btn btn-primary w-100">Ingresar</button>
+                <button type="submit" className="btn btn-primary w-100 fw-bold">Ingresar</button>
+
+                {/* Enlace sutil de recuperación de contraseña */}
+                <div className="text-center mt-3 pt-2 border-top">
+                  <Link 
+                    to="/olvide-password" 
+                    className="text-decoration-none small text-secondary fw-semibold"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
               </form>
             </div>
           </div>

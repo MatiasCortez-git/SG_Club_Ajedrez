@@ -6,6 +6,7 @@ import com.clubajedrez.backend.dtos.UsuarioPersonalCreateDTO;
 import com.clubajedrez.backend.dtos.UsuarioRequestDTO;
 import com.clubajedrez.backend.dtos.UsuarioResponseDTO;
 import com.clubajedrez.backend.entities.Persona;
+import com.clubajedrez.backend.entities.TokenRecuperacion;
 import com.clubajedrez.backend.entities.Usuario;
 import com.clubajedrez.backend.exceptions.CuentaInactivaException;
 import com.clubajedrez.backend.exceptions.PersonaNoEncontradaException;
@@ -13,13 +14,17 @@ import com.clubajedrez.backend.exceptions.UsuarioDuplicadoException;
 import com.clubajedrez.backend.exceptions.UsuarioNoEncontradoException;
 import com.clubajedrez.backend.repositories.PersonaRepository;
 import com.clubajedrez.backend.repositories.ProfesorRepository;
+import com.clubajedrez.backend.repositories.TokenRecuperacionRepository;
 import com.clubajedrez.backend.repositories.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,17 +35,20 @@ public class UsuarioServiceImpl implements UsuarioService{ // Puedes implementar
     private final PersonaRepository personaRepository;
     private final ProfesorRepository profesorRepository;
     private final EmailService emailService;
+    private final TokenRecuperacionRepository tokenRecuperacionRepository;
 
     public UsuarioServiceImpl(UsuarioRepository usuarioRepository,
                               PasswordEncoder passwordEncoder,
                               PersonaRepository personaRepository,
                               ProfesorRepository profesorRepository,
-                              EmailService emailService) { 
+                              EmailService emailService,
+                              TokenRecuperacionRepository tokenRecuperacionRepository) { 
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.personaRepository = personaRepository;
         this.profesorRepository = profesorRepository;
         this.emailService = emailService;
+        this.tokenRecuperacionRepository = tokenRecuperacionRepository;
     }
 
     @Override
@@ -207,6 +215,57 @@ public class UsuarioServiceImpl implements UsuarioService{ // Puedes implementar
         usuarioRepository.save(usuario);
     }
     
+    @Override
+    @Transactional
+    public void solicitarRecuperacionPassword(String username) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsernameAndIsActiveTrue(username);
+
+        // Prevención de enumeración de usuarios: si no existe o está inactivo, salimos en silencio (retornará 200 OK)
+        if (usuarioOpt.isEmpty()) {
+            return;
+        }
+
+        Usuario usuario = usuarioOpt.get();
+
+        // Limpiamos cualquier token previo que el usuario haya dejado sin usar
+        tokenRecuperacionRepository.deleteByUsuario(usuario);
+
+        // Generamos el UUID y la vigencia de 15 minutos
+        String tokenGenerado = UUID.randomUUID().toString();
+        TokenRecuperacion nuevoToken = new TokenRecuperacion();
+        nuevoToken.setToken(tokenGenerado);
+        nuevoToken.setFechaExpiracion(LocalDateTime.now().plusMinutes(15));
+        nuevoToken.setUsuario(usuario);
+
+        tokenRecuperacionRepository.save(nuevoToken);
+
+        // Enviamos el correo al email registrado en su entidad Persona
+        emailService.enviarEnlaceRecuperacion(usuario.getPersona().getEmail(), tokenGenerado);
+    }
+
+    @Override
+    @Transactional
+    public void resetearPasswordConToken(String token, String nuevaPassword) {
+        TokenRecuperacion tokenRecuperacion = tokenRecuperacionRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("El enlace de recuperación es inválido o ya fue utilizado."));
+
+        // Verificamos si pasaron los 15 minutos
+        if (tokenRecuperacion.getFechaExpiracion().isBefore(LocalDateTime.now())) {
+            tokenRecuperacionRepository.delete(tokenRecuperacion); // Limpiamos la basura de la BD
+            throw new IllegalArgumentException("El enlace de recuperación ha expirado. Por favor, solicita uno nuevo.");
+        }
+
+        Usuario usuario = tokenRecuperacion.getUsuario();
+        usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+        
+        // Si era un usuario que nunca había activado su cuenta, aprovechamos para bajarle el flag
+        usuario.setDebeCambiarPassword(false);
+
+        usuarioRepository.save(usuario);
+
+        // Destruimos el token físicamente
+        tokenRecuperacionRepository.delete(tokenRecuperacion);
+    }
     
     private String generarPasswordAleatorio() {
         String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";

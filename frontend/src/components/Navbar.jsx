@@ -62,11 +62,12 @@ const Navbar = () => {
     return email ? email.charAt(0).toUpperCase() : 'U';
   };
 
-  // CERROJO VISUAL: Oculta por completo el Navbar en la pantalla de activación (/primer-ingreso)
-  if (location.pathname === '/primer-ingreso') {
+  // CERROJO VISUAL: Oculta el Navbar en pantallas aisladas de seguridad y recuperación
+  const rutasSinNavbar = ['/primer-ingreso', '/olvide-password', '/reset-password'];
+  if (rutasSinNavbar.includes(location.pathname)) {
     return null;
   }
-
+  
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
       <div className="container">
