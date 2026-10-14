@@ -33,6 +33,10 @@ public class ProfesorController {
         List<ProfesorResponseDTO> profesores = profesorService.obtenerTodos();
         return ResponseEntity.ok(profesores); // Devuelve 200 OK con la lista
     }
+    @GetMapping("/sin-usuario")
+    public ResponseEntity<List<ProfesorResponseDTO>> obtenerProfesoresSinUsuario() {
+        return ResponseEntity.ok(profesorService.obtenerProfesoresSinUsuario());
+    }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping

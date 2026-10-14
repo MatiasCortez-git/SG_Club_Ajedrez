@@ -11,4 +11,5 @@ public interface ProfesorService {
     ProfesorResponseDTO crearProfesor(ProfesorCreateDTO dto);
     ProfesorResponseDTO actualizarProfesor(Integer id, ProfesorCreateDTO dto);
     void eliminarProfesor(Integer id); // Baja lógica
+    public List<ProfesorResponseDTO> obtenerProfesoresSinUsuario();
 }
