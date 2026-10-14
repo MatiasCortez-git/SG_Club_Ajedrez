@@ -40,7 +40,7 @@ const ModalCrearUsuario = ({ show, handleClose, refreshUsuarios }) => {
         rol: 'ROLE_PROFESOR'
       });
 
-      api.get('/profesores')
+      api.get('/profesores/sin-usuario')
         .then(res => setProfesores(res.data))
         .catch(err => {
           // Amortiguador silencioso: api.js ataja errores de red

@@ -17,6 +17,7 @@ import com.clubajedrez.backend.exceptions.TarifaNoEncontradaException;
 import com.clubajedrez.backend.exceptions.UsuarioDuplicadoException;
 import com.clubajedrez.backend.exceptions.UsuarioNoEncontradoException;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -104,5 +105,30 @@ public class GlobalExceptionHandler {
         response.put("mensaje", "Usuario o contraseña incorrectos.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+    
+ // Maneja choques de restricciones UNIQUE en la base de datos (PostgreSQL)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Dato Duplicado");
+
+        // Extraemos el mensaje original de PostgreSQL
+        String mensajeCausa = ex.getMostSpecificCause().getMessage().toLowerCase();
+        String mensajeFinal = "El dato ingresado ya se encuentra registrado en el sistema.";
+
+        // Evaluamos qué columna generó el conflicto
+        if (mensajeCausa.contains("dni")) {
+            mensajeFinal = "El DNI ingresado ya se encuentra registrado en otra cuenta.";
+        } else if (mensajeCausa.contains("email") || mensajeCausa.contains("correo")) {
+            mensajeFinal = "El correo electrónico ingresado ya se encuentra vinculado a otra cuenta.";
+        } else if (mensajeCausa.contains("username")) {
+            mensajeFinal = "El nombre de usuario ya está en uso. Por favor, elige otro.";
+        }
+
+        response.put("mensaje", mensajeFinal);
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+    
     
 }

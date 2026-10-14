@@ -26,26 +26,33 @@ const VistaCaja = () => {
     documentTitle: 'Comprobante_Pago_Club_Ajedrez',
   });
 
-  useEffect(() => {
-    const fetchAlumnosYTarifas = async () => {
-      try {
-        const [resAlumnos, resTarifas] = await Promise.all([
-          api.get('/alumnos'),
-          api.get('/tarifas')
-        ]);
-        
-        setAlumnos(resAlumnos.data);
+useEffect(() => { 
+  const fetchAlumnosYTarifas = async () => { 
+    try { 
+      // 1. Cargar alumnos siempre (todos los roles tienen acceso)
+      const resAlumnos = await api.get('/alumnos');
+      setAlumnos(resAlumnos.data);
 
-        const dataTarifas = resTarifas.data;
-        const cuotaSocio = dataTarifas.find(t => t.concepto === 'Cuota Socio')?.montoActual || '';
-        const adicionalFederado = dataTarifas.find(t => t.concepto === 'Adicional Federado')?.montoActual || '';
-        setTarifas({ cuotaSocio, adicionalFederado });
-      } catch (error) {
-        // Amortiguador silencioso: api.js avisa si no hay conexión
+      // 2. Solicitar tarifas SOLO si el usuario es administrador
+      if (esAdmin) {
+        try {
+          const resTarifas = await api.get('/tarifas');
+          const dataTarifas = resTarifas.data;
+          const cuotaSocio = dataTarifas.find(t => t.concepto === 'Cuota Socio')?.montoActual || '';
+          const adicionalFederado = dataTarifas.find(t => t.concepto === 'Adicional Federado')?.montoActual || '';
+          setTarifas({ cuotaSocio, adicionalFederado });
+        } catch (errorTarifas) {
+          // Si falla solo la tarifa por algún motivo, no rompe la vista
+          console.error("Error al cargar tarifas:", errorTarifas);
+        }
       }
-    };
-    fetchAlumnosYTarifas();
-  }, []);
+    } catch (error) {
+      // Amortiguador silencioso: api.js avisa si falla la carga principal de alumnos
+    }
+  };
+  
+  fetchAlumnosYTarifas();
+}, [esAdmin]);
 
   const fetchCuotas = async (id) => {
     if (!id) {

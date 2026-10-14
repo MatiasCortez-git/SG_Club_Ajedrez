@@ -3,6 +3,7 @@ package com.clubajedrez.backend.controllers;
 import com.clubajedrez.backend.services.BackupService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -50,12 +53,15 @@ public class AdminController {
     
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/restore")
-    public ResponseEntity<String> restaurarBackup(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> restaurarBackup(@RequestParam("file") MultipartFile file) {
+        Map<String, String> response = new HashMap<>();
         try {
             backupService.restaurarBackup(file);
-            return ResponseEntity.ok("Base de datos restaurada con éxito.");
+            response.put("mensaje", "Base de datos restaurada con éxito.");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error al restaurar: " + e.getMessage());
+            response.put("error", "Error al restaurar: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
     

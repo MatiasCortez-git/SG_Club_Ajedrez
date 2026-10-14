@@ -98,7 +98,16 @@ public class ProfesorServiceImpl implements ProfesorService {
         profesor.setIsActive(false); 
         profesorRepository.save(profesor);
     }
-
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProfesorResponseDTO> obtenerProfesoresSinUsuario() {
+        return profesorRepository.findByIsActiveTrue().stream()
+                .filter(profesor -> !usuarioRepository.existsByPersona_IdPersona(profesor.getIdPersona()))
+                .map(this::mapToDTO) 
+                .collect(Collectors.toList());
+    }
+    
     /// Método helper privado para el mapeo
     private ProfesorResponseDTO mapToDTO(Profesor profesor) {
         ProfesorResponseDTO dto = new ProfesorResponseDTO();
