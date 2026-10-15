@@ -92,7 +92,24 @@ const PanelAdmin = () => {
         setArchivoBackup(null); 
         fetchUsuarios(); 
       } catch (error) {
-        // Amortiguador silencioso
+        // 1. Lectura segura del JSON enviado por el backend en el error 500
+      let mensajeError = 'Ocurrió un error al procesar el archivo SQL.';
+      if (error.response?.data?.mensaje) {
+        mensajeError = error.response.data.mensaje;
+      } else if (typeof error.response?.data === 'string') {
+        mensajeError = error.response.data;
+      }
+
+      // 2. Liberación del UI: Al disparar este Swal, el spinner previo se cierra automáticamente
+      Swal.fire({
+        icon: 'error',
+        title: 'Fallo en la Restauración',
+        text: mensajeError,
+        confirmButtonColor: '#d33'
+      });
+      
+      // Opcional: limpiar el input file para obligar a seleccionar una versión corregida
+      setArchivoBackup(null);
       }
     }
   };
