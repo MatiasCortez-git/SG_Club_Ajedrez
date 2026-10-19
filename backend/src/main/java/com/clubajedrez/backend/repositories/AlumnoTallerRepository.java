@@ -4,6 +4,7 @@ import com.clubajedrez.backend.entities.Alumno;
 import com.clubajedrez.backend.entities.AlumnoTaller;
 import com.clubajedrez.backend.entities.AlumnoTallerId;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,5 +51,8 @@ public interface AlumnoTallerRepository extends JpaRepository<AlumnoTaller, Alum
     @Query(value = "SELECT COUNT(*) > 0 FROM Alumno_Taller WHERE id_alumno = :idAlumno AND id_taller = :idTaller", nativeQuery = true)
     boolean existsByAlumnoAndTaller(@Param("idAlumno") Integer idAlumno, @Param("idTaller") Integer idTaller);
     
-    
+    // Suma el precio acordado de todas las inscripciones activas de un taller
+    @Query("SELECT SUM(at.precioAcordado) FROM AlumnoTaller at WHERE at.taller.idTaller = :idTaller")
+    BigDecimal calcularRentabilidadPorTaller(@Param("idTaller") Integer idTaller);
+
 }
