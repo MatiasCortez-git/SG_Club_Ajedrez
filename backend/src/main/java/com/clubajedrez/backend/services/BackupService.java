@@ -20,7 +20,7 @@ public class BackupService {
             );
             process = pb.start();
         } catch (IOException e) {
-            // Intento 2: Fallback con WSL (Para tu PC)
+            // Intento 2: Fallback con WSL
             ProcessBuilder pb = new ProcessBuilder(
                     "wsl", "docker", "exec", "ajedrez_db", "pg_dump", "-U", "postgres", "-d", "club_ajedrez", "--clean"
             );
@@ -34,7 +34,7 @@ public class BackupService {
     public void restaurarBackup(MultipartFile file) throws Exception {
     	Process process;
         try {
-            // Intento 1: Sin WSL (Para Bruno)
+            // Intento 1: Sin WSL 
             ProcessBuilder pb = new ProcessBuilder(
                     "docker", "exec", "-i", "ajedrez_db", "psql", 
                     "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "club_ajedrez"
@@ -42,7 +42,7 @@ public class BackupService {
             pb.redirectErrorStream(true);
             process = pb.start();
         } catch (IOException e) {
-            // Intento 2: Fallback con WSL (Para tu PC)
+            // Intento 2: Fallback con WSL 
             ProcessBuilder pb = new ProcessBuilder(
                     "wsl.exe", "docker", "exec", "-i", "ajedrez_db", "psql", 
                     "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "club_ajedrez"

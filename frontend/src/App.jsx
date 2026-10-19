@@ -15,6 +15,7 @@ import VistaPrimerIngreso from './components/VistaPrimerIngreso';
 import VistaPerfil from './components/VistaPerfil';
 import VistaOlvidePassword from './components/VistaOlvidePassword';
 import VistaResetPassword from './components/VistaResetPassword';
+import VistaEstadisticas from './components/VistaEstadisticas';
 
 // El Guardián de Rutas Privadas
 const PrivateRoute = ({ children }) => {
@@ -68,6 +69,7 @@ function App() {
             <Route path="/reportes" element={<PrivateRoute><VistaReportes /></PrivateRoute>} />
             <Route path="/inscripciones" element={<PrivateRoute><VistaInscripciones /></PrivateRoute>} />
             <Route path="/panel-admin" element={<PrivateRoute><PanelAdmin /></PrivateRoute>} />
+            <Route path="/estadisticas" element={<PrivateRoute><VistaEstadisticas /></PrivateRoute>} />
           </Routes>
         </main>
 
