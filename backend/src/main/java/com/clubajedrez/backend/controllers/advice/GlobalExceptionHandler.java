@@ -5,11 +5,14 @@ import com.clubajedrez.backend.exceptions.CuentaInactivaException;
 import com.clubajedrez.backend.exceptions.CuotaDuplicadaException;
 import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
 import com.clubajedrez.backend.exceptions.InscripcionDuplicadaException;
+import com.clubajedrez.backend.exceptions.MotorAnalisisException;
 import com.clubajedrez.backend.exceptions.PagoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.PerfilProtegidoException;
 import com.clubajedrez.backend.exceptions.PersonaNoEncontradaException;
+import com.clubajedrez.backend.exceptions.PgnInvalidoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoEncontradoException;
 import com.clubajedrez.backend.exceptions.ProfesorNoFederadoException;
+import com.clubajedrez.backend.exceptions.ServicioIAException;
 import com.clubajedrez.backend.exceptions.TallerNoEncontradoException;
 import com.clubajedrez.backend.exceptions.TallerSinCupoException;
 import com.clubajedrez.backend.exceptions.TarifaNoConfiguradaException;
@@ -41,7 +44,6 @@ public class GlobalExceptionHandler {
     				   UsuarioNoEncontradoException.class,
     			       PersonaNoEncontradaException.class})
     
-    
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "Recurso no encontrado");
@@ -52,7 +54,9 @@ public class GlobalExceptionHandler {
     // Maneja excepciones de reglas de negocio / validaciones (400)
     @ExceptionHandler({TallerSinCupoException.class, 
     				   ProfesorNoFederadoException.class,
-    				   IllegalArgumentException.class})
+    				   IllegalArgumentException.class,
+    				   PgnInvalidoException.class})
+    
     public ResponseEntity<Map<String, String>> handleBadRequest(RuntimeException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "Regla de negocio violada");
@@ -130,5 +134,40 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
     
+    // Manejador para los errores del servidor (500)
+    @ExceptionHandler({ServicioIAException.class, MotorAnalisisException.class})
+    public ResponseEntity<Map<String, String>> handleServerError(RuntimeException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Error Interno del Servidor");
+        response.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     
+ // Manejo de variables o partes del multipart/form-data faltantes (El culpable del 401 fantasma)
+    @ExceptionHandler({
+        org.springframework.web.multipart.support.MissingServletRequestPartException.class,
+        org.springframework.web.bind.MissingServletRequestParameterException.class,
+        org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class
+    })
+    public ResponseEntity<Map<String, String>> handleMissingParams(Exception ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Solicitud HTTP mal formada");
+        
+        String detalle = "Faltan parámetros o el formato de los datos enviados es incorrecto en el form-data.";
+        if (ex instanceof org.springframework.web.multipart.support.MissingServletRequestPartException) {
+            detalle = "Falta la parte requerida en el form-data: " + ((org.springframework.web.multipart.support.MissingServletRequestPartException) ex).getRequestPartName();
+        }
+        
+        response.put("mensaje", detalle);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Manejo de endpoints que no existen (404 de ruta)
+    @ExceptionHandler(org.springframework.web.servlet.NoHandlerFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNoHandlerFound(org.springframework.web.servlet.NoHandlerFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Ruta no encontrada");
+        response.put("mensaje", "El endpoint [" + ex.getHttpMethod() + "] " + ex.getRequestURL() + " no existe en este servidor.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 }

@@ -129,6 +129,21 @@ CREATE TABLE Token_Recuperacion (
     CONSTRAINT fk_token_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
 );
 
+--14. Tabla para contar consultas a la AI
+CREATE TABLE historial_ia (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    fecha_consulta TIMESTAMP NOT NULL
+);
+
+--15. Tabla para guardar puzzles
+CREATE TABLE IF NOT EXISTS puzzles (
+    id VARCHAR(20) PRIMARY KEY,
+    fen VARCHAR(150) NOT NULL,
+    moves VARCHAR(500) NOT NULL,
+    rating INTEGER NOT NULL,
+    themes VARCHAR(500) NOT NULL
+);
 -- Función que cuenta inscriptos y evalúa el cupo
 CREATE OR REPLACE FUNCTION verificar_cupo_taller()
 RETURNS TRIGGER AS $$
