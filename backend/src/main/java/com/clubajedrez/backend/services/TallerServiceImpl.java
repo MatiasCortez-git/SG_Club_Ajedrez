@@ -187,6 +187,7 @@ public class TallerServiceImpl implements TallerService {
         taller.setCupoMaximo(dto.getCupoMaximo());
         taller.setNivel(dto.getTipoNivel());
         taller.setPrecioActual(dto.getCosto());
+        taller.setDuracion(dto.getDuracion());
         taller.setIsActive(true); // Estado por defecto al crear
         
      // Buscamos el Profesor en la base de datos por su idPersona

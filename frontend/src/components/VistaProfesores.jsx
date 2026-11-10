@@ -14,7 +14,7 @@ const VistaProfesores = () => {
   const esStaff = rol === 'ROLE_STAFF';
 
   // Creamos los permisos agrupados
-  const puedeEditar = esAdmin || esProfesor;
+  const puedeEditar = esAdmin;
 
 
   const estadoInicial = {
@@ -22,6 +22,17 @@ const VistaProfesores = () => {
     telefono: '', codFederacion: '', elo: ''
   };
   const [formData, setFormData] = useState(estadoInicial);
+  const [errores, setErrores] = useState({});
+
+  const validaciones = {
+    nombre: { regex: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, msj: 'Solo letras y espacios.' },
+    apellido: { regex: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, msj: 'Solo letras y espacios.' },
+    dni: { regex: /^\d{8}$/, msj: 'Debe tener exactamente 8 números.' },
+    telefono: { regex: /^\d{8,15}$/, msj: 'Entre 8 y 15 dígitos numéricos.' },
+    email: { regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, msj: 'Email inválido.' },
+    codFederacion: { regex: /^\d{6,8}$/, msj: 'Debe tener entre 6 y 8 números.' },
+    elo: { regex: /^\d{3,4}$/, msj: 'Debe tener entre 3 y 4 números.' }
+  };
 
   const fetchProfesores = async () => {
     try {
@@ -37,7 +48,38 @@ const VistaProfesores = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let valorSaneado = value;
+
+    // Bloqueo físico de teclado
+    if (['dni', 'telefono', 'codFederacion', 'elo'].includes(name)) {
+      valorSaneado = valorSaneado.replace(/\D/g, '');
+      if (name === 'dni' && valorSaneado.length > 8) return;
+      if (name === 'telefono' && valorSaneado.length > 15) return;
+      if (name === 'codFederacion' && valorSaneado.length > 8) return;
+      if (name === 'elo' && valorSaneado.length > 4) return;
+    }
+    if (name === 'nombre' || name === 'apellido') {
+      valorSaneado = valorSaneado.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    }
+
+    setFormData({ ...formData, [name]: valorSaneado });
+
+    if (valorSaneado.trim() === '') {
+      if (camposOpcionales.includes(name)) {
+        const nuevosErrores = { ...errores };
+        delete nuevosErrores[name];
+        setErrores(nuevosErrores);
+      } else {
+        setErrores({ ...errores, [name]: 'Obligatorio.' });
+      }
+    } else if (validaciones[name] && !validaciones[name].regex.test(valorSaneado)) {
+      setErrores({ ...errores, [name]: validaciones[name].msj });
+    } else {
+      const nuevosErrores = { ...errores };
+      delete nuevosErrores[name];
+      setErrores(nuevosErrores);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -68,6 +110,7 @@ const VistaProfesores = () => {
     });
     setIsEditing(true);
     setCurrentId(profesor.idPersona || profesor.id);
+    setErrores({});
   };
 
   const handleDelete = async (id) => {
@@ -93,6 +136,16 @@ const VistaProfesores = () => {
     });
   };
 
+  const isFormValid = 
+    String(formData.nombre || '').trim() !== '' && 
+    String(formData.apellido || '').trim() !== '' && 
+    String(formData.dni || '').trim() !== '' && 
+    String(formData.email || '').trim() !== '' && 
+    String(formData.telefono || '').trim() !== '' && 
+    String(formData.codFederacion || '').trim() !== '' && 
+    String(formData.elo || '').trim() !== '' && 
+    Object.keys(errores).length === 0;
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4 text-center text-primary">Gestión de Profesores</h2>
@@ -108,22 +161,48 @@ const VistaProfesores = () => {
             <div className="card-body">
               <form onSubmit={handleSubmit}>
                 <div className="row g-2 mb-2">
-                  <div className="col-6"><input type="text" className="form-control" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required /></div>
-                  <div className="col-6"><input type="text" className="form-control" name="apellido" placeholder="Apellido" value={formData.apellido} onChange={handleChange} required /></div>
+                  <div className="col-6">
+                    <input type="text" className={`form-control ${errores.nombre ? 'is-invalid' : ''}`} name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
+                    {errores.nombre && <div className="invalid-feedback">{errores.nombre}</div>}
+                  </div>
+                  <div className="col-6">
+                    <input type="text" className={`form-control ${errores.apellido ? 'is-invalid' : ''}`} name="apellido" placeholder="Apellido" value={formData.apellido} onChange={handleChange} required />
+                    {errores.apellido && <div className="invalid-feedback">{errores.apellido}</div>}
+                  </div>
                 </div>
-                <input type="text" className="form-control mb-2" name="dni" placeholder="DNI" value={formData.dni || ''} onChange={handleChange} required />
-                <input type="email" className="form-control mb-2" name="email" placeholder="Email" value={formData.email || ''} onChange={handleChange} required />
-                <input type="text" className="form-control mb-2" name="telefono" placeholder="Teléfono" value={formData.telefono || ''} onChange={handleChange} required />
+                
+                <div className="mb-2">
+                  <input type="text" className={`form-control ${errores.dni ? 'is-invalid' : ''}`} name="dni" placeholder="DNI" value={formData.dni || ''} onChange={handleChange} required />
+                  {errores.dni && <div className="invalid-feedback">{errores.dni}</div>}
+                </div>
+                
+                <div className="mb-2">
+                  <input type="email" className={`form-control ${errores.email ? 'is-invalid' : ''}`} name="email" placeholder="Email" value={formData.email || ''} onChange={handleChange} required />
+                  {errores.email && <div className="invalid-feedback">{errores.email}</div>}
+                </div>
+                
+                <div className="mb-2">
+                  <input type="text" className={`form-control ${errores.telefono ? 'is-invalid' : ''}`} name="telefono" placeholder="Teléfono" value={formData.telefono || ''} onChange={handleChange} required />
+                  {errores.telefono && <div className="invalid-feedback">{errores.telefono}</div>}
+                </div>
                 
                 <h6 className="mt-3 text-secondary">Datos Federativos</h6>
-                <input type="text" className="form-control mb-2 border-warning" name="codFederacion" placeholder="Cod. Federación (Req)" value={formData.codFederacion || ''} onChange={handleChange} required />
-                <input type="number" className="form-control mb-3" name="elo" placeholder="Puntaje ELO" value={formData.elo || ''} onChange={handleChange} />
                 
-                <button type="submit" className={`btn w-100 ${isEditing ? 'btn-warning' : 'btn-primary'}`}>
+                <div className="mb-2">
+                  <input type="text" className={`form-control border-warning ${errores.codFederacion ? 'is-invalid' : ''}`} name="codFederacion" placeholder="Cod. Federación (Req)" value={formData.codFederacion || ''} onChange={handleChange} required />
+                  {errores.codFederacion && <div className="invalid-feedback">{errores.codFederacion}</div>}
+                </div>
+
+                <div className="mb-3">
+                  <input type="text" className={`form-control border-warning ${errores.elo ? 'is-invalid' : ''}`} name="elo" placeholder="Puntaje ELO (Req)" value={formData.elo || ''} onChange={handleChange} required />
+                  {errores.elo && <div className="invalid-feedback">{errores.elo}</div>}
+                </div>
+                
+                <button type="submit" className={`btn w-100 ${isEditing ? 'btn-warning' : 'btn-primary'}`} disabled={!isFormValid}>
                   {isEditing ? 'Guardar Cambios' : 'Registrar'}
                 </button>
                 {isEditing && (
-                  <button type="button" className="btn btn-secondary w-100 mt-2" onClick={() => { setIsEditing(false); setFormData(estadoInicial); }}>Cancelar</button>
+                  <button type="button" className="btn btn-secondary w-100 mt-2" onClick={() => { setIsEditing(false); setFormData(estadoInicial); setErrores({}); }}>Cancelar</button>
                 )}
               </form>
             </div>
