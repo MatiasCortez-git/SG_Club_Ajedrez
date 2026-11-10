@@ -28,6 +28,15 @@ const VistaTalleres = () => {
   };
   const [formData, setFormData] = useState(estadoInicial);
 
+  const [errores, setErrores] = useState({});
+
+  const validaciones = {
+    nombre: { regex: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-,.]+$/, msj: 'Solo letras, números y puntuación básica.' },
+    cupoMaximo: { regex: /^\d+$/, msj: 'Debe ser un número entero.' },
+    costo: { regex: /^\d+(\.\d{1,2})?$/, msj: 'Número válido (ej: 1500 o 1500.50).' },
+    duracion: { regex: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]+$/, msj: 'Solo letras y números (ej: 4 meses).' }
+  };
+
   // GET: Cargar Talleres, Profesores y Alumnos (Axios hace el Promise.all súper limpio)
   const fetchData = async () => {
     try {
@@ -49,7 +58,39 @@ const VistaTalleres = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let valorSaneado = value;
+
+    // Bloqueo físico de teclado
+    if (name === 'cupoMaximo') {
+      valorSaneado = valorSaneado.replace(/\D/g, ''); // Solo números
+    }
+    if (name === 'costo') {
+      valorSaneado = valorSaneado.replace(/[^0-9.]/g, ''); // Números y punto
+      // Evitar más de un punto decimal
+      if ((valorSaneado.match(/\./g) || []).length > 1) {
+        valorSaneado = valorSaneado.substring(0, valorSaneado.length - 1);
+      }
+    }
+    if (name === 'nombre') {
+      valorSaneado = valorSaneado.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-,.]/g, '');
+    }
+    if (name === 'duracion') {
+      valorSaneado = valorSaneado.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]/g, '');
+    }
+
+    setFormData({ ...formData, [name]: valorSaneado });
+
+    // Validación reactiva
+    if (String(valorSaneado).trim() === '') {
+      setErrores({ ...errores, [name]: 'Obligatorio.' });
+    } else if (validaciones[name] && !validaciones[name].regex.test(valorSaneado)) {
+      setErrores({ ...errores, [name]: validaciones[name].msj });
+    } else {
+      const nuevosErrores = { ...errores };
+      delete nuevosErrores[name];
+      setErrores(nuevosErrores);
+    }
   };
 
   // POST o PUT: Guardar o Editar Taller
@@ -89,9 +130,10 @@ const VistaTalleres = () => {
       costo: taller.costo,
       tipoNivel: taller.tipoNivel || taller.nivel,
       idProfesor: taller.idProfesor || ''
-    });
+      });
     setIsEditing(true);
     setCurrentId(taller.idTaller);
+    setErrores({}); // <-- Limpiamos errores arrastrados
   };
 
   // DELETE: Baja lógica
@@ -137,6 +179,14 @@ const VistaTalleres = () => {
     }
   };
 
+  const isFormValid = 
+      String(formData.nombre || '').trim() !== '' && 
+      String(formData.cupoMaximo || '').trim() !== '' && 
+      String(formData.costo || '').trim() !== '' && 
+      String(formData.duracion || '').trim() !== '' && 
+      String(formData.tipoNivel || '').trim() !== '' && 
+      String(formData.idProfesor || '').trim() !== '' && 
+      Object.keys(errores).length === 0;
 
   return (
     <div className="container mt-4 position-relative">
@@ -152,12 +202,27 @@ const VistaTalleres = () => {
             </div>
             <div className="card-body">
               <form onSubmit={handleSubmit}>
-                <input type="text" className="form-control mb-2" name="nombre" placeholder="Nombre del Taller" value={formData.nombre} onChange={handleChange} required />
-                <div className="row g-2 mb-2">
-                  <div className="col-6"><input type="number" className="form-control" name="cupoMaximo" placeholder="Cupo Máx" value={formData.cupoMaximo} onChange={handleChange} required /></div>
-                  <div className="col-6"><input type="number" className="form-control" name="costo" placeholder="Costo Mensual ($)" value={formData.costo} onChange={handleChange} required /></div>
+                <div className="mb-2">
+                  <input type="text" className={`form-control ${errores.nombre ? 'is-invalid' : ''}`} name="nombre" placeholder="Nombre del Taller" value={formData.nombre} onChange={handleChange} required />
+                  {errores.nombre && <div className="invalid-feedback">{errores.nombre}</div>}
                 </div>
-                <input type="text" className="form-control mb-2" name="duracion" placeholder="Duración (Ej: 4 meses)" value={formData.duracion} onChange={handleChange} required />
+                
+                <div className="row g-2 mb-2">
+                  <div className="col-6">
+                    {/* Cambiado a type="text" para control Regex */}
+                    <input type="text" className={`form-control ${errores.cupoMaximo ? 'is-invalid' : ''}`} name="cupoMaximo" placeholder="Cupo Máx" value={formData.cupoMaximo} onChange={handleChange} required />
+                    {errores.cupoMaximo && <div className="invalid-feedback">{errores.cupoMaximo}</div>}
+                  </div>
+                  <div className="col-6">
+                    <input type="text" className={`form-control ${errores.costo ? 'is-invalid' : ''}`} name="costo" placeholder="Costo Mensual ($)" value={formData.costo} onChange={handleChange} required />
+                    {errores.costo && <div className="invalid-feedback">{errores.costo}</div>}
+                  </div>
+                </div>
+                
+                <div className="mb-2">
+                  <input type="text" className={`form-control ${errores.duracion ? 'is-invalid' : ''}`} name="duracion" placeholder="Duración (Ej: 4 meses)" value={formData.duracion} onChange={handleChange} required />
+                  {errores.duracion && <div className="invalid-feedback">{errores.duracion}</div>}
+                </div>
                 
                 <select className="form-select mb-2" name="tipoNivel" value={formData.tipoNivel} onChange={handleChange} required>
                   <option value="Principiante">Principiante</option>
@@ -172,11 +237,11 @@ const VistaTalleres = () => {
                   ))}
                 </select>
                 
-                <button type="submit" className={`btn w-100 ${isEditing ? 'btn-warning text-dark fw-bold' : 'btn-primary'}`}>
+                <button type="submit" className={`btn w-100 ${isEditing ? 'btn-warning text-dark fw-bold' : 'btn-primary'}`} disabled={!isFormValid}>
                   {isEditing ? 'Guardar Cambios' : 'Registrar Taller'}
                 </button>
                 {isEditing && (
-                  <button type="button" className="btn btn-secondary w-100 mt-2" onClick={() => { setIsEditing(false); setFormData(estadoInicial); }}>Cancelar</button>
+                  <button type="button" className="btn btn-secondary w-100 mt-2" onClick={() => { setIsEditing(false); setFormData(estadoInicial); setErrores({}); }}>Cancelar</button>
                 )}
               </form>
             </div>
