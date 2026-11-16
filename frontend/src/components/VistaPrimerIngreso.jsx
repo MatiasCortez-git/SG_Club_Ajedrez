@@ -13,8 +13,10 @@ const VistaPrimerIngreso = () => {
     e.preventDefault();
     setErrorLocal('');
 
-    if (nuevaPassword.length < 6) {
-      setErrorLocal('La nueva contraseña debe tener al menos 6 caracteres.');
+    // Validación estricta de contraseña moderna
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(nuevaPassword)) {
+      setErrorLocal('La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula y un número.');
       return;
     }
 
@@ -86,7 +88,7 @@ const VistaPrimerIngreso = () => {
                 <input
                   type={mostrarPassword ? "text" : "password"}
                   className="form-control"
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres, letras y números"
                   value={nuevaPassword}
                   onChange={(e) => setNuevaPassword(e.target.value)}
                   required

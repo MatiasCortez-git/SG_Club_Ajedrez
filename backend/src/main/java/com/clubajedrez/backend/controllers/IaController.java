@@ -26,8 +26,10 @@ public class IaController {
 
 	private final AiChessService aiService;
     private final IaLimitService limitService;
-
+    
+    //public IaController(@Qualifier("nvidiaChessService") AiChessService aiService, IaLimitService limitService) {
     public IaController(@Qualifier("geminiChessService") AiChessService aiService, IaLimitService limitService) {
+    	
         this.aiService = aiService;
         this.limitService = limitService;
     }
@@ -38,7 +40,7 @@ public class IaController {
             @RequestParam("idAlumno") Integer idAlumno,
             Principal principal) {
         
-        //limitService.validarYRegistrarUso(principal.getName());
+        limitService.validarYRegistrarUso(principal.getName());
     	AiChessResponseDTO respuesta = aiService.analizarPgn(file, idAlumno);
         return ResponseEntity.ok(respuesta);
     }
@@ -49,7 +51,7 @@ public class IaController {
             Principal principal
             ) {
             
- //       limitService.validarYRegistrarUso(principal.getName());
+        limitService.validarYRegistrarUso(principal.getName());
     	AiChessResponseDTO respuesta = aiService.generarEjercicios(request);
         return ResponseEntity.ok(respuesta);
     }

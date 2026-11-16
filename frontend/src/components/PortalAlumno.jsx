@@ -6,6 +6,7 @@ const PortalAlumno = () => {
   const [alumno, setAlumno] = useState(null);
   const [cuotas, setCuotas] = useState([]);
   const [error, setError] = useState('');
+  const [errorDni, setErrorDni] = useState('');
   const [ranking, setRanking] = useState([]);
 
   useEffect(() => {
@@ -13,6 +14,26 @@ const PortalAlumno = () => {
       .then(res => setRanking(res.data))
       .catch(err => console.error('Error al cargar ranking:', err));
   }, []);
+
+  const handleDniChange = (e) => {
+    // Bloqueo físico: solo números y máximo 8 dígitos
+    const valorSaneado = e.target.value.replace(/\D/g, '');
+    if (valorSaneado.length > 8) return;
+
+    setDni(valorSaneado);
+    
+    // Si había un error 404 previo de búsqueda, lo limpiamos al volver a tipear
+    if (error) setError('');
+
+    // Validación reactiva
+    if (valorSaneado.length > 0 && !/^\d{8}$/.test(valorSaneado)) {
+      setErrorDni('El DNI debe tener exactamente 8 números.');
+    } else {
+      setErrorDni('');
+    }
+  };
+
+  const isDniValid = /^\d{8}$/.test(dni);
 
   const buscarDeuda = async (e) => {
     e.preventDefault();
@@ -69,16 +90,25 @@ const PortalAlumno = () => {
                 Ingresá tu número de DNI para conocer tus cuotas pendientes y vencimientos.
               </p>
               
-              <form onSubmit={buscarDeuda} className="d-flex gap-2 mb-4">
-                <input 
-                  type="text" 
-                  className="form-control form-control-lg" 
-                  placeholder="Ej: 12345678" 
-                  value={dni} 
-                  onChange={(e) => setDni(e.target.value)} 
-                  required 
-                />
-                <button type="submit" className="btn btn-primary btn-lg px-4 fw-bold">Consultar</button>
+              <form onSubmit={buscarDeuda} className="d-flex align-items-start gap-2 mb-4">
+                <div className="w-100">
+                  <input 
+                    type="text" 
+                    className={`form-control form-control-lg ${errorDni ? 'is-invalid' : ''}`} 
+                    placeholder="Ej: 12345678" 
+                    value={dni} 
+                    onChange={handleDniChange} 
+                    required 
+                  />
+                  {errorDni && <div className="invalid-feedback">{errorDni}</div>}
+                </div>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-lg px-4 fw-bold" 
+                  disabled={!isDniValid}
+                >
+                  Consultar
+                </button>
               </form>
               
               {/* Renderizado condicional del error INLINE */}

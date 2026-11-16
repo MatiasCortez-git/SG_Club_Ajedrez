@@ -222,8 +222,8 @@ VALUES
 -- A Magnus (2) también le damos el estatus de Federado
 INSERT INTO Federado (id_persona, cod_federacion, elo)
 VALUES 
-(1, 'FIDE-1010', 2812),
-(2, 'FIDE-9999', 2882);
+(1, '101010', 2812),
+(2, '999999', 2882);
 
 -- ==========================================
 -- 4. GESTIÓN ACADÉMICA (Talleres y Horarios)

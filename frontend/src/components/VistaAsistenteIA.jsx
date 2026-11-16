@@ -30,8 +30,8 @@ const VistaAsistenteIA = () => {
 
   const lanzarAlertaCarga = (tipo) => {
     const mensajes = tipo === 'ANALISIS'
-      ? ["Validando archivo PGN...", "Stockfish está buscando los peores errores...", "Llama 3.2 redactando informe pedagógico...", "Ajustando formato..."]
-      : ["Consultando base de datos táctica...", "Filtrando por temática...", "Llama 3.2 diseñando la estructura de la clase...", "Generando PGN..."];
+      ? ["Validando archivo PGN...", "Stockfish está buscando los peores errores...", "Gemini 3.1 redactando informe pedagógico...", "Ajustando formato..."]
+      : ["Consultando base de datos táctica...", "Filtrando por temática...", "Gemini 3.1 diseñando la estructura de la clase...", "Generando PGN..."];
     
     let i = 0;
 

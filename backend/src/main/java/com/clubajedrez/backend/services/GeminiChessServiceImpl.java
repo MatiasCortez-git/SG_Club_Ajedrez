@@ -40,7 +40,6 @@ public class GeminiChessServiceImpl implements AiChessService {
     @Value("${google.gemini.api.key}")
     private String apiKey;
 
-    // Podés cambiar "gemini-1.5-flash-8b" por el modelo Lite que probaste si querés más velocidad
     private final String GEMINI_MODEL = "gemini-3.1-flash-lite"; 
     private final RestTemplate restTemplate = new RestTemplate();
     
