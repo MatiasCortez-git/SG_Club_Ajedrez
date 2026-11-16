@@ -114,6 +114,15 @@ api.interceptors.response.use(
           });
           break;
 
+        case 429: // Too Many Requests (Límite diario de consultas de IA superado)
+          Swal.fire({
+            icon: 'warning',
+            title: 'Límite Excedido',
+            text: mensajeBackend, // Mostrará dinámicamente: "Has alcanzado el límite de 5 consultas diarias de IA. Inténtalo mañaña."
+            confirmButtonColor: '#f8bb86'
+          });
+        break;
+
         default:
           console.error('Error no tipificado:', error);
       }
