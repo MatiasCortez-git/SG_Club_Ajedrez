@@ -43,6 +43,36 @@ const VistaPerfil = () => {
     repetirPassword: ''
   });
   const [errorPassword, setErrorPassword] = useState('');
+  const [erroresContacto, setErroresContacto] = useState({});
+
+  const validacionesContacto = {
+    email: { regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, msj: 'Email inválido.' },
+    telefono: { regex: /^\d{8,15}$/, msj: 'Entre 8 y 15 dígitos numéricos.' }
+  };
+
+  const handleContactoChange = (e) => {
+    const { name, value } = e.target;
+    let valorSaneado = value;
+
+    // Bloqueo físico para el teléfono
+    if (name === 'telefono') {
+      valorSaneado = valorSaneado.replace(/\D/g, '');
+      if (valorSaneado.length > 15) return;
+    }
+
+    setPerfil({ ...perfil, [name]: valorSaneado });
+
+    // Validación reactiva
+    if (valorSaneado.trim() === '') {
+      setErroresContacto({ ...erroresContacto, [name]: 'Obligatorio.' });
+    } else if (validacionesContacto[name] && !validacionesContacto[name].regex.test(valorSaneado)) {
+      setErroresContacto({ ...erroresContacto, [name]: validacionesContacto[name].msj });
+    } else {
+      const nuevosErrores = { ...erroresContacto };
+      delete nuevosErrores[name];
+      setErroresContacto(nuevosErrores);
+    }
+  };
 
   // 1. Carga inicial desde GET /api/v1/perfil/me
   useEffect(() => {
@@ -95,8 +125,10 @@ const VistaPerfil = () => {
     e.preventDefault();
     setErrorPassword('');
 
-    if (passwords.nuevaPassword.length < 6) {
-      setErrorPassword('La nueva contraseña debe tener al menos 6 caracteres.');
+    // Validación estricta de contraseña moderna
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(passwords.nuevaPassword)) {
+      setErrorPassword('La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula y un número.');
       return;
     }
 
@@ -143,6 +175,11 @@ const VistaPerfil = () => {
       </div>
     );
   }
+
+  const isContactoValid = 
+    String(perfil.email || '').trim() !== '' && 
+    String(perfil.telefono || '').trim() !== '' && 
+    Object.keys(erroresContacto).length === 0;
 
   return (
     <div className="container mt-4 mb-5">
@@ -207,30 +244,34 @@ const VistaPerfil = () => {
                   <label className="form-label fw-semibold">Correo Electrónico</label>
                   <input
                     type="email"
-                    className="form-control"
+                    className={`form-control ${erroresContacto.email ? 'is-invalid' : ''}`}
+                    name="email"
                     value={perfil.email}
-                    onChange={(e) => setPerfil({ ...perfil, email: e.target.value })}
+                    onChange={handleContactoChange}
                     required
                     disabled={guardandoContacto}
                   />
+                  {erroresContacto.email && <div className="invalid-feedback">{erroresContacto.email}</div>}
                 </div>
 
                 <div className="mb-4">
                   <label className="form-label fw-semibold">Teléfono</label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={`form-control ${erroresContacto.telefono ? 'is-invalid' : ''}`}
+                    name="telefono"
                     value={perfil.telefono}
-                    onChange={(e) => setPerfil({ ...perfil, telefono: e.target.value })}
+                    onChange={handleContactoChange}
                     required
                     disabled={guardandoContacto}
                   />
+                  {erroresContacto.telefono && <div className="invalid-feedback">{erroresContacto.telefono}</div>}
                 </div>
 
                 <button
                   type="submit"
                   className="btn btn-primary w-100 fw-bold py-2 shadow-sm"
-                  disabled={guardandoContacto}
+                  disabled={guardandoContacto || !isContactoValid}
                 >
                   {guardandoContacto ? (
                     <>
@@ -298,7 +339,7 @@ const VistaPerfil = () => {
                       <input
                         type={mostrarNueva ? "text" : "password"}
                         className="form-control"
-                        placeholder="Mínimo 6 caracteres"
+                        placeholder="Mínimo 8 caracteres, letras y números"
                         value={passwords.nuevaPassword}
                         onChange={(e) => setPasswords({ ...passwords, nuevaPassword: e.target.value })}
                         required

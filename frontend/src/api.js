@@ -105,6 +105,15 @@ api.interceptors.response.use(
           });
           break;
 
+        case 500:
+          Swal.fire({
+            icon: 'error',
+            title: 'Error Interno del Servidor',
+            text: mensajeBackend, // Aquí extraerá automáticamente: "Fallo en la comunicación con el motor de Inteligencia Artificial (Gemini)."
+            confirmButtonColor: '#d33'
+          });
+          break;
+
         default:
           console.error('Error no tipificado:', error);
       }
