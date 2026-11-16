@@ -5,6 +5,7 @@ import com.clubajedrez.backend.exceptions.CuentaInactivaException;
 import com.clubajedrez.backend.exceptions.CuotaDuplicadaException;
 import com.clubajedrez.backend.exceptions.CuotaYaPagadaException;
 import com.clubajedrez.backend.exceptions.InscripcionDuplicadaException;
+import com.clubajedrez.backend.exceptions.LimiteIaExcepcion;
 import com.clubajedrez.backend.exceptions.MotorAnalisisException;
 import com.clubajedrez.backend.exceptions.PagoNoEncontradoException;
 import com.clubajedrez.backend.exceptions.PerfilProtegidoException;
@@ -160,6 +161,14 @@ public class GlobalExceptionHandler {
         
         response.put("mensaje", detalle);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    
+    @ExceptionHandler(LimiteIaExcepcion.class)
+    public ResponseEntity<Map<String, String>> handleLimiteIa(RuntimeException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Límite Excedido");
+        response.put("mensaje", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
     }
 
     // Manejo de endpoints que no existen (404 de ruta)

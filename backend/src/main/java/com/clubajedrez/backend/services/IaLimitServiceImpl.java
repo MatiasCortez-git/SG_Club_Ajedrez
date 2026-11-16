@@ -3,11 +3,10 @@ package com.clubajedrez.backend.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.clubajedrez.backend.entities.HistorialIa;
+import com.clubajedrez.backend.exceptions.LimiteIaExcepcion;
 import com.clubajedrez.backend.repositories.HistorialIaRepository;
 
 import jakarta.transaction.Transactional;
@@ -27,7 +26,7 @@ public class IaLimitServiceImpl implements IaLimitService{
         long consultasHoy = historialRepository.countByUsernameAndFechaConsultaAfter(username, inicioDia);
 
         if (consultasHoy >= 5) {
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Límite de 5 consultas diarias de IA alcanzado.");
+            throw new LimiteIaExcepcion("Has alcanzado el límite de 5 consultas diarias de IA. Inténtalo mañaña.");
         }
         
         HistorialIa nuevoRegistro = new HistorialIa(username, LocalDateTime.now());
